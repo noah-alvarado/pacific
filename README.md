@@ -2,6 +2,10 @@
 
 This is a game project we are building together!
 
+## Acknowledgements
+
+- This project is inspired by the Pacific board game created by Sir Ian Hamilton Finlay.
+
 ## Authors
 
 - **noah-alvarado**: [https://github.com/noah-alvarado](https://github.com/noah-alvarado)
@@ -12,3 +16,7 @@ This is a game project we are building together!
 - See `TASK_LIST.md` for current tasks.
 - Important notes are in `IMPORTANT_NOTES.md`.
 - Architecture details are in `ARCHITECTURE.md`.
+
+## License
+
+This project is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. See the `LICENSE` file for details.
