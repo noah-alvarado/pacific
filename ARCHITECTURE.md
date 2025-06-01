@@ -6,7 +6,8 @@ This project is a monorepo containing both frontend and gameserver code.
 
 ## Frontend
 
-- **Framework/Libraries:** [Specify chosen framework, e.g., React, Vue, Angular, Svelte]
+- **Framework/Libraries:**
+    - SolidJS with TypeScript
 - **Key Components:**
     - 
     - 
@@ -15,7 +16,7 @@ This project is a monorepo containing both frontend and gameserver code.
 
 ## Gameserver
 
-- **Language/Runtime:** [Specify chosen language/runtime, e.g., Node.js with TypeScript, Python with Flask/Django, Go]
+- **Language/Runtime:** Node.js with TypeScript, Python with Flask/Django, Go]
 - **Key Modules/Services:**
     - 
     - 

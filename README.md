@@ -20,3 +20,21 @@ This is a game project we are building together!
 ## License
 
 This project is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. See the `LICENSE` file for details.
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (version 24 recommended, see `.nvmrc`)
+- pnpm (package manager)
+
+### Game (Frontend - SolidJS)
+
+1. Navigate to the `game` directory: `cd game`
+2. Install dependencies: `pnpm install`
+3. Start the development server: `pnpm dev`
+   - The application will typically be available at `http://localhost:3000` (or the port shown in your terminal).
+
+### Service (Backend)
+
+- (Instructions to be added once the service is developed)
