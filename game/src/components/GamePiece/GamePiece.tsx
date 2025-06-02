@@ -73,8 +73,8 @@ export const GamePiece: Component<GamePieceProps> = (props) => {
 
         // To center the piece over this intersection point, offset by half its size
         const pieceSize = 30; // from --piece-size in GamePiece.module.css
-        const left = intersectionX - (pieceSize / 2) + boardPadding;
-        const top = intersectionY - (pieceSize / 2) + boardPadding;
+        const left = intersectionX - (pieceSize / 2) + boardPadding + 1.5;
+        const top = intersectionY - (pieceSize / 2) + boardPadding + 1.5;
 
         return {
             position: 'absolute',

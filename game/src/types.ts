@@ -7,10 +7,6 @@ export interface ShipState {
     planes: GamePieceProps[];
 }
 
-export interface PlayerBaseState {
+export interface PlayerState {
     color: PlayerColor;
-}
-
-export interface PlayerState extends PlayerBaseState {
-    ships: ShipState[];
 }
