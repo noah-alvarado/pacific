@@ -1,18 +1,28 @@
 {
-  "name": "vite-template-solid",
+  "name": "pacific",
   "version": "0.0.0",
-  "description": "",
+  "description": "PACIFIC is a non-scale war game for 2 players",
   "type": "module",
   "scripts": {
     "start": "vite",
     "dev": "vite",
     "build": "vite build",
-    "serve": "vite preview"
+    "serve": "vite preview",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix ."
   },
-  "license": "MIT",
+  "license": "CC-BY-NC-SA-4.0",
   "devDependencies": {
+    "@eslint/js": "^9.28.0",
+    "@typescript-eslint/parser": "^8.33.0",
+    "eslint": "^9.28.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-solid": "^0.14.5",
+    "globals": "^16.2.0",
     "typescript": "^5.7.2",
+    "typescript-eslint": "^8.33.0",
     "vite": "^6.0.0",
+    "vite-plugin-eslint": "^1.8.1",
     "vite-plugin-solid": "^2.11.6"
   },
   "dependencies": {
