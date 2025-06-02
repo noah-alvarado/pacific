@@ -1,0 +1,21 @@
+:root {
+    --piece-size: 30px;
+    --piece-color: #F5F5DC;
+    --icon-size: 60%;
+}
+
+.piece {
+    width: var(--piece-size);
+    height: var(--piece-size);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--piece-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.icon {
+    width: var(--icon-size);
+    height: var(--icon-size);
+}
