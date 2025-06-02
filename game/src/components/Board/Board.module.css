@@ -3,11 +3,13 @@
   --grid-width: calc(((var(--cell-width) + 4px) * 7) + 4px);
   --grid-height: calc(var(--grid-width) + 2px);
   --dot-radius: 3.5px;
+  --board-color: #89CFF0;
+  --grid-color: #2c2c2c;
 }
 
 .board {
   position: relative;
-  /* Added for positioning children absolutely */
+  background-color: var(--board-color);
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   grid-template-rows: repeat(7, 1fr);
@@ -26,7 +28,7 @@
  * Add a border on top of these cells
  */
 .board>.cell:nth-child(n+1):nth-child(-n+7) {
-  border-top: 2px solid black;
+  border-top: 2px solid var(--grid-color);
 }
 
 /*
@@ -34,7 +36,7 @@
  * Add a border on the bottom of these cells
  */
 .board>.cell:nth-child(n+43):nth-child(-n+49) {
-  border-bottom: 2px solid black;
+  border-bottom: 2px solid var(--grid-color);
 }
 
 /*
@@ -42,7 +44,7 @@
  * Add a border on the left of these cells
  */
 .board>.cell:nth-child(7n+1) {
-  border-left: 2px solid black;
+  border-left: 2px solid var(--grid-color);
 }
 
 /*
@@ -50,7 +52,7 @@
  * Add a border on the right of these cells
  */
 .board>.cell:nth-child(7n+7) {
-  border-right: 2px solid black;
+  border-right: 2px solid var(--grid-color);
 }
 
 /*
@@ -58,8 +60,8 @@
  * Add a thin horizontal line on the top and bottom of these cells
  */
 .board>.cell:nth-child(n+22):nth-child(-n+28) {
-  border-top: 1px solid black;
-  border-bottom: 1px solid black;
+  border-top: 1px solid var(--grid-color);
+  border-bottom: 1px solid var(--grid-color);
 }
 
 .cell {
@@ -72,7 +74,7 @@
 .line1,
 .line2 {
   position: absolute;
-  background-color: black;
+  background-color: var(--grid-color);
   /* Line color */
   height: 2px;
   /* Line thickness */
@@ -95,7 +97,7 @@
   height: calc(var(--dot-radius) * 2);
   width: calc(var(--dot-radius) * 2);
   border-radius: 100%;
-  background: black;
+  background: var(--grid-color);
   position: absolute;
 }
 
@@ -118,17 +120,3 @@
   right: calc(-1 * var(--dot-radius));
   bottom: calc(-1 * var(--dot-radius));
 }
-
-/* 
-.dots1 {
-  background-image:
-    radial-gradient(circle at top left, black var(--dot-radius), transparent calc(var(--dot-radius) + 1px)),
-    radial-gradient(circle at bottom right, black var(--dot-radius), transparent calc(var(--dot-radius) + 1px));
-  background-repeat: no-repeat;
-}
-.dots2 {
-  background-image:
-    radial-gradient(circle at top right, black var(--dot-radius), transparent calc(var(--dot-radius) + 1px)),
-    radial-gradient(circle at bottom left, black var(--dot-radius), transparent calc(var(--dot-radius) + 1px));
-  background-repeat: no-repeat;
-} */
