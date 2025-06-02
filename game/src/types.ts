@@ -14,8 +14,3 @@ export interface PlayerBaseState {
 export interface PlayerState extends PlayerBaseState {
     ships: ShipState[];
 }
-
-export interface GameState {
-    player: PlayerState;
-    opponent: PlayerState;
-}

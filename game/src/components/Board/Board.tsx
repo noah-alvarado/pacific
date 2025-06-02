@@ -1,32 +1,32 @@
 import { Index, type Component, createSignal } from 'solid-js';
 import styles from './Board.module.css';
 import { GamePiece, type GamePieceProps } from '../GamePiece';
-import type { PlayerState, ShipState, GameState, PlayerColor } from '../../types';
+import type { ShipState } from '../../types';
 
 const defaultPlayerShipState: ShipState[] = [
   {
-    ship: { type: 'ship', row: 0, col: 0 },
+    ship: { type: 'ship', row: 0, col: 0, corner: 'top-right' },
     planes: [
-      { type: 'plane', row: 0, col: 1 },
-      { type: 'plane', row: 0, col: 2 },
+      { type: 'plane', row: 0, col: 0, corner: 'bottom-left' },
+      { type: 'plane', row: 0, col: 1, corner: 'bottom-right' },
     ],
   }, {
-    ship: { type: 'ship', row: 1, col: 0 },
+    ship: { type: 'ship', row: 1, col: 0, corner: 'bottom-right' },
     planes: [
-      { type: 'plane', row: 1, col: 1 },
-      { type: 'plane', row: 1, col: 2 },
+      { type: 'plane', row: 1, col: 1, corner: 'bottom-right' },
+      { type: 'plane', row: 1, col: 2, corner: 'bottom-right' },
     ],
   }, {
-    ship: { type: 'ship', row: 2, col: 0 },
+    ship: { type: 'ship', row: 2, col: 0, corner: 'bottom-right' },
     planes: [
-      { type: 'plane', row: 2, col: 1 },
-      { type: 'plane', row: 2, col: 2 },
+      { type: 'plane', row: 2, col: 1, corner: 'bottom-right' },
+      { type: 'plane', row: 2, col: 2, corner: 'bottom-right' },
     ],
   }, {
-    ship: { type: 'ship', row: 3, col: 0 },
+    ship: { type: 'ship', row: 3, col: 0, corner: 'bottom-right' },
     planes: [
-      { type: 'plane', row: 3, col: 1 },
-      { type: 'plane', row: 3, col: 2 },
+      { type: 'plane', row: 3, col: 1, corner: 'bottom-right' },
+      { type: 'plane', row: 3, col: 2, corner: 'bottom-right' },
     ],
   }
 ];
@@ -37,22 +37,22 @@ export const Board: Component = () => {
   const [playerShip1Plane2] = createSignal<GamePieceProps>(defaultPlayerShipState[0].planes[1]);
   const [playerShip1] = createSignal<GamePieceProps>(defaultPlayerShipState[0].ship);
 
-  const [playerShip2Plane1] = createSignal<GamePieceProps>(defaultPlayerShipState[1].planes[0]);
-  const [playerShip2Plane2] = createSignal<GamePieceProps>(defaultPlayerShipState[1].planes[1]);
-  const [playerShip2] = createSignal<GamePieceProps>(defaultPlayerShipState[1].ship);
+  // const [playerShip2Plane1] = createSignal<GamePieceProps>(defaultPlayerShipState[1].planes[0]);
+  // const [playerShip2Plane2] = createSignal<GamePieceProps>(defaultPlayerShipState[1].planes[1]);
+  // const [playerShip2] = createSignal<GamePieceProps>(defaultPlayerShipState[1].ship);
 
-  const [playerShip3Plane1] = createSignal<GamePieceProps>(defaultPlayerShipState[2].planes[0]);
-  const [playerShip3Plane2] = createSignal<GamePieceProps>(defaultPlayerShipState[2].planes[1]);
-  const [playerShip3] = createSignal<GamePieceProps>(defaultPlayerShipState[2].ship);
+  // const [playerShip3Plane1] = createSignal<GamePieceProps>(defaultPlayerShipState[2].planes[0]);
+  // const [playerShip3Plane2] = createSignal<GamePieceProps>(defaultPlayerShipState[2].planes[1]);
+  // const [playerShip3] = createSignal<GamePieceProps>(defaultPlayerShipState[2].ship);
 
-  const [playerShip4Plane1] = createSignal<GamePieceProps>(defaultPlayerShipState[3].planes[0]);
-  const [playerShip4Plane2] = createSignal<GamePieceProps>(defaultPlayerShipState[3].planes[1]);
-  const [playerShip4] = createSignal<GamePieceProps>(defaultPlayerShipState[3].ship);
+  // const [playerShip4Plane1] = createSignal<GamePieceProps>(defaultPlayerShipState[3].planes[0]);
+  // const [playerShip4Plane2] = createSignal<GamePieceProps>(defaultPlayerShipState[3].planes[1]);
+  // const [playerShip4] = createSignal<GamePieceProps>(defaultPlayerShipState[3].ship);
 
-  const [playerBaseState] = createSignal<PlayerState>({
-    color: 'red',
-    ships: defaultPlayerShipState,
-  });
+  // const [playerBaseState] = createSignal<PlayerState>({
+  //   color: 'red',
+  //   ships: defaultPlayerShipState,
+  // });
 
   const cells = Array.from({ length: 7 * 7 });
 
