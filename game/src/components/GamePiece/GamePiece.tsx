@@ -43,10 +43,10 @@ export const GamePiece: Component<GamePieceProps> = (props) => {
         // Values from Board.module.css and GamePiece.module.css
         const cellWidth = 50; // from --cell-width in Board.module.css
         const cellPadding = 2; // padding on each side of the cell content area
-        const cellBorder = 2; // border on each side of the cell content area
+        const boardPadding = 20; // from --board-padding in Board.module.css
 
         // Total dimension of a cell including its own padding and border
-        const effectiveCellDimension = cellWidth + (cellPadding * 2) + (cellBorder * 2);
+        const effectiveCellDimension = cellWidth + (cellPadding * 2);
 
         let intersectionX: number;
         let intersectionY: number;
@@ -73,8 +73,8 @@ export const GamePiece: Component<GamePieceProps> = (props) => {
 
         // To center the piece over this intersection point, offset by half its size
         const pieceSize = 30; // from --piece-size in GamePiece.module.css
-        const left = intersectionX - (pieceSize / 2);
-        const top = intersectionY - (pieceSize / 2);
+        const left = intersectionX - (pieceSize / 2) + boardPadding;
+        const top = intersectionY - (pieceSize / 2) + boardPadding;
 
         return {
             position: 'absolute',

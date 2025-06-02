@@ -13,7 +13,7 @@
   grid-template-rows: repeat(7, 1fr);
   width: var(--grid-width);
   height: var(--grid-height);
-  padding: 8px;
+  padding: 20px;
 }
 
 .board[style*="--grid-size: 7"] {
