@@ -7,7 +7,7 @@ const App: Component = () => {
   return (
     <div class={styles.App}>
       <header class={styles.header}>
-        <p>Pacific Game</p>
+        <p>Pacific</p>
       </header>
       <main>
         <Board />
