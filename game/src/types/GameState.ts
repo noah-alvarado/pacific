@@ -22,6 +22,7 @@ export interface IBoardCell {
 
 export interface IGamePiece {
     type: PieceType;
+    number: number | undefined; // for planes and ships
     owner: PlayerColor;
     status: PieceStatus;
     position: { x: number; y: number };

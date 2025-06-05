@@ -5,17 +5,24 @@ import ShipIcon from '../../assets/ship.svg';
 import PlaneIcon from '../../assets/plane.svg';
 import CherryBlossomIcon from '../../assets/cherry-blossom.svg';
 import { Dynamic } from 'solid-js/web';
-import { PieceType, PlayerColor } from '@types';
+import { IGamePiece, PieceType } from '../../types/GameState';
 
 type Corner = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 
-export interface IGamePieceProps {
-    type: PieceType;
-    number: number | undefined; // for planes and ships
+interface IPiecePosition {
     row: number; // 0-indexed row of the board display grid
     col: number; // 0-indexed col of the board display grid
     corner: Corner; // Specifies which corner of the cell (row, col) the piece is relative to
-    color: PlayerColor; // Color of the game piece
+}
+
+export interface IGamePieceProps {
+    piece: IGamePiece
+    // type: PieceType;
+    // number: number | undefined; // for planes and ships
+    // row: number; // 0-indexed row of the board display grid
+    // col: number; // 0-indexed col of the board display grid
+    // corner: Corner; // Specifies which corner of the cell (row, col) the piece is relative to
+    // color: PlayerColor; // Color of the game piece
 }
 
 const typeToIcon = (type: PieceType): Component<JSX.SvgSVGAttributes<SVGSVGElement>> => {
@@ -31,8 +38,8 @@ const typeToIcon = (type: PieceType): Component<JSX.SvgSVGAttributes<SVGSVGEleme
 
 export const GamePiece: Component<IGamePieceProps> = (props) => {
 
-    const pieceColorValue = (): string => {
-        switch (props.color) {
+    const pieceColor = (): string => {
+        switch (props.piece.owner) {
             case 'red':
                 return '#FF0000'; // Red
             case 'blue':
@@ -40,7 +47,16 @@ export const GamePiece: Component<IGamePieceProps> = (props) => {
         }
     };
 
-    const getPositionStyle = (): JSX.CSSProperties => {
+    const piecePosition = (): IPiecePosition => {
+        console.log('GamePiece: props.piece.position', props.piece.position);
+        return {
+            row: 0,
+            col: 0,
+            corner: 'bottom-right',
+        };
+    };
+
+    const positionStyle = (): JSX.CSSProperties => {
         // Values from Board.module.css and GamePiece.module.css
         const cellWidth = 50; // from --cell-width in Board.module.css
         const cellPadding = 2; // padding on each side of the cell content area
@@ -52,23 +68,24 @@ export const GamePiece: Component<IGamePieceProps> = (props) => {
         let intersectionX: number;
         let intersectionY: number;
 
-        switch (props.corner) {
+        const position = piecePosition();
+        switch (position.corner) {
             case 'top-left':
-                intersectionX = props.col * effectiveCellDimension;
-                intersectionY = props.row * effectiveCellDimension;
+                intersectionX = position.col * effectiveCellDimension;
+                intersectionY = position.row * effectiveCellDimension;
                 break;
             case 'top-right':
-                intersectionX = (props.col + 1) * effectiveCellDimension;
-                intersectionY = props.row * effectiveCellDimension;
+                intersectionX = (position.col + 1) * effectiveCellDimension;
+                intersectionY = position.row * effectiveCellDimension;
                 break;
             case 'bottom-left':
-                intersectionX = props.col * effectiveCellDimension;
-                intersectionY = (props.row + 1) * effectiveCellDimension;
+                intersectionX = position.col * effectiveCellDimension;
+                intersectionY = (position.row + 1) * effectiveCellDimension;
                 break;
             case 'bottom-right':
             default: // Default to bottom-right if not specified or invalid
-                intersectionX = (props.col + 1) * effectiveCellDimension;
-                intersectionY = (props.row + 1) * effectiveCellDimension;
+                intersectionX = (position.col + 1) * effectiveCellDimension;
+                intersectionY = (position.row + 1) * effectiveCellDimension;
                 break;
         }
 
@@ -85,9 +102,8 @@ export const GamePiece: Component<IGamePieceProps> = (props) => {
     };
 
     return (
-        <div class={styles.piece} style={{ ...getPositionStyle(), color: pieceColorValue() }}>
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            <Dynamic component={typeToIcon(props.type)} class={styles.icon} />
+        <div class={styles.piece} style={{ ...positionStyle(), color: pieceColor() }}>
+            <Dynamic component={typeToIcon(props.piece.type)} class={styles.icon} />
         </div>
     );
 };

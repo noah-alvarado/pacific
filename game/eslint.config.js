@@ -1,11 +1,10 @@
+import { defineConfig } from "eslint/config";
 import eslint from "@eslint/js";
 import globals from "globals";
-import tseslint from "typescript-eslint";
-import solid from "eslint-plugin-solid/configs/typescript";
 import jsxA11y from "eslint-plugin-jsx-a11y";
-import { defineConfig } from "eslint/config";
-import * as tsParser from "@typescript-eslint/parser";
-
+import solid from "eslint-plugin-solid/configs/typescript";
+import tsParser from "@typescript-eslint/parser";
+import tseslint from "typescript-eslint";
 
 export default defineConfig([
   eslint.configs.recommended,
@@ -27,8 +26,7 @@ export default defineConfig([
         projectService: {
           allowDefaultProject: ['*.js'],
         },
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        tsconfigRootDir: import.meta.dirname,
+        project: ["./tsconfig.json"],
         ecmaFeatures: {
           jsx: true,
         },

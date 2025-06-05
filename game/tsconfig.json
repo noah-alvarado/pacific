@@ -15,14 +15,6 @@
     "noEmit": true,
     "isolatedModules": true,
     "baseUrl": "./src",
-    "paths": {
-      "@types": [
-        "types"
-      ],
-      "@types/*": [
-        "types/*"
-      ]
-    }
   },
   "include": [
     "src",
