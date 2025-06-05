@@ -1,21 +1,18 @@
 import type { IGamePiece } from "../types/GameState";
 import { createStore } from "solid-js/store";
 
-export const [pieces, _setPieces] = createStore<IGamePiece[]>([]);
-export function setPieces(newPieces: IGamePiece[]) {
-    _setPieces(newPieces);
-}
+const [pieces, setPieces] = createStore<IGamePiece[]>([]);
 
 export function usePieces() {
     return [pieces, setPieces] as const;
 }
 
 export function addPiece(piece: IGamePiece) {
-    _setPieces([...pieces, piece]);
+    setPieces([...pieces, piece]);
 }
 
 export function updatePiece(piece: IGamePiece) {
-    _setPieces(
+    setPieces(
         (p) => piece.type === p.type && piece.number === p.number && piece.owner === p.owner,
         (p) => ({ ...p, ...piece })
     );

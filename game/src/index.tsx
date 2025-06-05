@@ -1,6 +1,6 @@
 import "./index.css";
 
-import AppRouter from "./components/AppRouter";
+import AppRouter from "./AppRouter";
 import { render } from "solid-js/web";
 
 const root = document.getElementById('root');
@@ -13,4 +13,5 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
 
 render(() => (
   <AppRouter />
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 ), root!);

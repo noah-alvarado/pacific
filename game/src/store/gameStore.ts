@@ -1,11 +1,13 @@
+import { GamePhase, type IGameState } from "../types/GameState";
+
 import { createStore } from "solid-js/store";
 
-export interface IGameData {
-  gameId?: string;
-  status?: string;
-};
-
-const [game, setGame] = createStore<IGameData>({});
+const [game, setGame] = createStore<IGameState>({
+  players: [],
+  board: [],
+  turn: 'red',
+  phase: GamePhase.InProgress,
+});
 
 export function useGame() {
   return [game, setGame] as const;

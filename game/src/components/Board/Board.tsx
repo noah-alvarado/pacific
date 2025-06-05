@@ -1,7 +1,8 @@
 import { Index, type Component, For } from 'solid-js';
 import styles from './Board.module.css';
 import { GamePiece } from '../GamePiece';
-import { usePieces } from 'store/piecesStore';
+import { usePieces } from '../../store/piecesStore';
+import { IGamePiece } from '../../types/GameState';
 
 export const Board: Component = () => {
   const [pieces] = usePieces();
@@ -40,7 +41,7 @@ export const Board: Component = () => {
 
       {/* Render the game pieces */}
       <For each={pieces}>
-        {(piece) => <GamePiece piece={piece} />}
+        {(piece: IGamePiece) => <GamePiece piece={piece} />}
       </For>
     </div>
   );

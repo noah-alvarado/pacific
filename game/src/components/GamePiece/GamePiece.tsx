@@ -5,7 +5,7 @@ import ShipIcon from '../../assets/ship.svg';
 import PlaneIcon from '../../assets/plane.svg';
 import CherryBlossomIcon from '../../assets/cherry-blossom.svg';
 import { Dynamic } from 'solid-js/web';
-import { IGamePiece, PieceType } from '../../types/GameState';
+import { IGamePiece } from '../../types/GameState';
 
 type Corner = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 
@@ -17,26 +17,19 @@ interface IPiecePosition {
 
 export interface IGamePieceProps {
     piece: IGamePiece
-    // type: PieceType;
-    // number: number | undefined; // for planes and ships
-    // row: number; // 0-indexed row of the board display grid
-    // col: number; // 0-indexed col of the board display grid
-    // corner: Corner; // Specifies which corner of the cell (row, col) the piece is relative to
-    // color: PlayerColor; // Color of the game piece
 }
-
-const typeToIcon = (type: PieceType): Component<JSX.SvgSVGAttributes<SVGSVGElement>> => {
-    switch (type) {
-        case 'ship':
-            return ShipIcon;
-        case 'plane':
-            return PlaneIcon;
-        case 'kamikaze':
-            return CherryBlossomIcon;
-    }
-}
-
 export const GamePiece: Component<IGamePieceProps> = (props) => {
+
+    const icon = (): Component<JSX.SvgSVGAttributes<SVGSVGElement>> => {
+        switch (props.piece.type) {
+            case 'ship':
+                return ShipIcon;
+            case 'plane':
+                return PlaneIcon;
+            case 'kamikaze':
+                return CherryBlossomIcon;
+        }
+    };
 
     const pieceColor = (): string => {
         switch (props.piece.owner) {
@@ -103,7 +96,7 @@ export const GamePiece: Component<IGamePieceProps> = (props) => {
 
     return (
         <div class={styles.piece} style={{ ...positionStyle(), color: pieceColor() }}>
-            <Dynamic component={typeToIcon(props.piece.type)} class={styles.icon} />
+            <Dynamic component={icon()} class={styles.icon} />
         </div>
     );
 };

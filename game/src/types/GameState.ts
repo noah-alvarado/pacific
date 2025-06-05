@@ -59,3 +59,15 @@ export interface IGameState {
     history?: IGameAction[];
     winner?: PlayerColor | null;
 }
+
+// Default IGameState object for new games
+export const DEFAULT_GAME_STATE: IGameState = {
+    players: [],
+    board: Array.from({ length: 7 }, (_, y) =>
+        Array.from({ length: 7 }, (_, x) => ({ x, y }))
+    ),
+    turn: 'red',
+    phase: GamePhase.Main,
+    history: [],
+    winner: null,
+};

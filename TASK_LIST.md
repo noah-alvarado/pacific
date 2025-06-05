@@ -7,6 +7,8 @@
 - [x] Make game pieces
 - [ ] Click-on-piece
 - [ ] Move to space
+- [ ] Calculate all possible piece movements
+- [ ] Calculate possible movements for just the selected piece
 
 ### Service
 - [ ] Interface player commands with WebRTC peer commands
@@ -18,3 +20,4 @@
 - [ ] Highlight available positions when moving game piece
 - [ ] Drag and drop piece
 - [ ] Snappable + highlighted locations during drag-and-drop
+- [ ] Make GamePiece reactive, no props other than a piece id
