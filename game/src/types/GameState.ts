@@ -1,5 +1,6 @@
 export type PlayerColor = 'red' | 'blue';
 export type PieceStatus = 'in-operation' | 'destroyed';
+export type PieceType = 'ship' | 'plane' | 'kamikaze';
 
 export enum GamePhase {
     Main = 'main',
@@ -13,43 +14,47 @@ export enum GamePhase {
     Finished = 'finished',
 }
 
-export interface BoardCell {
+export interface IBoardCell {
     x: number;
     y: number;
-    piece?: GamePiece;
+    piece?: IGamePiece;
 }
 
-export interface GamePiece {
-    type: string;
+export interface IGamePiece {
+    type: PieceType;
     owner: PlayerColor;
     status: PieceStatus;
     position: { x: number; y: number };
 }
 
-export interface PlayerState {
+export interface IPlayerState {
     color: PlayerColor;
     name?: string;
-    pieces?: GamePiece[];
+    pieces?: IGamePiece[];
     score?: number;
 }
 
-export type GameActionPayload =
-    | { from: { x: number; y: number }; to: { x: number; y: number } }
-    | { piece: GamePiece; position: { x: number; y: number } }
-    | Record<string, unknown>;
+export interface IPieceMove {
+    piece: IGamePiece;
+    from: { x: number; y: number };
+    to: { x: number; y: number }
+}
 
-export interface GameAction {
+export type GameActionPayload =
+    | IPieceMove;
+
+export interface IGameAction {
     player: PlayerColor;
     type: string;
     payload: GameActionPayload;
     timestamp: number;
 }
 
-export interface GameState {
-    players: PlayerState[];
-    board: BoardCell[][];
+export interface IGameState {
+    players: IPlayerState[];
+    board: IBoardCell[][];
     turn: PlayerColor;
     phase: GamePhase;
-    history?: GameAction[];
+    history?: IGameAction[];
     winner?: PlayerColor | null;
 }

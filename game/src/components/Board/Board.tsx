@@ -1,10 +1,16 @@
-import { Index, type Component, createSignal } from 'solid-js';
+import { Index, type Component, createSignal, Show } from 'solid-js';
 import styles from './Board.module.css';
-import { GamePiece, type GamePieceProps } from '../GamePiece';
-import type { PlayerColor, ShipState } from '../../types';
+import { GamePiece, type IGamePieceProps } from '../GamePiece';
+import type { IGamePiece, PlayerColor } from '../../types';
+
+interface IShipState {
+  ship: IGamePieceProps;
+  planes: IGamePieceProps[];
+}
+
 
 const playerColor: PlayerColor = 'red';
-const defaultPlayerShipState: ShipState[] = [
+const defaultPlayerShipState: IShipState[] = [
   {
     ship: { type: 'ship', row: 6, col: 0, corner: 'bottom-left', color: playerColor },
     planes: [
@@ -32,23 +38,39 @@ const defaultPlayerShipState: ShipState[] = [
   }
 ];
 
+// Props for Board component to support interactivity
+export interface IBoardProps {
+  onPieceMove: (piece: IGamePiece, to: { row: number; col: number }) => void;
+}
 
-export const Board: Component = () => {
-  const [playerShip1Plane1] = createSignal<GamePieceProps>(defaultPlayerShipState[0].planes[0]);
-  const [playerShip1Plane2] = createSignal<GamePieceProps>(defaultPlayerShipState[0].planes[1]);
-  const [playerShip1] = createSignal<GamePieceProps>(defaultPlayerShipState[0].ship);
+export const Board: Component<IBoardProps> = () => {
+  // Player 1 (already present)
+  const [playerShip1Plane1] = createSignal<IGamePieceProps>(defaultPlayerShipState[0].planes[0]);
+  const [playerShip1Plane2] = createSignal<IGamePieceProps>(defaultPlayerShipState[0].planes[1]);
+  const [playerShip1] = createSignal<IGamePieceProps>(defaultPlayerShipState[0].ship);
+  const [playerShip2Plane1] = createSignal<IGamePieceProps>(defaultPlayerShipState[1].planes[0]);
+  const [playerShip2Plane2] = createSignal<IGamePieceProps>(defaultPlayerShipState[1].planes[1]);
+  const [playerShip2] = createSignal<IGamePieceProps>(defaultPlayerShipState[1].ship);
+  const [playerShip3Plane1] = createSignal<IGamePieceProps>(defaultPlayerShipState[2].planes[0]);
+  const [playerShip3Plane2] = createSignal<IGamePieceProps>(defaultPlayerShipState[2].planes[1]);
+  const [playerShip3] = createSignal<IGamePieceProps>(defaultPlayerShipState[2].ship);
+  const [playerShip4Plane1] = createSignal<IGamePieceProps>(defaultPlayerShipState[3].planes[0]);
+  const [playerShip4Plane2] = createSignal<IGamePieceProps>(defaultPlayerShipState[3].planes[1]);
+  const [playerShip4] = createSignal<IGamePieceProps>(defaultPlayerShipState[3].ship);
 
-  const [playerShip2Plane1] = createSignal<GamePieceProps>(defaultPlayerShipState[1].planes[0]);
-  const [playerShip2Plane2] = createSignal<GamePieceProps>(defaultPlayerShipState[1].planes[1]);
-  const [playerShip2] = createSignal<GamePieceProps>(defaultPlayerShipState[1].ship);
-
-  const [playerShip3Plane1] = createSignal<GamePieceProps>(defaultPlayerShipState[2].planes[0]);
-  const [playerShip3Plane2] = createSignal<GamePieceProps>(defaultPlayerShipState[2].planes[1]);
-  const [playerShip3] = createSignal<GamePieceProps>(defaultPlayerShipState[2].ship);
-
-  const [playerShip4Plane1] = createSignal<GamePieceProps>(defaultPlayerShipState[3].planes[0]);
-  const [playerShip4Plane2] = createSignal<GamePieceProps>(defaultPlayerShipState[3].planes[1]);
-  const [playerShip4] = createSignal<GamePieceProps>(defaultPlayerShipState[3].ship);
+  // Opponent (Player 2) - no default state
+  const [opponentShip1Plane1, setOpponentShip1Plane1] = createSignal<IGamePieceProps>();
+  const [opponentShip1Plane2, setOpponentShip1Plane2] = createSignal<IGamePieceProps>();
+  const [opponentShip1, setOpponentShip1] = createSignal<IGamePieceProps>();
+  const [opponentShip2Plane1, setOpponentShip2Plane1] = createSignal<IGamePieceProps>();
+  const [opponentShip2Plane2, setOpponentShip2Plane2] = createSignal<IGamePieceProps>();
+  const [opponentShip2, setOpponentShip2] = createSignal<IGamePieceProps>();
+  const [opponentShip3Plane1, setOpponentShip3Plane1] = createSignal<IGamePieceProps>();
+  const [opponentShip3Plane2, setOpponentShip3Plane2] = createSignal<IGamePieceProps>();
+  const [opponentShip3, setOpponentShip3] = createSignal<IGamePieceProps>();
+  const [opponentShip4Plane1, setOpponentShip4Plane1] = createSignal<IGamePieceProps>();
+  const [opponentShip4Plane2, setOpponentShip4Plane2] = createSignal<IGamePieceProps>();
+  const [opponentShip4, setOpponentShip4] = createSignal<IGamePieceProps>();
 
   const cells = Array.from({ length: 7 * 7 });
 
@@ -82,22 +104,33 @@ export const Board: Component = () => {
         }}
       </Index>
 
-      {/* Render the game pieces */}
-      <GamePiece {...playerShip1Plane1()} />
-      <GamePiece {...playerShip1Plane2()} />
-      <GamePiece {...playerShip1()} />
+      {/* Render the player's game pieces */}
+      <Show when={playerShip1Plane1()}>{(piece) => <GamePiece {...piece()} />}</Show>
+      <Show when={playerShip1Plane2()}>{(piece) => <GamePiece {...piece()} />}</Show>
+      <Show when={playerShip1()}>{(piece) => <GamePiece {...piece()} />}</Show>
+      <Show when={playerShip2Plane1()}>{(piece) => <GamePiece {...piece()} />}</Show>
+      <Show when={playerShip2Plane2()}>{(piece) => <GamePiece {...piece()} />}</Show>
+      <Show when={playerShip2()}>{(piece) => <GamePiece {...piece()} />}</Show>
+      <Show when={playerShip3Plane1()}>{(piece) => <GamePiece {...piece()} />}</Show>
+      <Show when={playerShip3Plane2()}>{(piece) => <GamePiece {...piece()} />}</Show>
+      <Show when={playerShip3()}>{(piece) => <GamePiece {...piece()} />}</Show>
+      <Show when={playerShip4Plane1()}>{(piece) => <GamePiece {...piece()} />}</Show>
+      <Show when={playerShip4Plane2()}>{(piece) => <GamePiece {...piece()} />}</Show>
+      <Show when={playerShip4()}>{(piece) => <GamePiece {...piece()} />}</Show>
 
-      <GamePiece {...playerShip2Plane1()} />
-      <GamePiece {...playerShip2Plane2()} />
-      <GamePiece {...playerShip2()} />
-
-      <GamePiece {...playerShip3Plane1()} />
-      <GamePiece {...playerShip3Plane2()} />
-      <GamePiece {...playerShip3()} />
-
-      <GamePiece {...playerShip4Plane1()} />
-      <GamePiece {...playerShip4Plane2()} />
-      <GamePiece {...playerShip4()} />
+      {/* Render the opponent's game pieces */}
+      <Show when={opponentShip1Plane1()}>{(piece) => <GamePiece {...piece()} />}</Show>
+      <Show when={opponentShip1Plane2()}>{(piece) => <GamePiece {...piece()} />}</Show>
+      <Show when={opponentShip1()}>{(piece) => <GamePiece {...piece()} />}</Show>
+      <Show when={opponentShip2Plane1()}>{(piece) => <GamePiece {...piece()} />}</Show>
+      <Show when={opponentShip2Plane2()}>{(piece) => <GamePiece {...piece()} />}</Show>
+      <Show when={opponentShip2()}>{(piece) => <GamePiece {...piece()} />}</Show>
+      <Show when={opponentShip3Plane1()}>{(piece) => <GamePiece {...piece()} />}</Show>
+      <Show when={opponentShip3Plane2()}>{(piece) => <GamePiece {...piece()} />}</Show>
+      <Show when={opponentShip3()}>{(piece) => <GamePiece {...piece()} />}</Show>
+      <Show when={opponentShip4Plane1()}>{(piece) => <GamePiece {...piece()} />}</Show>
+      <Show when={opponentShip4Plane2()}>{(piece) => <GamePiece {...piece()} />}</Show>
+      <Show when={opponentShip4()}>{(piece) => <GamePiece {...piece()} />}</Show>
     </div>
   );
 };

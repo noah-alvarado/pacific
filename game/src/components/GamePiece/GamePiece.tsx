@@ -5,27 +5,31 @@ import ShipIcon from '../../assets/ship.svg';
 import PlaneIcon from '../../assets/plane.svg';
 import CherryBlossomIcon from '../../assets/cherry-blossom.svg';
 import { Dynamic } from 'solid-js/web';
+import { PieceType, PlayerColor } from '@types';
 
-type PieceType = 'ship' | 'plane' | 'kamikaze';
 type Corner = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
-type PieceColor = 'green' | 'red' | 'blue';
 
-export interface GamePieceProps {
+export interface IGamePieceProps {
     type: PieceType;
-    number?: number;
-    row: number; // 0-indexed row
-    col: number; // 0-indexed col
+    number: number | undefined; // for planes and ships
+    row: number; // 0-indexed row of the board display grid
+    col: number; // 0-indexed col of the board display grid
     corner: Corner; // Specifies which corner of the cell (row, col) the piece is relative to
-    color?: PieceColor; // Color of the game piece
+    color: PlayerColor; // Color of the game piece
 }
 
-const iconMap: Record<PieceType, Component<JSX.SvgSVGAttributes<SVGSVGElement>>> = {
-    ship: ShipIcon,
-    plane: PlaneIcon,
-    'kamikaze': CherryBlossomIcon,
-};
+const typeToIcon = (type: PieceType): Component<JSX.SvgSVGAttributes<SVGSVGElement>> => {
+    switch (type) {
+        case 'ship':
+            return ShipIcon;
+        case 'plane':
+            return PlaneIcon;
+        case 'kamikaze':
+            return CherryBlossomIcon;
+    }
+}
 
-export const GamePiece: Component<GamePieceProps> = (props) => {
+export const GamePiece: Component<IGamePieceProps> = (props) => {
 
     const pieceColorValue = (): string => {
         switch (props.color) {
@@ -33,9 +37,6 @@ export const GamePiece: Component<GamePieceProps> = (props) => {
                 return '#FF0000'; // Red
             case 'blue':
                 return '#0000FF'; // Blue
-            case 'green':
-            default:
-                return '#355E3B'; // Hunter Green
         }
     };
 
@@ -85,7 +86,8 @@ export const GamePiece: Component<GamePieceProps> = (props) => {
 
     return (
         <div class={styles.piece} style={{ ...getPositionStyle(), color: pieceColorValue() }}>
-            <Dynamic component={iconMap[props.type]} class={styles.icon} />
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            <Dynamic component={typeToIcon(props.type)} class={styles.icon} />
         </div>
     );
 };
