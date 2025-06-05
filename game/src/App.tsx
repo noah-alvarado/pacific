@@ -1,15 +1,16 @@
-import type { Component } from 'solid-js';
-import styles from './App.module.css';
-import { Board } from './components/Board';
+import type { Component, ParentProps } from 'solid-js';
 
-const App: Component = () => {
+import { Board } from './components/Board';
+import styles from './App.module.css';
+
+const App: Component<ParentProps> = (props) => {
   return (
     <div class={styles.App}>
       <header class={styles.header}>
         <p>Pacific</p>
       </header>
       <main>
-        <Board />
+        {props.children}
       </main>
     </div>
   );
