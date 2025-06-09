@@ -12,7 +12,7 @@ const InProgress = () => {
     });
 
     return (
-        <div class="flex justify-center items-center min-h-[80vh] w-full">
+        <div style={{ display: 'flex', 'justify-content': 'center', 'align-items': 'center', "min-height": '80vh', width: '100%' }}>
             <Board />
         </div>
     );
