@@ -1,16 +1,92 @@
-import { Component, createEffect, createSignal, type JSX, onMount } from 'solid-js';
+import { Component, createEffect, createMemo, createSignal, type JSX, onMount } from 'solid-js';
 import type { DestinationSelectedEvent, MoveMadeEvent, PieceSelectedEvent } from '../../types/GameEvents';
 
 import { INITIAL_PIECES } from '../../constants/initialPieces';
 import emitter, { useEvent } from '../../emitter';
 import { usePieces } from '../../store/piecesStore';
-import { useDestinations } from '../../store/destinationsStore';
-import { PieceId } from '../../types/GameState';
+import { IDestinationMarker, useDestinations } from '../../store/destinationsStore';
+import { getShipIdFromPlaneId, PieceId } from '../../types/GameState';
 
 export const GameLogicProvider: Component<{ children: JSX.Element }> = (props) => {
     const [selectedPieceId, setSelectedPieceId] = createSignal<PieceId>();
     const [pieces, setPieces] = usePieces();
     const [/* destinations */, setDestinations] = useDestinations();
+
+    const getPieceDestinations = (pieceId: PieceId): IDestinationMarker[] => {
+        // pieces[pieceId];
+        const piece = pieces[pieceId];
+
+        const pieceDestinations: IDestinationMarker[] = [];
+        if (piece.status !== 'in-play') return pieceDestinations;
+
+        // TODO: attack moves are mandatory if available
+        // TODO: a piece may continue an attack beyond carrier range, but not begin one
+
+        // plane is at its limit
+        if (piece.type === 'plane') {
+            const shipId = getShipIdFromPlaneId(pieceId);
+            if (!shipId) {
+                console.error(`No ship found for plane ${pieceId}, plane should not be in play`);
+                return pieceDestinations;
+            }
+
+            const ship = pieces[shipId];
+            const rowsApart = Math.abs(piece.position.y - ship.position.y);
+            if (rowsApart >= 3) {
+                return pieceDestinations;
+            }
+        }
+
+        // TODO: check for piece collision
+
+        const isEvenRow = piece.position.y % 2 === 0;
+        const otherX = (piece.position.x > 0 || isEvenRow)
+            && (piece.position.x < 3 || !isEvenRow)
+            && piece.position.x + (isEvenRow ? 1 : -1);
+        const nextYForward = piece.owner === 'red' ? piece.position.y + 1 : piece.position.y - 1;
+        const nextYBack = piece.owner === 'red' ? piece.position.y - 1 : piece.position.y + 1;
+
+        console.log(piece.id, {
+            piece,
+            isEvenRow,
+            otherX,
+            nextYForward,
+            nextYBack,
+        })
+
+        if (nextYForward >= 0 && nextYForward <= 7) {
+            pieceDestinations.push({
+                position: { x: piece.position.x, y: nextYForward },
+            });
+            if (typeof otherX === 'number') {
+                pieceDestinations.push({
+                    position: { x: otherX, y: nextYForward },
+                });
+            }
+        }
+
+        // kamikaze planes can move forward or backward
+        if (piece.type === 'kamikaze') {
+            if (nextYBack >= 0 && nextYBack <= 7) {
+                pieceDestinations.push({
+                    position: { x: piece.position.x, y: nextYBack },
+                });
+                if (typeof otherX === 'number') {
+                    pieceDestinations.push({
+                        position: { x: otherX, y: nextYBack },
+                    });
+                }
+            }
+        }
+
+        return pieceDestinations;
+    }
+
+    const allPossibleDestinations = createMemo(() => Object.values(pieces)
+        .reduce((acc, piece) => {
+            acc[piece.id] = getPieceDestinations(piece.id);
+            return acc;
+        }, {} as Record<PieceId, IDestinationMarker[]>));
 
     onMount(() => {
         setPieces(INITIAL_PIECES);
@@ -25,8 +101,7 @@ export const GameLogicProvider: Component<{ children: JSX.Element }> = (props) =
         }
 
         // TODO: calculate possible destinations
-        const possibleDestinations = [{ position: { x: 2, y: 4 } }];
-        setDestinations(possibleDestinations);
+        setDestinations(allPossibleDestinations()[id]);
     });
 
     const handlePieceSelected = (e: PieceSelectedEvent) => {

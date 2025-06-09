@@ -41,6 +41,37 @@ export enum PieceId {
     BluePlane4B = 'blue-plane-4b',
 }
 
+export function getShipIdFromPlaneId(pieceId: PieceId): PieceId | null {
+    switch (pieceId) {
+        case PieceId.RedPlane1A:
+        case PieceId.RedPlane1B:
+            return PieceId.RedShip1;
+        case PieceId.RedPlane2A:
+        case PieceId.RedPlane2B:
+            return PieceId.RedShip2;
+        case PieceId.RedPlane3A:
+        case PieceId.RedPlane3B:
+            return PieceId.RedShip3;
+        case PieceId.RedPlane4A:
+        case PieceId.RedPlane4B:
+            return PieceId.RedShip4;
+        case PieceId.BluePlane1A:
+        case PieceId.BluePlane1B:
+            return PieceId.BlueShip1;
+        case PieceId.BluePlane2A:
+        case PieceId.BluePlane2B:
+            return PieceId.BlueShip2;
+        case PieceId.BluePlane3A:
+        case PieceId.BluePlane3B:
+            return PieceId.BlueShip3;
+        case PieceId.BluePlane4A:
+        case PieceId.BluePlane4B:
+            return PieceId.BlueShip4;
+        default:
+            return null;
+    }
+}
+
 export interface IGamePiece {
     id: PieceId;
     type: PieceType;
