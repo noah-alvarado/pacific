@@ -5,7 +5,7 @@
 ### Game
 - [x] Make board
 - [x] Make game pieces
-- [ ] Click-on-piece
+- [x] Click-on-piece
 - [ ] Move to space
 - [ ] Calculate all possible piece movements
 - [ ] Calculate possible movements for just the selected piece
