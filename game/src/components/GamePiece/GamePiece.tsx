@@ -1,13 +1,14 @@
-import { createEffect, createSignal, onCleanup, Show, type Component } from 'solid-js';
+import { createEffect, createMemo, createSignal, onCleanup, Show, type Component } from 'solid-js';
 import type { JSX } from 'solid-js'; // Import JSX for CSSProperties
 import styles from './GamePiece.module.css';
 import ShipIcon from '../../assets/ship.svg';
 import PlaneIcon from '../../assets/plane.svg';
 import CherryBlossomIcon from '../../assets/cherry-blossom.svg';
 import { Dynamic } from 'solid-js/web';
-import { IGamePiece } from '../../types/GameState';
+import { PieceId } from '../../types/GameState';
 import emitter from '../../emitter';
 import { PieceSelectedEvent } from '../../types/GameEvents';
+import { getPieceById } from '../../store/piecesStore';
 
 type Corner = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 
@@ -18,9 +19,11 @@ interface IPiecePosition {
 }
 
 export interface IGamePieceProps {
-    piece: IGamePiece
+    id: PieceId
 }
 export const GamePiece: Component<IGamePieceProps> = (props) => {
+
+    const piece = createMemo(() => getPieceById(props.id));
 
     const [selected, setSelected] = createSignal<boolean>(false);
 
@@ -30,12 +33,12 @@ export const GamePiece: Component<IGamePieceProps> = (props) => {
     });
 
     const handlePieceSelected = (e: PieceSelectedEvent) => {
-        const isThisPiece = e.pieceId === props.piece.id
+        const isThisPiece = e.pieceId === props.id
         setSelected(isThisPiece && !selected());
     };
 
-    const icon = (): Component<JSX.SvgSVGAttributes<SVGSVGElement>> => {
-        switch (props.piece.type) {
+    const icon = (): Component<JSX.SvgSVGAttributes<SVGSVGElement>> | undefined => {
+        switch (piece()?.type) {
             case 'ship':
                 return ShipIcon;
             case 'plane':
@@ -45,8 +48,8 @@ export const GamePiece: Component<IGamePieceProps> = (props) => {
         }
     };
 
-    const pieceColor = (): string => {
-        switch (props.piece.owner) {
+    const pieceColor = (): string | undefined => {
+        switch (piece()?.owner) {
             case 'red':
                 return '#FF0000'; // Red
             case 'blue':
@@ -55,13 +58,13 @@ export const GamePiece: Component<IGamePieceProps> = (props) => {
     };
 
     const piecePosition = (): IPiecePosition => {
-        console.log('GamePiece: props.piece.position', props.piece.id);
-        const corner: Corner = (props.piece.position.y % 2 === 0)
+        console.log('GamePiece: piecePosition()', {props});
+        const corner: Corner = ((piece()?.position.y ?? 0) % 2 === 0)
             ? 'top-right'
             : 'top-left';
         return {
-            row: props.piece.position.y,
-            col: props.piece.position.x,
+            row: piece()?.position.y ?? 0,
+            col: piece()?.position.x ?? 0,
             corner,
         };
     };
@@ -115,18 +118,20 @@ export const GamePiece: Component<IGamePieceProps> = (props) => {
 
     const onClick: JSX.EventHandler<HTMLButtonElement, MouseEvent> = (e) => {
         e.preventDefault();
-        emitter.emit('pieceSelected', { pieceId: props.piece.id });
+        emitter.emit('pieceSelected', { pieceId: props.id });
     }
 
     return (
-        <button class={styles.piece}
-            style={{ ...positionStyle(), color: pieceColor() }}
-            onClick={onClick}
-        >
-            <Show when={props.piece.type !== 'kamikaze'}>
-                <div class={styles.number}>{props.piece.number}</div>
-            </Show>
-            <Dynamic component={icon()} class={styles.icon} />
-        </button>
+        <Show when={piece()?.status === 'in-play'}>
+            <button class={styles.piece}
+                style={{ ...positionStyle(), color: pieceColor() }}
+                onClick={onClick}
+            >
+                <Show when={piece()?.type !== 'kamikaze'}>
+                    <div class={styles.number}>{piece()?.number}</div>
+                </Show>
+                <Dynamic component={icon()} class={styles.icon} />
+            </button>
+        </Show>
     );
 };

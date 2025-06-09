@@ -41,7 +41,7 @@ export const Board: Component = () => {
 
       {/* Render the game pieces */}
       <For each={pieces}>
-        {(piece: IGamePiece) => <GamePiece piece={piece} />}
+        {(piece: IGamePiece) => <GamePiece id={piece.id} />}
       </For>
     </div>
   );
