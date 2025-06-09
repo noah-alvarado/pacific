@@ -3,6 +3,7 @@ import { PieceId } from './GameState';
 export interface PieceSelectedEvent {
     pieceId: PieceId;
 }
+
 export interface MoveMadeEvent {
     pieceId: PieceId;
     from: { x: number, y: number };
