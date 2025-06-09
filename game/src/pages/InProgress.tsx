@@ -17,7 +17,7 @@ const InProgress = () => {
             type: 'ship',
             number: 1,
             owner: 'red',
-            status: 'in-operation',
+            status: 'in-play',
             position: { x: 0, y: 0 }
         };
         setPieces([testPiece]);
@@ -25,7 +25,7 @@ const InProgress = () => {
 
     return (
         <div>
-            <Board  />
+            <Board />
         </div>
     );
 };

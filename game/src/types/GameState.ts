@@ -1,5 +1,5 @@
 export type PlayerColor = 'red' | 'blue';
-export type PieceStatus = 'in-operation' | 'destroyed';
+export type PieceStatus = 'in-play' | 'destroyed';
 export type PieceType = 'ship' | 'plane' | 'kamikaze';
 
 export enum GamePhase {
@@ -14,25 +14,12 @@ export enum GamePhase {
     Finished = 'finished',
 }
 
-export interface IBoardCell {
-    x: number;
-    y: number;
-    piece?: IGamePiece;
-}
-
 export interface IGamePiece {
     type: PieceType;
     number: number | undefined; // for planes and ships
     owner: PlayerColor;
     status: PieceStatus;
     position: { x: number; y: number };
-}
-
-export interface IPlayerState {
-    color: PlayerColor;
-    name?: string;
-    pieces?: IGamePiece[];
-    score?: number;
 }
 
 export interface IPieceMove {
@@ -51,23 +38,24 @@ export interface IGameAction {
     timestamp: number;
 }
 
+type GameBoard = (IGamePiece | null)[][];
 export interface IGameState {
-    players: IPlayerState[];
-    board: IBoardCell[][];
+    board: GameBoard;
     turn: PlayerColor;
     phase: GamePhase;
     history?: IGameAction[];
     winner?: PlayerColor | null;
 }
 
-// Default IGameState object for new games
-export const DEFAULT_GAME_STATE: IGameState = {
-    players: [],
-    board: Array.from({ length: 7 }, (_, y) =>
-        Array.from({ length: 7 }, (_, x) => ({ x, y }))
-    ),
-    turn: 'red',
-    phase: GamePhase.Main,
-    history: [],
-    winner: null,
-};
+export function newGameState(overrides: Partial<IGameState>): IGameState {
+    const defaults: IGameState = {
+        board: Array.from({ length: 4 }, () =>
+            Array.from({ length: 7 }, () => null)),
+        turn: 'red',
+        // phase: GamePhase.Main,
+        phase: GamePhase.InProgress,
+        history: [],
+        winner: null,
+    };
+    return { ...defaults, ...overrides };
+}
