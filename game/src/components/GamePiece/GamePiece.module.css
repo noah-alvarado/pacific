@@ -16,6 +16,16 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
+.piece.selected {
+    transform: scale(1.2);
+    border: 2px solid #000;
+}
+
+.piece:hover {
+    cursor: pointer;
+    background-color: #E0E0D1;
+}
+
 .number {
     position: absolute;
     top: 8%;

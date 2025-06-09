@@ -58,7 +58,7 @@ export const GamePiece: Component<IGamePieceProps> = (props) => {
     };
 
     const piecePosition = (): IPiecePosition => {
-        console.log('GamePiece: piecePosition()', {props});
+        console.log('GamePiece: piecePosition()', { props });
         const corner: Corner = ((piece()?.position.y ?? 0) % 2 === 0)
             ? 'top-right'
             : 'top-left';
@@ -110,9 +110,6 @@ export const GamePiece: Component<IGamePieceProps> = (props) => {
             position: 'absolute',
             left: `${left.toString()}px`,
             top: `${top.toString()}px`,
-            ...(selected() ? {
-                transform: 'scale(1.2)'
-            } : {}),
         };
     };
 
@@ -123,8 +120,8 @@ export const GamePiece: Component<IGamePieceProps> = (props) => {
 
     return (
         <Show when={piece()?.status === 'in-play'}>
-            <button class={styles.piece}
-                style={{ ...positionStyle(), color: pieceColor() }}
+            <button class={`${styles.piece} ${selected() ? styles.selected : ''}`}
+                style={{ ...positionStyle(), color: pieceColor(), "border-color": pieceColor() }}
                 onClick={onClick}
             >
                 <Show when={piece()?.type !== 'kamikaze'}>
