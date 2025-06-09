@@ -1,4 +1,4 @@
-import { Show, type Component } from 'solid-js';
+import { createSignal, Show, type Component } from 'solid-js';
 import type { JSX } from 'solid-js'; // Import JSX for CSSProperties
 import styles from './GamePiece.module.css';
 import ShipIcon from '../../assets/ship.svg';
@@ -19,6 +19,8 @@ export interface IGamePieceProps {
     piece: IGamePiece
 }
 export const GamePiece: Component<IGamePieceProps> = (props) => {
+
+    const [selected, setSelected] = createSignal<boolean>(false);
 
     const icon = (): Component<JSX.SvgSVGAttributes<SVGSVGElement>> => {
         switch (props.piece.type) {
@@ -93,11 +95,20 @@ export const GamePiece: Component<IGamePieceProps> = (props) => {
             position: 'absolute',
             left: `${left.toString()}px`,
             top: `${top.toString()}px`,
+            ...(selected() ? {
+                transform: 'scale(1.2)'
+            } : {}),
         };
     };
 
+    function handleClick(event: MouseEvent) {
+        event.preventDefault();
+        setSelected(!selected());
+        console.log('GamePiece clicked:', props.piece);
+    }
+
     return (
-        <button class={styles.piece} style={{ ...positionStyle(), color: pieceColor() }}>
+        <button class={styles.piece} style={{ ...positionStyle(), color: pieceColor() }} onClick={handleClick}>
             <Show when={props.piece.type !== 'kamikaze'}>
                 <div class={styles.number}>{props.piece.number}</div>
             </Show>
