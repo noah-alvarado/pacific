@@ -42,10 +42,13 @@ export const GamePiece: Component<IGamePieceProps> = (props) => {
 
     const piecePosition = (): IPiecePosition => {
         console.log('GamePiece: props.piece.position', props.piece.position);
+        const corner: Corner = (props.piece.position.y % 2 === 0)
+            ? 'top-right'
+            : 'top-left';
         return {
-            row: 0,
-            col: 0,
-            corner: 'bottom-right',
+            row: props.piece.position.y,
+            col: props.piece.position.x,
+            corner,
         };
     };
 
@@ -64,20 +67,19 @@ export const GamePiece: Component<IGamePieceProps> = (props) => {
         const position = piecePosition();
         switch (position.corner) {
             case 'top-left':
-                intersectionX = position.col * effectiveCellDimension;
+                intersectionX = (position.col * 2) * effectiveCellDimension;
                 intersectionY = position.row * effectiveCellDimension;
                 break;
             case 'top-right':
-                intersectionX = (position.col + 1) * effectiveCellDimension;
+                intersectionX = ((position.col * 2) + 1) * effectiveCellDimension;
                 intersectionY = position.row * effectiveCellDimension;
                 break;
             case 'bottom-left':
-                intersectionX = position.col * effectiveCellDimension;
+                intersectionX = (position.col * 2) * effectiveCellDimension;
                 intersectionY = (position.row + 1) * effectiveCellDimension;
                 break;
             case 'bottom-right':
-            default: // Default to bottom-right if not specified or invalid
-                intersectionX = (position.col + 1) * effectiveCellDimension;
+                intersectionX = ((position.col * 2) + 1) * effectiveCellDimension;
                 intersectionY = (position.row + 1) * effectiveCellDimension;
                 break;
         }
