@@ -4,6 +4,10 @@ export interface PieceSelectedEvent {
     pieceId: PieceId;
 }
 
+export interface DestinationSelectedEvent {
+    index: number;
+}
+
 export interface MoveMadeEvent {
     pieceId: PieceId;
     from: { x: number, y: number };
@@ -12,5 +16,6 @@ export interface MoveMadeEvent {
 
 export interface GameEvents {
     pieceSelected: (e: PieceSelectedEvent) => void;
+    destinationSelected: (e: DestinationSelectedEvent) => void;
     moveMade: (e: MoveMadeEvent) => void;
 }

@@ -2,10 +2,12 @@ import { Index, type Component, For } from 'solid-js';
 import styles from './Board.module.css';
 import { GamePiece } from '../GamePiece';
 import { usePieces } from '../../store/piecesStore';
-import { IGamePiece } from '../../types/GameState';
+import { useDestinations } from '../../store/destinationsStore';
+import DestinationMarker from '../DestinationMarker/DestinationMarker';
 
 export const Board: Component = () => {
   const [pieces] = usePieces();
+  const [destinations] = useDestinations();
 
   const cells = Array.from({ length: 7 * 7 });
 
@@ -41,7 +43,12 @@ export const Board: Component = () => {
 
       {/* Render the game pieces */}
       <For each={pieces}>
-        {(piece: IGamePiece) => <GamePiece id={piece.id} />}
+        {(piece) => <GamePiece id={piece.id} />}
+      </For>
+
+      {/* Render the destination markers */}
+      <For each={destinations}>
+        {(_, i) => <DestinationMarker index={i()} />}
       </For>
     </div>
   );

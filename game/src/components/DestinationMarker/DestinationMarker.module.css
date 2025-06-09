@@ -1,0 +1,22 @@
+:root {
+    --marker-size: 40px;
+    --marker-color: rgba(255, 215, 0, 0.4);
+    --marker-pick-color: rgba(255, 215, 0, 0.8);
+}
+
+.destinationMarker {
+    width: var(--marker-size);
+    height: var(--marker-size);
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--marker-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.destinationMarker:hover {
+    cursor: pointer;
+    background-color: var(--marker-pick-color);
+}
