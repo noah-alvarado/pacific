@@ -1,4 +1,4 @@
-import { createEffect, createMemo, createSignal, onCleanup, Show, type Component } from 'solid-js';
+import { createMemo, createSignal, Show, type Component } from 'solid-js';
 import type { JSX } from 'solid-js'; // Import JSX for CSSProperties
 import styles from './GamePiece.module.css';
 import { Dynamic } from 'solid-js/web';
@@ -7,6 +7,7 @@ import emitter from '../../emitter';
 import { PieceSelectedEvent } from '../../types/GameEvents';
 import { getPieceById } from '../../store/piecesStore';
 import { positionStyle, iconForPiece, colorForPiece } from './pieceUtils';
+import { useEvent } from '../../emitter';
 
 export interface IGamePieceProps {
     id: PieceId
@@ -14,18 +15,13 @@ export interface IGamePieceProps {
 export const GamePiece: Component<IGamePieceProps> = (props) => {
 
     const piece = createMemo(() => getPieceById(props.id));
-
     const [selected, setSelected] = createSignal<boolean>(false);
-
-    createEffect(() => {
-        const unbind = emitter.on('pieceSelected', handlePieceSelected);
-        onCleanup(() => { unbind() });
-    });
 
     const handlePieceSelected = (e: PieceSelectedEvent) => {
         const isThisPiece = e.pieceId === props.id
         setSelected(isThisPiece && !selected());
     };
+    useEvent('pieceSelected', handlePieceSelected);
 
     const onClick: JSX.EventHandler<HTMLButtonElement, MouseEvent> = (e) => {
         e.preventDefault();

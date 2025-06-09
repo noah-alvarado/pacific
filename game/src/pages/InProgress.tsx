@@ -1,6 +1,6 @@
 import { Board } from '../components/Board';
 import { Component } from 'solid-js';
-import GameLogicProvider from '../components/GameLogicProvider';
+import { GameLogicProvider } from '../components/GameLogicProvider';
 
 const InProgress: Component = () => {
     return (
