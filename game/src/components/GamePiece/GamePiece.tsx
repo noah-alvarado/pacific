@@ -30,7 +30,8 @@ export const GamePiece: Component<IGamePieceProps> = (props) => {
     });
 
     const handlePieceSelected = (e: PieceSelectedEvent) => {
-        setSelected(e.pieceId === props.piece.id);
+        const isThisPiece = e.pieceId === props.piece.id
+        setSelected(isThisPiece && !selected());
     };
 
     const icon = (): Component<JSX.SvgSVGAttributes<SVGSVGElement>> => {
@@ -54,7 +55,7 @@ export const GamePiece: Component<IGamePieceProps> = (props) => {
     };
 
     const piecePosition = (): IPiecePosition => {
-        console.log('GamePiece: props.piece.position', props.piece.position);
+        console.log('GamePiece: props.piece.position', props.piece.id);
         const corner: Corner = (props.piece.position.y % 2 === 0)
             ? 'top-right'
             : 'top-left';
