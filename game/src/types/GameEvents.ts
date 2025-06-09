@@ -1,12 +1,12 @@
+import { IDestinationMarker } from '../store/destinationsStore';
 import { PieceId } from './GameState';
 
 export interface PieceSelectedEvent {
     pieceId: PieceId;
+    selected: boolean;
 }
 
-export interface DestinationSelectedEvent {
-    index: number;
-}
+export type DestinationSelectedEvent = IDestinationMarker
 
 export interface MoveMadeEvent {
     pieceId: PieceId;

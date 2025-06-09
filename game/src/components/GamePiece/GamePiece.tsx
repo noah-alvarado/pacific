@@ -5,7 +5,7 @@ import { Dynamic } from 'solid-js/web';
 import { PieceId } from '../../types/GameState';
 import emitter from '../../emitter';
 import { PieceSelectedEvent } from '../../types/GameEvents';
-import { getPieceById } from '../../store/piecesStore';
+import { usePieces } from '../../store/piecesStore';
 import { positionStyle, iconForPiece, colorForPiece } from './pieceUtils';
 import { useEvent } from '../../emitter';
 
@@ -14,34 +14,35 @@ export interface IGamePieceProps {
 }
 export const GamePiece: Component<IGamePieceProps> = (props) => {
 
-    const piece = createMemo(() => getPieceById(props.id));
+    const [pieces] = usePieces();
+    const piece = createMemo(() => pieces[props.id]);
     const [selected, setSelected] = createSignal<boolean>(false);
 
     const handlePieceSelected = (e: PieceSelectedEvent) => {
         const isThisPiece = e.pieceId === props.id
-        setSelected(isThisPiece && !selected());
+        setSelected(isThisPiece && e.selected);
     };
     useEvent('pieceSelected', handlePieceSelected);
 
     const onClick: JSX.EventHandler<HTMLButtonElement, MouseEvent> = (e) => {
         e.preventDefault();
-        emitter.emit('pieceSelected', { pieceId: props.id });
+        emitter.emit('pieceSelected', { pieceId: props.id, selected: !selected() });
     }
 
     return (
-        <Show when={piece()?.status === 'in-play'}>
+        <Show when={pieces[props.id].status === 'in-play'}>
             <button onClick={onClick}
                 class={`${styles.piece} ${selected() ? styles.selected : ''}`}
                 style={{
-                    ...positionStyle(piece()?.position, { pieceSize: 50 }),
-                    color: colorForPiece(piece()?.owner),
-                    "border-color": colorForPiece(piece()?.owner)
+                    ...positionStyle(piece().position, { pieceSize: 50 }),
+                    color: colorForPiece(piece().owner),
+                    "border-color": colorForPiece(piece().owner)
                 }}
             >
-                <Show when={piece()?.type !== 'kamikaze'}>
-                    <div class={styles.number}>{piece()?.number}</div>
+                <Show when={piece().type !== 'kamikaze'}>
+                    <div class={styles.number}>{piece().number}</div>
                 </Show>
-                <Dynamic component={iconForPiece(piece()?.type)} class={styles.icon} />
+                <Dynamic component={iconForPiece(piece().type)} class={styles.icon} />
             </button>
         </Show>
     );

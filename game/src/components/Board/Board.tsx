@@ -4,6 +4,7 @@ import { GamePiece } from '../GamePiece';
 import { usePieces } from '../../store/piecesStore';
 import { useDestinations } from '../../store/destinationsStore';
 import DestinationMarker from '../DestinationMarker/DestinationMarker';
+import { PieceId } from '../../types/GameState';
 
 export const Board: Component = () => {
   const [pieces] = usePieces();
@@ -13,6 +14,7 @@ export const Board: Component = () => {
 
   return (
     <div class={styles.board}>
+      
       {/* Render the grid cells */}
       <Index each={cells}>
         {(_, index) => {
@@ -42,9 +44,9 @@ export const Board: Component = () => {
       </Index>
 
       {/* Render the game pieces */}
-      <For each={pieces}>
-        {(piece) => <GamePiece id={piece.id} />}
-      </For>
+      <Index each={Object.keys(pieces) as PieceId[]}>
+        {(id) => <GamePiece id={id()} />}
+      </Index>
 
       {/* Render the destination markers */}
       <For each={destinations}>

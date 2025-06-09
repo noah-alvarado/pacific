@@ -1,6 +1,6 @@
 import { createMemo, JSX, type Component } from 'solid-js';
 import styles from './DestinationMarker.module.css';
-import { getDestinationByIndex } from '../../store/destinationsStore';
+import { useDestinations } from '../../store/destinationsStore';
 import emitter from '../../emitter';
 import { positionStyle } from '../GamePiece/pieceUtils';
 
@@ -9,17 +9,18 @@ interface IDestinationMarkerProps {
 }
 const DestinationMarker: Component<IDestinationMarkerProps> = (props) => {
 
-    const destination = createMemo(() => getDestinationByIndex(props.index));
+    const [destinations] = useDestinations();
+    const destination = createMemo(() => destinations[props.index]);
 
     const onClick: JSX.EventHandler<HTMLButtonElement, MouseEvent> = (e) => {
         e.preventDefault();
-        emitter.emit('destinationSelected', { index: props.index });
+        emitter.emit('destinationSelected', destination());
     }
 
     return (
         <button onClick={onClick}
             class={styles.destinationMarker}
-            style={{ ...positionStyle(destination()?.position, { pieceSize: 40 }) }}
+            style={{ ...positionStyle(destination().position, { pieceSize: 45 }) }}
         />
     );
 };

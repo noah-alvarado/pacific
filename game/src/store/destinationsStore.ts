@@ -4,12 +4,8 @@ export interface IDestinationMarker {
     position: { x: number, y: number };
 }
 
-const [destinations, setDestinations] = createStore<IDestinationMarker[]>([{ position: { x: 2, y: 4 } }]);
+const [destinations, setDestinations] = createStore<IDestinationMarker[]>([]);
 
 export function useDestinations() {
     return [destinations, setDestinations] as const;
-}
-
-export function getDestinationByIndex(index: number): IDestinationMarker | undefined {
-    return destinations[index];
 }
