@@ -1,2 +1,5 @@
-const FindGame = () => <div>Find Game State</div>;
+import { Component } from 'solid-js';
+
+const FindGame: Component = () => <div>Find Game State</div>;
+
 export default FindGame;

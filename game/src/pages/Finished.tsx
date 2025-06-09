@@ -1,2 +1,5 @@
-const Finished = () => <div>Finished Game State</div>;
+import { Component } from 'solid-js';
+
+const Finished: Component = () => <div>Finished Game State</div>;
+
 export default Finished;
