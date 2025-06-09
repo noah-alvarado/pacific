@@ -1,18 +1,27 @@
 :root {
-    --piece-size: 30px;
+    --piece-size: 50px;
     --piece-color: #F5F5DC;
-    --icon-size: 60%;
+    --icon-size: 80%;
 }
 
 .piece {
     width: var(--piece-size);
     height: var(--piece-size);
     border-radius: 50%;
+    border: none;
     display: flex;
     justify-content: center;
     align-items: center;
     background-color: var(--piece-color);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.number {
+    position: absolute;
+    top: 8%;
+    right: 22%;
+    font-size: 1.2rem;
+    font-weight: 800;
 }
 
 .icon {

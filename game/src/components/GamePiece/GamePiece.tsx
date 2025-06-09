@@ -1,4 +1,4 @@
-import { type Component } from 'solid-js';
+import { Show, type Component } from 'solid-js';
 import type { JSX } from 'solid-js'; // Import JSX for CSSProperties
 import styles from './GamePiece.module.css';
 import ShipIcon from '../../assets/ship.svg';
@@ -54,11 +54,11 @@ export const GamePiece: Component<IGamePieceProps> = (props) => {
 
     const positionStyle = (): JSX.CSSProperties => {
         // Values from Board.module.css and GamePiece.module.css
-        const cellWidth = 50; // from --cell-width in Board.module.css
+        const cellWidth = 75; // from --cell-width in Board.module.css
         const cellPadding = 2; // padding on each side of the cell content area
-        const boardPadding = 20; // from --board-padding in Board.module.css
+        const boardPadding = 40; // from --board-padding in Board.module.css
 
-        // Total dimension of a cell including its own padding and border
+        // Total dimension of a cell including its own padding
         const effectiveCellDimension = cellWidth + (cellPadding * 2);
 
         let intersectionX: number;
@@ -85,7 +85,7 @@ export const GamePiece: Component<IGamePieceProps> = (props) => {
         }
 
         // To center the piece over this intersection point, offset by half its size
-        const pieceSize = 30; // from --piece-size in GamePiece.module.css
+        const pieceSize = 50; // from --piece-size in GamePiece.module.css
         const left = intersectionX - (pieceSize / 2) + boardPadding + 1.5;
         const top = intersectionY - (pieceSize / 2) + boardPadding + 1.5;
 
@@ -97,8 +97,11 @@ export const GamePiece: Component<IGamePieceProps> = (props) => {
     };
 
     return (
-        <div class={styles.piece} style={{ ...positionStyle(), color: pieceColor() }}>
+        <button class={styles.piece} style={{ ...positionStyle(), color: pieceColor() }}>
+            <Show when={props.piece.type !== 'kamikaze'}>
+                <div class={styles.number}>{props.piece.number}</div>
+            </Show>
             <Dynamic component={icon()} class={styles.icon} />
-        </div>
+        </button>
     );
 };

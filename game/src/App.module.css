@@ -1,5 +1,11 @@
+:root {
+  --board-color: #89CFF0;
+}
+
 .App {
   text-align: center;
+  background-color: var(--board-color);
+  min-height: 100vh;
 }
 
 .header {

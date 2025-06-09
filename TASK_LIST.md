@@ -9,6 +9,8 @@
 - [ ] Move to space
 - [ ] Calculate all possible piece movements
 - [ ] Calculate possible movements for just the selected piece
+- [ ] Capture a piece
+- [ ] Detect victory
 
 ### Service
 - [ ] Interface player commands with WebRTC peer commands
@@ -21,3 +23,5 @@
 - [ ] Drag and drop piece
 - [ ] Snappable + highlighted locations during drag-and-drop
 - [ ] Make GamePiece reactive, no props other than a piece id
+- [ ] Option to have non-moveable game pieces
+- [ ] Auto-end turn

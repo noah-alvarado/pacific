@@ -1,5 +1,5 @@
 :root {
-  --cell-width: 50px;
+  --cell-width: 75px;
   --grid-width: calc(((var(--cell-width) + 4px) * 7) + 4px);
   --grid-height: calc(var(--grid-width) + 2px);
   --dot-radius: 3.5px;
@@ -15,7 +15,7 @@
   grid-template-rows: repeat(7, 1fr);
   width: var(--grid-width);
   height: var(--grid-height);
-  padding: 20px;
+  padding: 40px;
 }
 
 .board[style*="--grid-size: 7"] {
