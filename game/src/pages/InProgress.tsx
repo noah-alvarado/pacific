@@ -1,13 +1,13 @@
 import { Board } from '../components/Board';
 import { INITIAL_PIECES } from '../constants/initialPieces';
-import { createEffect } from 'solid-js';
+import { onMount } from 'solid-js';
 import { usePieces } from '../store/piecesStore';
 
 const InProgress = () => {
 
     const [/* pieces */, setPieces] = usePieces();
 
-    createEffect(() => {
+    onMount(() => {
         setPieces(INITIAL_PIECES);
     });
 

@@ -1,4 +1,4 @@
-import { createSignal, Show, type Component } from 'solid-js';
+import { createEffect, createSignal, onCleanup, Show, type Component } from 'solid-js';
 import type { JSX } from 'solid-js'; // Import JSX for CSSProperties
 import styles from './GamePiece.module.css';
 import ShipIcon from '../../assets/ship.svg';
@@ -6,6 +6,8 @@ import PlaneIcon from '../../assets/plane.svg';
 import CherryBlossomIcon from '../../assets/cherry-blossom.svg';
 import { Dynamic } from 'solid-js/web';
 import { IGamePiece } from '../../types/GameState';
+import emitter from '../../emitter';
+import { PieceSelectedEvent } from '../../types/GameEvents';
 
 type Corner = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 
@@ -21,6 +23,15 @@ export interface IGamePieceProps {
 export const GamePiece: Component<IGamePieceProps> = (props) => {
 
     const [selected, setSelected] = createSignal<boolean>(false);
+
+    createEffect(() => {
+        const unbind = emitter.on('pieceSelected', handlePieceSelected);
+        onCleanup(() => { unbind() });
+    });
+
+    const handlePieceSelected = (e: PieceSelectedEvent) => {
+        setSelected(e.pieceId === props.piece.id);
+    };
 
     const icon = (): Component<JSX.SvgSVGAttributes<SVGSVGElement>> => {
         switch (props.piece.type) {
@@ -101,14 +112,16 @@ export const GamePiece: Component<IGamePieceProps> = (props) => {
         };
     };
 
-    function handleClick(event: MouseEvent) {
-        event.preventDefault();
-        setSelected(!selected());
-        console.log('GamePiece clicked:', props.piece);
+    const onClick: JSX.EventHandler<HTMLButtonElement, MouseEvent> = (e) => {
+        e.preventDefault();
+        emitter.emit('pieceSelected', { pieceId: props.piece.id });
     }
 
     return (
-        <button class={styles.piece} style={{ ...positionStyle(), color: pieceColor() }} onClick={handleClick}>
+        <button class={styles.piece}
+            style={{ ...positionStyle(), color: pieceColor() }}
+            onClick={onClick}
+        >
             <Show when={props.piece.type !== 'kamikaze'}>
                 <div class={styles.number}>{props.piece.number}</div>
             </Show>
