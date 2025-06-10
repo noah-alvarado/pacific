@@ -25,7 +25,9 @@ jobs:
         run: yarn build
         working-directory: game
       - name: lets see
-        run: ls -la game
+        run: |
+          ls -la game
+          ls -la game/dist
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
