@@ -15,17 +15,17 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version-file: '../.nvmrc'
+          node-version-file: '.nvmrc'
           cache: 'yarn'
-          working-directory: ./game
+          cache-dependency-path: game/yarn.lock
       - name: Install dependencies
         run: yarn install --immutable
-        working-directory: ./game
+        working-directory: game
       - name: Build
         run: yarn build
-        working-directory: ./game
+        working-directory: game
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./game/dist
+          publish_dir: game/dist
