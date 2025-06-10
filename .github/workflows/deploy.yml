@@ -35,6 +35,8 @@ jobs:
         run: yarn install --immutable
         working-directory: game
       - name: Build
+        environment:
+          GITHUB_PAGES: true
         run: yarn build
         working-directory: game
       - name: Upload artifact
