@@ -14,6 +14,7 @@ const InProgress: Component = () => {
                     'min-width': 'fit-content',
                     width: '100%',
                     overflow: 'scroll',
+                    'background-color': '#89CFF0',
                 }}
             >
                 <Board />

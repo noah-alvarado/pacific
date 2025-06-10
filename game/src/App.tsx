@@ -3,6 +3,7 @@ import { createEffect, type Component, type ParentProps } from 'solid-js';
 import styles from './App.module.css';
 import { useNavigate } from '@solidjs/router';
 import { useGame } from './store/gameStore';
+import Header from './components/Header';
 
 const App: Component<ParentProps> = (props) => {
 
@@ -17,9 +18,7 @@ const App: Component<ParentProps> = (props) => {
 
   return (
     <div class={styles.App}>
-      <header class={styles.header}>
-        <p>Pacific</p>
-      </header>
+      <Header />
       <main>
         {props.children}
       </main>
