@@ -10,7 +10,8 @@
     "serve": "vite preview",
     "test": "vitest",
     "lint": "eslint .",
-    "lint:fix": "eslint --fix ."
+    "lint:fix": "eslint --fix .",
+    "deploy:gh-pages": "yarn build && gh-pages -d dist"
   },
   "license": "CC-BY-NC-SA-4.0",
   "devDependencies": {
@@ -23,6 +24,7 @@
     "eslint": "^9.28.0",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-solid": "^0.14.5",
+    "gh-pages": "^6.3.0",
     "globals": "^16.2.0",
     "jsdom": "^26.1.0",
     "typescript": "^5.7.2",
