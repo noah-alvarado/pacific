@@ -1,6 +1,7 @@
 import { createStore } from "solid-js/store";
 
 export interface IDestinationMarker {
+    moveType: 'move' | 'attack';
     position: { x: number, y: number };
 }
 

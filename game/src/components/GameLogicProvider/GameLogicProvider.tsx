@@ -77,42 +77,95 @@ export const GameLogicProvider: Component<{ children: JSX.Element }> = (props) =
         }
 
         const isEvenRow = piece.position.y % 2 === 0;
+        const xIncrement = isEvenRow ? 1 : -1;
         const curX = piece.position.x;
         // in odd rows, there is no move to the left
         const otherX = (curX > 0 || isEvenRow)
             // in even rows, there is no move to the right
             && (curX < 3 || !isEvenRow)
-            && curX + (isEvenRow ? 1 : -1);
+            && curX + xIncrement;
         // players move in opposite directions, red down blue up
-        const nextYForward = piece.owner === 'red' ? piece.position.y + 1 : piece.position.y - 1;
-        const nextYBack = piece.owner === 'red' ? piece.position.y - 1 : piece.position.y + 1;
+        const yIncrement = piece.owner === 'red' ? 1 : -1;
+        const nextYForward = piece.position.y + yIncrement;
+        const nextYBack = piece.position.y - yIncrement;
+
+        const posIsEmpty = (x: number, y: number) => game.board[x][y] === null;
+        const posInBounds = (x: number, y: number) => x >= 0 && x <= 3 && y >= 0 && y <= 7;
+        const posIsOpponent = (x: number, y: number) => {
+            const pos = game.board[x][y];
+            return posInBounds(x, y) && !posIsEmpty(x, y) && pos && pos.owner !== piece.owner;
+        };
+
+        console.log(piece.id, { curX, otherX, isEvenRow, xIncrement })
 
         // planes, ships and kamikaze planes can move forward
-        if (nextYForward >= 0 && nextYForward <= 7) {
-            if (game.board[curX][nextYForward] === null) {
+        if (posIsEmpty(curX, nextYForward)) {
+            pieceDestinations.push({
+                moveType: 'move',
+                position: { x: curX, y: nextYForward },
+            });
+        } else if (posIsOpponent(curX, nextYForward)) {
+            const jumpX = curX - xIncrement;
+            const jumpY = nextYForward + yIncrement;
+            if (posInBounds(jumpX, jumpY) && posIsEmpty(jumpX, jumpY)) {
                 pieceDestinations.push({
-                    position: { x: curX, y: nextYForward },
-                });
-            }
-            if (typeof otherX === 'number' && game.board[otherX][nextYForward] === null) {
-                pieceDestinations.push({
-                    position: { x: otherX, y: nextYForward },
+                    moveType: 'attack',
+                    position: { x: jumpX, y: jumpY },
                 });
             }
         }
 
-        // kamikaze planes can move backwards too
-        if (piece.type === 'kamikaze') {
-            if (nextYBack >= 0 && nextYBack <= 7) {
-                if (game.board[curX][nextYBack] === null) {
+        if (typeof otherX === 'number') {
+            if (posIsEmpty(otherX, nextYForward)) {
+                pieceDestinations.push({
+                    moveType: 'move',
+                    position: { x: otherX, y: nextYForward },
+                });
+            } else if (posIsOpponent(otherX, nextYForward)) {
+                const jumpX = otherX;
+                const jumpY = nextYForward + yIncrement;
+                if (posInBounds(jumpX, jumpY) && posIsEmpty(jumpX, jumpY)) {
                     pieceDestinations.push({
-                        position: { x: curX, y: nextYBack },
+                        moveType: 'attack',
+                        position: { x: jumpX, y: jumpY },
                     });
                 }
-                if (typeof otherX === 'number' && game.board[otherX][nextYBack] === null) {
+            }
+        }
+
+        // kamikazes can move backwards too
+        if (piece.type === 'kamikaze') {
+            if (posIsEmpty(curX, nextYBack)) {
+                pieceDestinations.push({
+                    moveType: 'move',
+                    position: { x: curX, y: nextYBack },
+                });
+            } else if (posIsOpponent(curX, nextYBack)) {
+                const jumpX = curX - xIncrement;
+                const jumpY = nextYBack - yIncrement;
+                if (posInBounds(jumpX, jumpY) && posIsEmpty(jumpX, jumpY)) {
                     pieceDestinations.push({
+                        moveType: 'attack',
+                        position: { x: jumpX, y: jumpY },
+                    });
+                }
+            }
+
+            if (typeof otherX === 'number') {
+                if (posIsEmpty(otherX, nextYBack)) {
+                    pieceDestinations.push({
+                        moveType: 'move',
                         position: { x: otherX, y: nextYBack },
                     });
+                } else if (posIsOpponent(otherX, nextYBack)) {
+                    const jumpX = otherX;
+                    const jumpY = nextYBack - yIncrement;
+                    if (posInBounds(jumpX, jumpY) && posIsEmpty(jumpX, jumpY)) {
+                        pieceDestinations.push({
+                            moveType: 'attack',
+                            position: { x: jumpX, y: jumpY },
+                        });
+                    }
                 }
             }
         }
@@ -134,7 +187,9 @@ export const GameLogicProvider: Component<{ children: JSX.Element }> = (props) =
             return;
         }
 
-        setDestinations(pieceToDestinations()[id]);
+        const pieceDestinations = pieceToDestinations()[id];
+        console.log(id, { pieceDestinations })
+        setDestinations(pieceDestinations);
     });
 
     /* Event Handlers */
