@@ -35,7 +35,9 @@ jobs:
         run: yarn install --immutable
         working-directory: game
       - name: Build
-        run: yarn build
+        run: |
+          export GITHUB_PAGES=true
+          yarn build
         working-directory: game
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
