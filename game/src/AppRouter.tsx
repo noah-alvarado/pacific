@@ -5,7 +5,7 @@ import { lazy } from "solid-js";
 
 export default function AppRouter() {
     return (
-        <HashRouter root={App} {...import.meta.env.GITHUB_PAGES ? { base: "/pacific" } : {}}>
+        <HashRouter root={App} {...import.meta.env.VITE_GITHUB_PAGES ? { base: "/pacific" } : {}}>
             <Route path="/" component={lazy(() => import("./pages/Main"))} />
             <Route path="/find-game" component={lazy(() => import("./pages/FindGame"))} />
             <Route path="/create-game" component={lazy(() => import("./pages/CreateGame"))} />
