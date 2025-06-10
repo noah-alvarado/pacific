@@ -1,15 +1,21 @@
 :root {
   --board-color: #89CFF0;
+  --header-color: #282c34;
+}
+
+html {
+  background-color: var(--header-color);
 }
 
 .App {
   text-align: center;
   background-color: var(--board-color);
   min-height: 100vh;
+  height: 'fit-content';
 }
 
 .header {
-  background-color: #282c34;
+  background-color: var(--header-color);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -17,4 +23,8 @@
   font-size: calc(10px + 2vmin);
   color: white;
   padding: 20px;
+}
+
+main {
+  overflow: scroll;
 }

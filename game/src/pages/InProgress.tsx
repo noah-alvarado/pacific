@@ -5,7 +5,17 @@ import { GameLogicProvider } from '../components/GameLogicProvider';
 const InProgress: Component = () => {
     return (
         <GameLogicProvider>
-            <div style={{ display: 'flex', 'justify-content': 'center', 'align-items': 'center', "min-height": '80vh', width: '100%' }}>
+            <div
+                style={{
+                    display: 'flex',
+                    'justify-content': 'center',
+                    'align-items': 'center',
+                    'min-height': '80vh',
+                    'min-width': 'fit-content',
+                    width: '100%',
+                    overflow: 'scroll',
+                }}
+            >
                 <Board />
             </div>
         </GameLogicProvider>
