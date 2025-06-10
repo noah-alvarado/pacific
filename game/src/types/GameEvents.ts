@@ -1,5 +1,6 @@
+import type { IGamePiece, PieceId } from './GameState';
+
 import { IDestinationMarker } from '../store/destinationsStore';
-import { PieceId } from './GameState';
 
 export interface PieceSelectedEvent {
     pieceId: PieceId;
@@ -8,8 +9,10 @@ export interface PieceSelectedEvent {
 
 export type DestinationSelectedEvent = IDestinationMarker
 
+export type MoveType = 'move' | 'attack';
 export interface MoveMadeEvent {
-    pieceId: PieceId;
+    piece: IGamePiece;
+    type: MoveType;
     from: { x: number, y: number };
     to: { x: number, y: number };
 }

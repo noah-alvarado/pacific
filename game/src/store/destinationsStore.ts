@@ -1,7 +1,8 @@
+import { MoveType } from "../types/GameEvents";
 import { createStore } from "solid-js/store";
 
 export interface IDestinationMarker {
-    moveType: 'move' | 'attack';
+    moveType: MoveType;
     position: { x: number, y: number };
 }
 

@@ -1,4 +1,4 @@
-import { Component, createEffect, createMemo, createSignal, type JSX, onMount } from 'solid-js';
+import { batch, Component, createEffect, createMemo, createSignal, type JSX, onMount } from 'solid-js';
 import type { DestinationSelectedEvent, MoveMadeEvent, PieceSelectedEvent } from '../../types/GameEvents';
 
 import { INITIAL_PIECES } from '../../constants/initialPieces';
@@ -31,6 +31,7 @@ import { reconcile } from 'solid-js/store';
  * - `handleMoveMade`: Handles the completion of a move, updating piece positions and managing turn logic.
  */
 export const GameLogicProvider: Component<{ children: JSX.Element }> = (props) => {
+    const [lastMove, setLastMove] = createSignal<MoveMadeEvent>();
     const [selectedPieceId, setSelectedPieceId] = createSignal<PieceId>();
     const [game, setGame] = useGame();
     const [pieces, setPieces] = usePieces();
@@ -55,24 +56,31 @@ export const GameLogicProvider: Component<{ children: JSX.Element }> = (props) =
     const getDestinations = (pieceId: PieceId): IDestinationMarker[] => {
         const piece = pieces[pieceId];
 
-        const pieceDestinations: IDestinationMarker[] = [];
+        let pieceDestinations: IDestinationMarker[] = [];
         if (piece.status !== 'in-play') return pieceDestinations;
+        if (piece.owner !== game.turn) return pieceDestinations;
 
-        // TODO: attack moves are mandatory if available
-        // TODO: a piece may continue an attack beyond carrier range, but not begin one
+        // if the last move was an attack,
+        // if possible the attacking piece must attack again
+        const lastMoveWasThisPlayer = lastMove()?.piece.owner === piece.owner;
+        const lastMoveWasAttack = lastMove()?.type === 'attack';
+        const lastMoveWasThisPiece = lastMove()?.piece.id === pieceId;
+        if (lastMoveWasThisPlayer && lastMoveWasAttack && !lastMoveWasThisPiece) {
+            return [];
+        }
 
         // plane is at its limit
-        if (piece.type === 'plane') {
+        if (piece.type === 'plane' && !(lastMoveWasThisPlayer && lastMoveWasAttack && lastMoveWasThisPiece)) {
             const shipId = getShipIdFromPlaneId(pieceId);
             if (!shipId) {
                 console.error(`No ship found for plane ${pieceId}, plane should not be in play`);
-                return pieceDestinations;
+                return [];
             }
 
             const ship = pieces[shipId];
             const rowsApart = Math.abs(piece.position.y - ship.position.y);
             if (rowsApart >= 3) {
-                return pieceDestinations;
+                return [];
             }
         }
 
@@ -96,15 +104,15 @@ export const GameLogicProvider: Component<{ children: JSX.Element }> = (props) =
             return posInBounds(x, y) && !posIsEmpty(x, y) && pos && pos.owner !== piece.owner;
         };
 
-        console.log(piece.id, { curX, otherX, isEvenRow, xIncrement })
-
         // planes, ships and kamikaze planes can move forward
         if (posIsEmpty(curX, nextYForward)) {
+            // player can move to an empty spot
             pieceDestinations.push({
                 moveType: 'move',
                 position: { x: curX, y: nextYForward },
             });
         } else if (posIsOpponent(curX, nextYForward)) {
+            // player can attack an isolated neighbor
             const jumpX = curX - xIncrement;
             const jumpY = nextYForward + yIncrement;
             if (posInBounds(jumpX, jumpY) && posIsEmpty(jumpX, jumpY)) {
@@ -170,14 +178,43 @@ export const GameLogicProvider: Component<{ children: JSX.Element }> = (props) =
             }
         }
 
+        // attacking is mandatory
+        const thisPieceAttackedLast = lastMoveWasAttack && lastMoveWasThisPiece;
+        if (pieceDestinations.some(pd => pd.moveType === 'attack') || thisPieceAttackedLast) {
+            pieceDestinations = pieceDestinations.filter(pd => pd.moveType === 'attack');
+        }
+
+        if (thisPieceAttackedLast && pieceDestinations.length === 0) {
+            batch(() => {
+                setSelectedPieceId(undefined);
+                setGame('turn', piece.owner === 'red' ? 'blue' : 'red');
+            });
+        }
+
         return pieceDestinations;
     }
 
-    const pieceToDestinations = createMemo(() => Object.values(pieces)
-        .reduce((acc, piece) => {
-            acc[piece.id] = getDestinations(piece.id);
-            return acc;
-        }, {} as Record<PieceId, IDestinationMarker[]>));
+    const pieceToDestinations = createMemo(() => {
+        const map = {} as Record<PieceId, IDestinationMarker[]>;
+
+        let somePieceCanAttack = false;
+        for (const id in pieces) {
+            const p = pieces[id as PieceId];
+            if (p.status === 'in-play') {
+                map[p.id] = getDestinations(p.id);
+                somePieceCanAttack ||= map[p.id].some(d => d.moveType === 'attack');
+            }
+        }
+
+        // if any piece can attack, we only show attack destinations
+        if (somePieceCanAttack) {
+            Object.keys(map).forEach((id) => {
+                map[id as PieceId] = map[id as PieceId].filter(d => d.moveType === 'attack');
+            });
+        }
+
+        return map;
+    });
 
     // update destinations whenever a piece is selected
     createEffect(() => {
@@ -188,14 +225,11 @@ export const GameLogicProvider: Component<{ children: JSX.Element }> = (props) =
         }
 
         const pieceDestinations = pieceToDestinations()[id];
-        console.log(id, { pieceDestinations })
         setDestinations(pieceDestinations);
     });
 
     /* Event Handlers */
     const handlePieceSelected = (e: PieceSelectedEvent) => {
-        console.log(`Piece selected:`, e);
-
         if (!e.selected) {
             setSelectedPieceId(undefined);
             return;
@@ -213,12 +247,12 @@ export const GameLogicProvider: Component<{ children: JSX.Element }> = (props) =
     useEvent('pieceSelected', handlePieceSelected);
 
     const handleDestinationSelected = (e: DestinationSelectedEvent) => {
-        console.log(`Destination selected:`, e);
         const id = selectedPieceId();
         if (!id) {
             console.error('No piece selected, ignoring destination selection');
             return;
         }
+
         const piece = pieces[id];
         if (piece.status !== 'in-play') {
             console.error(`Selected piece ${id} is not in play, ignoring destination selection`);
@@ -226,7 +260,8 @@ export const GameLogicProvider: Component<{ children: JSX.Element }> = (props) =
         }
 
         emitter.emit('moveMade', {
-            pieceId: id,
+            piece,
+            type: e.moveType,
             from: piece.position,
             to: e.position,
         });
@@ -234,30 +269,35 @@ export const GameLogicProvider: Component<{ children: JSX.Element }> = (props) =
     useEvent('destinationSelected', handleDestinationSelected);
 
     const handleMoveMade = (e: MoveMadeEvent) => {
-        console.log(`Move made:`, e);
-
-        const piece = pieces[e.pieceId];
-        if (piece.status !== 'in-play') {
-            console.error(`Selected piece ${e.pieceId} is not in play, ignoring move`);
+        if (e.piece.status !== 'in-play') {
+            console.error(`Selected piece ${e.piece.id} is not in play, ignoring move`);
             return;
         }
 
         // TODO: validate move
 
-        // TODO
-        // is an opposing piece destroyed?
-        //     - emit event to destroy piece
-
-        // update piece position
-        setPieces(e.pieceId, 'position', e.to);
-
-        // TODO
-        // is there an attack move continuation available?
-        //     - YES: next attack must be made, don't switch turns, update destinations, lock selection
-        //     - NO: switch turns, clear destinations, clear selection
+        batch(() => {
+            if (e.type === 'attack') {
+                const isEvenRow = e.from.y % 2 === 0;
+                const takenPieceX = isEvenRow
+                    ? Math.max(e.from.x, e.to.x)
+                    : Math.min(e.from.x, e.to.x);
+                // always 2 odds or 2 evens, so there is an integer average
+                const takenPieceY = (e.from.y + e.to.y) / 2;
+                const takenId = game.board[takenPieceX][takenPieceY]?.id;
+                console.log(JSON.stringify({ e, takenPieceX, takenPieceY, takenId }, null, 2))
+                if (takenId) {
+                    setPieces(takenId, 'status', 'destroyed');
+                }
+            } else {
+                setGame('turn', e.piece.owner === 'red' ? 'blue' : 'red');
+            }
+            setLastMove(e);
+            setPieces(e.piece.id, 'position', e.to);
+        });
 
         emitter.emit('pieceSelected', {
-            pieceId: e.pieceId,
+            pieceId: e.piece.id,
             selected: false,
         });
     };
