@@ -97,7 +97,7 @@ export interface IGameAction {
     timestamp: number;
 }
 
-type GameBoard = (IGamePiece | null)[][];
+export type GameBoard = (IGamePiece | null)[][];
 export interface IGameState {
     board: GameBoard;
     turn: PlayerColor;
@@ -106,7 +106,7 @@ export interface IGameState {
     winner?: PlayerColor | null;
 }
 
-export function newGameState(overrides: Partial<IGameState>): IGameState {
+export function newGameState(overrides?: Partial<IGameState>): IGameState {
     const defaults: IGameState = {
         board: Array.from({ length: 4 }, () =>
             Array.from({ length: 7 }, () => null)),

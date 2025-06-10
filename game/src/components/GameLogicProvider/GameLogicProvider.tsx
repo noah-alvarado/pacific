@@ -5,15 +5,54 @@ import { INITIAL_PIECES } from '../../constants/initialPieces';
 import emitter, { useEvent } from '../../emitter';
 import { usePieces } from '../../store/piecesStore';
 import { IDestinationMarker, useDestinations } from '../../store/destinationsStore';
-import { getShipIdFromPlaneId, PieceId } from '../../types/GameState';
+import { GameBoard, getShipIdFromPlaneId, PieceId } from '../../types/GameState';
+import { useGame } from '../../store/gameStore';
+import { reconcile } from 'solid-js/store';
 
+/**
+ * Provides game logic context and state management for the game board and pieces.
+ * 
+ * This provider manages the selection and movement of pieces, calculates possible destinations,
+ * and handles game events such as piece selection, destination selection, and move completion.
+ * It uses signals and effects to reactively update the game state and emit events as needed.
+ * 
+ * @component
+ * @param props.children - The child components that will have access to the game logic context.
+ * 
+ * @remarks
+ * - Initializes the board state and pieces on mount.
+ * - Calculates valid destinations for each piece, including special rules for planes and kamikaze pieces.
+ * - Handles mandatory attack moves and piece collisions (TODO).
+ * - Emits and listens for game events to coordinate UI and state updates.
+ * 
+ * @eventHandlers
+ * - `handlePieceSelected`: Handles selection and deselection of pieces, ensuring only valid pieces can be selected.
+ * - `handleDestinationSelected`: Handles selection of a destination for a selected piece, emitting a move event.
+ * - `handleMoveMade`: Handles the completion of a move, updating piece positions and managing turn logic.
+ */
 export const GameLogicProvider: Component<{ children: JSX.Element }> = (props) => {
     const [selectedPieceId, setSelectedPieceId] = createSignal<PieceId>();
+    const [game, setGame] = useGame();
     const [pieces, setPieces] = usePieces();
     const [/* destinations */, setDestinations] = useDestinations();
 
-    const getPieceDestinations = (pieceId: PieceId): IDestinationMarker[] => {
-        // pieces[pieceId];
+    onMount(() => {
+        setPieces(INITIAL_PIECES);
+    });
+
+    createEffect(() => {
+        const positions: GameBoard = Array.from({ length: 4 },
+            () => Array.from({ length: 8 },
+                () => null));
+        Object.values(pieces).forEach(piece => {
+            if (piece.status === 'in-play') {
+                positions[piece.position.x][piece.position.y] = piece;
+            }
+        });
+        setGame('board', reconcile(positions));
+    });
+
+    const getDestinations = (pieceId: PieceId): IDestinationMarker[] => {
         const piece = pieces[pieceId];
 
         const pieceDestinations: IDestinationMarker[] = [];
@@ -37,41 +76,40 @@ export const GameLogicProvider: Component<{ children: JSX.Element }> = (props) =
             }
         }
 
-        // TODO: check for piece collision
-
         const isEvenRow = piece.position.y % 2 === 0;
-        const otherX = (piece.position.x > 0 || isEvenRow)
-            && (piece.position.x < 3 || !isEvenRow)
-            && piece.position.x + (isEvenRow ? 1 : -1);
+        const curX = piece.position.x;
+        // in odd rows, there is no move to the left
+        const otherX = (curX > 0 || isEvenRow)
+            // in even rows, there is no move to the right
+            && (curX < 3 || !isEvenRow)
+            && curX + (isEvenRow ? 1 : -1);
+        // players move in opposite directions, red down blue up
         const nextYForward = piece.owner === 'red' ? piece.position.y + 1 : piece.position.y - 1;
         const nextYBack = piece.owner === 'red' ? piece.position.y - 1 : piece.position.y + 1;
 
-        console.log(piece.id, {
-            piece,
-            isEvenRow,
-            otherX,
-            nextYForward,
-            nextYBack,
-        })
-
+        // planes, ships and kamikaze planes can move forward
         if (nextYForward >= 0 && nextYForward <= 7) {
-            pieceDestinations.push({
-                position: { x: piece.position.x, y: nextYForward },
-            });
-            if (typeof otherX === 'number') {
+            if (game.board[curX][nextYForward] === null) {
+                pieceDestinations.push({
+                    position: { x: curX, y: nextYForward },
+                });
+            }
+            if (typeof otherX === 'number' && game.board[otherX][nextYForward] === null) {
                 pieceDestinations.push({
                     position: { x: otherX, y: nextYForward },
                 });
             }
         }
 
-        // kamikaze planes can move forward or backward
+        // kamikaze planes can move backwards too
         if (piece.type === 'kamikaze') {
             if (nextYBack >= 0 && nextYBack <= 7) {
-                pieceDestinations.push({
-                    position: { x: piece.position.x, y: nextYBack },
-                });
-                if (typeof otherX === 'number') {
+                if (game.board[curX][nextYBack] === null) {
+                    pieceDestinations.push({
+                        position: { x: curX, y: nextYBack },
+                    });
+                }
+                if (typeof otherX === 'number' && game.board[otherX][nextYBack] === null) {
                     pieceDestinations.push({
                         position: { x: otherX, y: nextYBack },
                     });
@@ -82,15 +120,11 @@ export const GameLogicProvider: Component<{ children: JSX.Element }> = (props) =
         return pieceDestinations;
     }
 
-    const allPossibleDestinations = createMemo(() => Object.values(pieces)
+    const pieceToDestinations = createMemo(() => Object.values(pieces)
         .reduce((acc, piece) => {
-            acc[piece.id] = getPieceDestinations(piece.id);
+            acc[piece.id] = getDestinations(piece.id);
             return acc;
         }, {} as Record<PieceId, IDestinationMarker[]>));
-
-    onMount(() => {
-        setPieces(INITIAL_PIECES);
-    });
 
     // update destinations whenever a piece is selected
     createEffect(() => {
@@ -100,10 +134,10 @@ export const GameLogicProvider: Component<{ children: JSX.Element }> = (props) =
             return;
         }
 
-        // TODO: calculate possible destinations
-        setDestinations(allPossibleDestinations()[id]);
+        setDestinations(pieceToDestinations()[id]);
     });
 
+    /* Event Handlers */
     const handlePieceSelected = (e: PieceSelectedEvent) => {
         console.log(`Piece selected:`, e);
 
@@ -163,9 +197,9 @@ export const GameLogicProvider: Component<{ children: JSX.Element }> = (props) =
         setPieces(e.pieceId, 'position', e.to);
 
         // TODO
-        // are there attack moves available?
-        //     - YES: next attack must be made, don't switch turns, update destinations
-        //     - NO: switch turns, clear destinations
+        // is there an attack move continuation available?
+        //     - YES: next attack must be made, don't switch turns, update destinations, lock selection
+        //     - NO: switch turns, clear destinations, clear selection
 
         emitter.emit('pieceSelected', {
             pieceId: e.pieceId,
