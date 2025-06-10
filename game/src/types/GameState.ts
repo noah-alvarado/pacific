@@ -72,6 +72,33 @@ export function getShipIdFromPlaneId(pieceId: PieceId): PieceId | null {
     }
 }
 
+export function getPlaneIdsFromShipId(pieceId: PieceId): PieceId[] {
+    switch (pieceId) {
+        case PieceId.RedShip1:
+            return [PieceId.RedPlane1A, PieceId.RedPlane1B];
+        case PieceId.RedShip2:
+            return [PieceId.RedPlane2A, PieceId.RedPlane2B];
+        case PieceId.RedShip3:
+            return [PieceId.RedPlane3A, PieceId.RedPlane3B];
+        case PieceId.RedShip4:
+            return [PieceId.RedPlane4A, PieceId.RedPlane4B];
+        case PieceId.BlueShip1:
+            return [PieceId.BluePlane1A, PieceId.BluePlane1B];
+        case PieceId.BlueShip2:
+            return [PieceId.BluePlane2A, PieceId.BluePlane2B];
+        case PieceId.BlueShip3:
+            return [PieceId.BluePlane3A, PieceId.BluePlane3B];
+        case PieceId.BlueShip4:
+            return [PieceId.BluePlane4A, PieceId.BluePlane4B];
+        default:
+            return [];
+    }
+}
+
+export function pieceCanAttack(pieceType: PieceType) {
+    return pieceType === 'kamikaze' || pieceType === 'plane';
+}
+
 export interface IGamePiece {
     id: PieceId;
     type: PieceType;

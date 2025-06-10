@@ -5,7 +5,7 @@ import { INITIAL_PIECES } from '../../constants/initialPieces';
 import emitter, { useEvent } from '../../emitter';
 import { usePieces } from '../../store/piecesStore';
 import { IDestinationMarker, useDestinations } from '../../store/destinationsStore';
-import { GameBoard, getShipIdFromPlaneId, PieceId } from '../../types/GameState';
+import { GameBoard, getPlaneIdsFromShipId, getShipIdFromPlaneId, pieceCanAttack, PieceId } from '../../types/GameState';
 import { useGame } from '../../store/gameStore';
 import { reconcile } from 'solid-js/store';
 
@@ -111,8 +111,8 @@ export const GameLogicProvider: Component<{ children: JSX.Element }> = (props) =
                 moveType: 'move',
                 position: { x: curX, y: nextYForward },
             });
-        } else if (posIsOpponent(curX, nextYForward)) {
-            // player can attack an isolated neighbor
+        } else if (posIsOpponent(curX, nextYForward) && pieceCanAttack(piece.type)) {
+            // planes and kamikazes can attack an isolated neighbor
             const jumpX = curX - xIncrement;
             const jumpY = nextYForward + yIncrement;
             if (posInBounds(jumpX, jumpY) && posIsEmpty(jumpX, jumpY)) {
@@ -129,7 +129,7 @@ export const GameLogicProvider: Component<{ children: JSX.Element }> = (props) =
                     moveType: 'move',
                     position: { x: otherX, y: nextYForward },
                 });
-            } else if (posIsOpponent(otherX, nextYForward)) {
+            } else if (posIsOpponent(otherX, nextYForward) && pieceCanAttack(piece.type)) {
                 const jumpX = otherX;
                 const jumpY = nextYForward + yIncrement;
                 if (posInBounds(jumpX, jumpY) && posIsEmpty(jumpX, jumpY)) {
@@ -148,7 +148,7 @@ export const GameLogicProvider: Component<{ children: JSX.Element }> = (props) =
                     moveType: 'move',
                     position: { x: curX, y: nextYBack },
                 });
-            } else if (posIsOpponent(curX, nextYBack)) {
+            } else if (posIsOpponent(curX, nextYBack) && pieceCanAttack(piece.type)) {
                 const jumpX = curX - xIncrement;
                 const jumpY = nextYBack - yIncrement;
                 if (posInBounds(jumpX, jumpY) && posIsEmpty(jumpX, jumpY)) {
@@ -165,7 +165,7 @@ export const GameLogicProvider: Component<{ children: JSX.Element }> = (props) =
                         moveType: 'move',
                         position: { x: otherX, y: nextYBack },
                     });
-                } else if (posIsOpponent(otherX, nextYBack)) {
+                } else if (posIsOpponent(otherX, nextYBack) && pieceCanAttack(piece.type)) {
                     const jumpX = otherX;
                     const jumpY = nextYBack - yIncrement;
                     if (posInBounds(jumpX, jumpY) && posIsEmpty(jumpX, jumpY)) {
@@ -284,16 +284,27 @@ export const GameLogicProvider: Component<{ children: JSX.Element }> = (props) =
                     : Math.min(e.from.x, e.to.x);
                 // always 2 odds or 2 evens, so there is an integer average
                 const takenPieceY = (e.from.y + e.to.y) / 2;
-                const takenId = game.board[takenPieceX][takenPieceY]?.id;
-                console.log(JSON.stringify({ e, takenPieceX, takenPieceY, takenId }, null, 2))
-                if (takenId) {
-                    setPieces(takenId, 'status', 'destroyed');
+
+                const takenPiece = game.board[takenPieceX][takenPieceY];
+                if (takenPiece) {
+                    setPieces(takenPiece.id, 'status', 'destroyed');
+                    const planeIds = getPlaneIdsFromShipId(takenPiece.id);
+                    for (const planeId of planeIds) {
+                        // planes can become kamikazes, but keep the same id
+                        if (pieces[planeId].type === 'plane') {
+                            setPieces(planeId, 'status', 'destroyed');
+                        }
+                    }
                 }
             } else {
                 setGame('turn', e.piece.owner === 'red' ? 'blue' : 'red');
             }
             setLastMove(e);
             setPieces(e.piece.id, 'position', e.to);
+            const opposingBackRow = e.piece.owner === 'red' ? 7 : 0;
+            if (e.to.y === opposingBackRow && e.piece.type === 'plane') {
+                setPieces(e.piece.id, 'type', 'kamikaze');
+            }
         });
 
         emitter.emit('pieceSelected', {
