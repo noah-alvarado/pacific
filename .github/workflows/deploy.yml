@@ -17,7 +17,7 @@ jobs:
         with:
           node-version-file: '../.nvmrc'
           cache: 'yarn'
-        working-directory: ./game
+          working-directory: ./game
       - name: Install dependencies
         run: yarn install --immutable
         working-directory: ./game
