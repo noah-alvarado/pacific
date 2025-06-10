@@ -33,8 +33,8 @@ This project is licensed under the Creative Commons Attribution-NonCommercial-Sh
 ### Game (Frontend - SolidJS)
 
 1. Navigate to the `game` directory: `cd game`
-2. Install dependencies: `pnpm install`
-3. Start the development server: `pnpm dev`
+2. Install dependencies: `yarn`
+3. Start the development server: `yarn dev`
    - The application will typically be available at `http://localhost:3000` (or the port shown in your terminal).
 
 ### Service (Backend)
