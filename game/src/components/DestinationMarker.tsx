@@ -9,17 +9,17 @@ interface IDestinationMarkerProps {
 }
 const DestinationMarker: Component<IDestinationMarkerProps> = (props) => {
 
-    const { destinations } = useGameContext();
+    const game = useGameContext();
 
     const onClick: JSX.EventHandler<HTMLButtonElement, MouseEvent> = (e) => {
         e.preventDefault();
-        emitter.emit('destinationSelected', destinations[props.index]);
+        emitter.emit('destinationSelected', game.destinations[props.index]);
     }
 
     return (
         <button onClick={onClick}
             class={styles.destinationMarker}
-            style={{ ...positionStyle(destinations[props.index].position, { pieceSize: 45 }) }}
+            style={{ ...positionStyle(game.destinations[props.index].position, { pieceSize: 45 }) }}
         />
     );
 };

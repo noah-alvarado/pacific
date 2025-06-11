@@ -128,7 +128,8 @@ export type GameBoard = (IGamePiece | null)[][];
 export interface IGameState {
     lastMove: MoveMadeEvent | undefined;
     selectedPieceId: PieceId | undefined;
-    turn: PlayerColor;
+    player: PlayerColor | 'local'; // The color used by this client
+    turn: PlayerColor; // The color of the player whose turn it is
     phase: GamePhase;
     history: IGameAction[];
     winner: PlayerColor | undefined;

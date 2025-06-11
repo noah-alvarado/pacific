@@ -4,7 +4,7 @@ import { GameLogicProvider } from '../providers/GameLogic';
 
 const InProgress: Component = () => {
     return (
-        <GameLogicProvider>
+        <GameLogicProvider player={'local'}>
             <div
                 style={{
                     display: 'flex',

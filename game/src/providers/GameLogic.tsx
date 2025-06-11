@@ -1,4 +1,4 @@
-import { batch, Component, createContext, createEffect, createMemo, useContext, type JSX } from 'solid-js';
+import { batch, Component, createContext, createEffect, createMemo, ParentProps, untrack, useContext, type JSX } from 'solid-js';
 import { createStore, unwrap } from 'solid-js/store';
 
 import { INITIAL_PIECES } from '../constants/initialPieces';
@@ -15,6 +15,10 @@ export function useGameContext() {
         throw new Error(`can't find GameContext`);
     }
     return context;
+}
+
+interface GameLogicProviderProps extends ParentProps {
+    player: PlayerColor | 'local';
 }
 
 /**
@@ -38,21 +42,36 @@ export function useGameContext() {
  * - `handleDestinationSelected`: Handles selection of a destination for a selected piece, emitting a move event.
  * - `handleMoveMade`: Handles the completion of a move, updating piece positions and managing turn logic.
  */
-export const GameLogicProvider: Component<{ children: JSX.Element }> = (props) => {
+export const GameLogicProvider: Component<GameLogicProviderProps> = (props) => {
     const [game, setGame] = createStore<IGameState>({
         lastMove: undefined,
         selectedPieceId: undefined,
-        turn: 'red' as PlayerColor,
+        player: props.player,
+        turn: 'blue' as PlayerColor,
         phase: GamePhase.InProgress,
         history: [],
         winner: undefined,
         pieces: INITIAL_PIECES,
         destinations: [] as IDestinationMarker[],
-        pieceToDestinations: {} as Record<PieceId, IDestinationMarker[]>,
+        pieceToDestinations: Object.values(INITIAL_PIECES)
+            .reduce((acc, cur) =>
+                (acc[cur.id] = [], acc),
+                {} as Record<PieceId, IDestinationMarker[]>
+            ),
     });
     const [pieces, setPieces] = createStore(game.pieces);
     const [_destinations, setDestinations] = createStore(game.destinations);
     const [pieceToDestinations, setPieceToDestinations] = createStore(game.pieceToDestinations);
+
+    // logging state
+    if (import.meta.env.DEV) {
+        createEffect(() => {
+            console.log('GameLogicProvider', {
+                selectedPieceId: game.selectedPieceId,
+                turn: game.turn,
+            });
+        });
+    }
 
     // board is derived from game.pieces
     const board = createMemo(() => {

@@ -6,7 +6,7 @@ import { render } from '@solidjs/testing-library';
 describe('<GameLogicProvider />', () => {
     test('renders children', () => {
         const results = render(() => (
-            <GameLogicProvider>
+            <GameLogicProvider player={'local'}>
                 <div>Test Child</div>
             </GameLogicProvider>
         ));

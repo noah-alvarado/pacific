@@ -1,47 +1,64 @@
-import { createMemo, createSignal, Show, type Component, type JSX } from 'solid-js';
+import { createEffect, createMemo, Show, untrack, type Component, type JSX } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 
 import { PieceId } from '../types/GameState';
-import emitter, { useEvent } from '../emitter';
-import { PieceSelectedEvent } from '../types/GameEvents';
 import { positionStyle, iconForPiece, colorForPiece } from './GamePiece.util';
 import styles from './GamePiece.module.css';
 import { useGameContext } from '../providers/GameLogic';
+import emitter from '../emitter';
 
 export interface IGamePieceProps {
     id: PieceId
 }
 export const GamePiece: Component<IGamePieceProps> = (props) => {
 
-    const { pieces } = useGameContext();
-    const piece = createMemo(() => pieces[props.id]);
-    const [selected, setSelected] = createSignal<boolean>(false);
+    const id = untrack(() => props.id);
+    const game = useGameContext();
 
-    const handlePieceSelected = (e: PieceSelectedEvent) => {
-        const isThisPiece = e.pieceId === props.id
-        setSelected(isThisPiece && e.selected);
-    };
-    useEvent('pieceSelected', handlePieceSelected);
+    if (id === PieceId.BluePlane3B) {
+        createEffect(() => {
+            console.log(id, { selectedPieceId: game.selectedPieceId, turn: game.turn })
+        });
+    }
+
+    const piece = game.pieces[id];
+    const owner = untrack(() => piece.owner);
+    const isUsersPiece = createMemo(() => owner === game.player || game.player === 'local');
+    const isSelected = createMemo(() => game.selectedPieceId === id);
+    const isSelectable = createMemo(() =>
+        isUsersPiece() &&
+        owner === game.turn &&
+        game.pieceToDestinations[id].length > 0
+    );
 
     const onClick: JSX.EventHandler<HTMLButtonElement, MouseEvent> = (e) => {
         e.preventDefault();
-        emitter.emit('pieceSelected', { pieceId: props.id, selected: !selected() });
+        emitter.emit('pieceSelected', { pieceId: id, selected: !isSelected() });
     }
 
     return (
-        <Show when={pieces[props.id].status === 'in-play'}>
-            <button onClick={onClick}
-                class={`${styles.piece} ${selected() ? styles.selected : ''}`}
+        <Show when={game.pieces[id].status === 'in-play'}>
+            <button
+                type='button'
+                aria-label={`${piece.type} Piece ${id}`}
+                aria-pressed={isSelected()}
+                disabled={!isSelectable()}
+                onClick={onClick}
+                class={[
+                    styles.piece,
+                    isSelected() && styles.selected,
+                    !isSelectable() && isUsersPiece() && styles.disabled
+                ].filter(Boolean).join(' ')}
                 style={{
-                    ...positionStyle(piece().position, { pieceSize: 50 }),
-                    color: colorForPiece(piece().owner),
-                    "border-color": colorForPiece(piece().owner)
+                    ...positionStyle(piece.position, { pieceSize: 50 }),
+                    color: colorForPiece(owner),
+                    'border-color': colorForPiece(owner)
                 }}
             >
-                <Show when={piece().type !== 'kamikaze'}>
-                    <div class={styles.number}>{piece().number}</div>
+                <Show when={piece.type !== 'kamikaze'}>
+                    <div class={styles.number}>{untrack(() => piece.number)}</div>
                 </Show>
-                <Dynamic component={iconForPiece(piece().type)} class={styles.icon} />
+                <Dynamic component={iconForPiece(piece.type)} class={styles.icon} />
             </button>
         </Show>
     );

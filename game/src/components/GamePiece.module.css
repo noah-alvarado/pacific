@@ -26,6 +26,15 @@
     background-color: #E0E0D1;
 }
 
+.piece.disabled {
+    .icon, .number {
+        opacity: 0.4;
+        pointer-events: none;
+        filter: grayscale(60%);
+    }
+    
+}
+
 .number {
     position: absolute;
     top: 5%;

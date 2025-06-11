@@ -1,4 +1,4 @@
-import { Index, type Component, For } from 'solid-js';
+import { Index, type Component, For, createEffect } from 'solid-js';
 import styles from './Board.module.css';
 import { GamePiece } from './GamePiece';
 import { PieceId } from '../types/GameState';
@@ -7,7 +7,7 @@ import { useGameContext } from '../providers/GameLogic';
 
 export const Board: Component = () => {
 
-  const { destinations, pieces } = useGameContext();
+  const game = useGameContext();
 
   const cells = Array.from({ length: 7 * 7 });
 
@@ -43,12 +43,12 @@ export const Board: Component = () => {
       </Index>
 
       {/* Render the game pieces */}
-      <Index each={Object.keys(pieces) as PieceId[]}>
+      <Index each={Object.keys(game.pieces) as PieceId[]}>
         {(id) => <GamePiece id={id()} />}
       </Index>
 
       {/* Render the destination markers */}
-      <For each={destinations}>
+      <For each={game.destinations}>
         {(_, i) => <DestinationMarker index={i()} />}
       </For>
     </div>
