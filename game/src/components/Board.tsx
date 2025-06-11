@@ -24,7 +24,7 @@ export const Board: Component = () => {
 
           if (isEvenRow && !isEvenCol || !isEvenRow && isEvenCol) {
             return (
-              <div class={`${styles.cell} ${styles.dots1}`}>
+              <div class={`${styles.cell}`}>
                 <div class={styles.line1} />
                 <div class={`${styles.dot} ${styles.topLeft}`} />
                 <div class={`${styles.dot} ${styles.bottomRight}`} />
@@ -33,7 +33,7 @@ export const Board: Component = () => {
           }
 
           return (
-            <div class={`${styles.cell} ${styles.dots2}`}>
+            <div class={`${styles.cell}`}>
               <div class={styles.line2} />
               <div class={`${styles.dot} ${styles.topRight}`} />
               <div class={`${styles.dot} ${styles.bottomLeft}`} />
