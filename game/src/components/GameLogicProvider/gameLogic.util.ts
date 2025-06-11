@@ -1,0 +1,137 @@
+import { GameBoard, IGamePiece, PieceId, PlayerColor, getShipIdFromPlaneId, pieceCanAttack } from '../../types/GameState';
+
+import { IDestinationMarker } from '../../store/destinationsStore';
+import { MoveMadeEvent } from '../../types/GameEvents';
+
+interface GetDestinationsForPieceParams {
+    piece: IGamePiece;
+    pieces: Record<PieceId, IGamePiece>;
+    turn: PlayerColor;
+    board: GameBoard;
+    lastMove: MoveMadeEvent | undefined;
+}
+
+export function getDestinationsForPiece({
+    piece,
+    pieces,
+    turn,
+    board,
+    lastMove,
+}: GetDestinationsForPieceParams): IDestinationMarker[] {
+    let pieceDestinations: IDestinationMarker[] = [];
+    if (piece.status !== 'in-play') return pieceDestinations;
+    if (piece.owner !== turn) return pieceDestinations;
+
+    const lastMoveWasThisPlayer = lastMove?.piece.owner === piece.owner;
+    const lastMoveWasAttack = lastMove?.type === 'attack';
+    const lastMoveWasThisPiece = lastMove?.piece.id === piece.id;
+    if (lastMoveWasThisPlayer && lastMoveWasAttack && !lastMoveWasThisPiece) {
+        return pieceDestinations;
+    }
+
+    const thisPieceAttackedLastTurn = lastMoveWasThisPlayer && lastMoveWasAttack && lastMoveWasThisPiece;
+    if (piece.type === 'plane' && !thisPieceAttackedLastTurn) {
+        const shipId = getShipIdFromPlaneId(piece.id);
+        if (!shipId) {
+            return pieceDestinations;
+        }
+        const ship = pieces[shipId];
+        const rowsApart = piece.position.y - ship.position.y;
+        if (piece.owner === 'red' ? rowsApart >= 3 : rowsApart <= -3) {
+            return pieceDestinations;
+        }
+    }
+
+    const isEvenRow = piece.position.y % 2 === 0;
+    const xIncrement = isEvenRow ? 1 : -1;
+    const curX = piece.position.x;
+    const otherX = (isEvenRow || curX > 0)
+        && (!isEvenRow || curX < 3)
+        && curX + xIncrement;
+    const yIncrement = piece.owner === 'red' ? 1 : -1;
+
+    function posIsEmpty(x: number, y: number) {
+        return board[x][y] === null;
+    }
+    function posInBounds(x: number, y: number) {
+        return x >= 0 && x <= 3 && y >= 0 && y <= 7;
+    }
+    function posIsOpponent(x: number, y: number) {
+        const pos = board[x][y];
+        return posInBounds(x, y) && !posIsEmpty(x, y) && pos && pos.owner !== piece.owner;
+    }
+
+    function addDirectionalDestinations({ x, y, xInc, yInc }: { x: number, y: number, xInc: number, yInc: number }) {
+        const nextY = y + yInc;
+        if (posIsEmpty(x, nextY)) {
+            pieceDestinations.push({
+                moveType: 'move',
+                position: { x, y: nextY },
+            });
+        } else if (pieceCanAttack(piece.type) && posIsOpponent(x, nextY)) {
+            const jumpX = x - xInc;
+            const jumpY = nextY + yInc;
+            if (posInBounds(jumpX, jumpY) && posIsEmpty(jumpX, jumpY)) {
+                pieceDestinations.push({
+                    moveType: 'attack',
+                    position: { x: jumpX, y: jumpY },
+                });
+            }
+        }
+    }
+
+    addDirectionalDestinations({ x: curX, y: piece.position.y, xInc: xIncrement, yInc: yIncrement });
+    if (typeof otherX === 'number') {
+        addDirectionalDestinations({ x: otherX, y: piece.position.y, xInc: 0, yInc: yIncrement });
+    }
+    if (piece.type === 'kamikaze') {
+        addDirectionalDestinations({ x: curX, y: piece.position.y, xInc: xIncrement, yInc: -yIncrement });
+        if (typeof otherX === 'number') {
+            addDirectionalDestinations({ x: otherX, y: piece.position.y, xInc: 0, yInc: -yIncrement });
+        }
+    }
+
+    const thisPieceAttackedLast = lastMoveWasAttack && lastMoveWasThisPiece;
+    if (pieceDestinations.some(pd => pd.moveType === 'attack') || thisPieceAttackedLast) {
+        pieceDestinations = pieceDestinations.filter(pd => pd.moveType === 'attack');
+    }
+
+    return pieceDestinations;
+}
+
+interface MapPieceToDestinationsParams {
+    pieces: Record<PieceId, IGamePiece>;
+    turn: PlayerColor;
+    board: GameBoard;
+    lastMove: MoveMadeEvent | undefined;
+}
+
+export function mapPieceToDestinations({
+    pieces,
+    turn,
+    board,
+    lastMove,
+}: MapPieceToDestinationsParams): Record<PieceId, IDestinationMarker[]> {
+    const map = {} as Record<PieceId, IDestinationMarker[]>;
+
+    let somePieceCanAttack = false;
+    for (const id in pieces) {
+        const piece = pieces[id as PieceId];
+        if (piece.status === 'in-play') {
+            const pieceDestinations = getDestinationsForPiece({
+                piece, pieces, turn, board, lastMove
+            });
+            map[piece.id] = pieceDestinations;
+            somePieceCanAttack ||= map[piece.id].some(d => d.moveType === 'attack');
+        }
+    }
+
+    // if any piece can attack, we only show attack destinations
+    if (somePieceCanAttack) {
+        Object.keys(map).forEach((id) => {
+            map[id as PieceId] = map[id as PieceId].filter(d => d.moveType === 'attack');
+        });
+    }
+
+    return map;
+}

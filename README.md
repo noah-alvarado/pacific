@@ -8,12 +8,16 @@ PACIFIC is a non-scale war game for 2 players. It is played on a board with piec
 
 This project is inspired by the Pacific board game created by Sir Ian Hamilton Finlay.
 
+## Game Rules
+
+For detailed rules, see [RULES.md](RULES.md).
+
 ## Authors
 
 - **noah-alvarado**: [https://github.com/noah-alvarado](https://github.com/noah-alvarado)
 - **GitHub Copilot**: Your AI programming assistant.
 
-## Progress Tracking
+## Other Documents
 
 - See `TASK_LIST.md` for current tasks.
 - Important notes are in `IMPORTANT_NOTES.md`.
@@ -28,7 +32,7 @@ This project is licensed under the Creative Commons Attribution-NonCommercial-Sh
 ### Prerequisites
 
 - Node.js (version 24 recommended, see `.nvmrc`)
-- pnpm (package manager)
+- yarn (package manager)
 
 ### Game (Frontend - SolidJS)
 
@@ -36,6 +40,7 @@ This project is licensed under the Creative Commons Attribution-NonCommercial-Sh
 2. Install dependencies: `yarn`
 3. Start the development server: `yarn dev`
    - The application will typically be available at `http://localhost:3000` (or the port shown in your terminal).
+   - You can use the `--host` option to host on your local network.
 
 ### Service (Backend)
 

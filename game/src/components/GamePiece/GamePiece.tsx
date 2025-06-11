@@ -6,7 +6,7 @@ import { PieceId } from '../../types/GameState';
 import emitter from '../../emitter';
 import { PieceSelectedEvent } from '../../types/GameEvents';
 import { usePieces } from '../../store/piecesStore';
-import { positionStyle, iconForPiece, colorForPiece } from './pieceUtils';
+import { positionStyle, iconForPiece, colorForPiece } from './gamePiece.util';
 import { useEvent } from '../../emitter';
 
 export interface IGamePieceProps {

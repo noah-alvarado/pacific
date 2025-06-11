@@ -2,7 +2,7 @@ import { createMemo, JSX, type Component } from 'solid-js';
 import styles from './DestinationMarker.module.css';
 import { useDestinations } from '../../store/destinationsStore';
 import emitter from '../../emitter';
-import { positionStyle } from '../GamePiece/pieceUtils';
+import { positionStyle } from '../GamePiece/gamePiece.util';
 
 interface IDestinationMarkerProps {
     index: number;
