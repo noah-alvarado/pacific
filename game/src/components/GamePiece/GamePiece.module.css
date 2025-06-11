@@ -28,13 +28,23 @@
 
 .number {
     position: absolute;
+    top: 5%;
+    right: 18%;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+@media (min-width: 768px) {
+  .number {
     top: 8%;
     right: 22%;
     font-size: 1.2rem;
     font-weight: 800;
+  }
 }
 
 .icon {
     width: var(--icon-size);
     height: var(--icon-size);
 }
+
