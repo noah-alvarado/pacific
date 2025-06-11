@@ -2,18 +2,16 @@ import { createEffect, type Component, type ParentProps } from 'solid-js';
 
 import styles from './App.module.css';
 import { useNavigate } from '@solidjs/router';
-import { useGame } from './store/gameStore';
 import Header from './components/Header';
+import { Page } from './AppRouter';
 
 const App: Component<ParentProps> = (props) => {
 
   const navigate = useNavigate();
 
-  const [game] = useGame();
-
   createEffect(() => {
-    console.log("Navigating to game phase:", game.phase);
-    navigate(`/${game.phase}`, { replace: true });
+    console.log("Navigating to local game:");
+    navigate(Page.Local, { resolve: false, replace: true });
   });
 
   return (

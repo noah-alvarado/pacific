@@ -6,7 +6,7 @@ import emitter, { useEvent } from '../../emitter';
 import { usePieces } from '../../store/piecesStore';
 import { IDestinationMarker, useDestinations } from '../../store/destinationsStore';
 import type { DestinationSelectedEvent, MoveMadeEvent, PieceSelectedEvent } from '../../types/GameEvents';
-import { getPlaneIdsFromShipId, type GameBoard, type PieceId } from '../../types/GameState';
+import { getPlaneIdsFromShipId, IGamePiece, type GameBoard, type PieceId } from '../../types/GameState';
 import { useGame } from '../../store/gameStore';
 import { mapPieceToDestinations } from './gameLogic.util';
 
@@ -35,8 +35,8 @@ export const GameLogicProvider: Component<{ children: JSX.Element }> = (props) =
     const [lastMove, setLastMove] = createSignal<MoveMadeEvent>();
     const [selectedPieceId, setSelectedPieceId] = createSignal<PieceId>();
     const [game, setGame] = useGame();
-    const [pieces, setPieces] = usePieces();
-    const [/* destinations */, setDestinations] = useDestinations();
+    const [pieces, setPieces] = createStore<Record<PieceId, IGamePiece>>(INITIAL_PIECES);
+    const [destinations, setDestinations] = createStore<IDestinationMarker[]>([]);
     const [pieceToDestinations, setPieceToDestinations] = createStore<Record<PieceId, IDestinationMarker[]>>({} as Record<PieceId, IDestinationMarker[]>);
 
     onMount(() => {

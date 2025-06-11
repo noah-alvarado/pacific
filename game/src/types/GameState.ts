@@ -3,13 +3,6 @@ export type PieceStatus = 'in-play' | 'destroyed';
 export type PieceType = 'ship' | 'plane' | 'kamikaze';
 
 export enum GamePhase {
-    Main = 'main',
-    FindGame = 'find-game',
-    CreateGame = 'create-game',
-    JoinGame = 'join-game',
-    Settings = 'settings',
-    Lobby = 'lobby',
-    Setup = 'setup',
     InProgress = 'in-progress',
     Finished = 'finished',
 }

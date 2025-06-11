@@ -51,7 +51,7 @@ The Pacific game board is a 7x7 grid of diagonal intersecting lines. The board i
 - Kamikazes move diagonally, either forwards or backwards (like 'Kings' in draughts).
 - In Pacific Type A, Kamikazes can destroy Attack Planes, Carriers, or other Kamikazes, without penalty.
 
-### Winning the Game (Type A)
+### Winning the Game
 - When a player has destroyed all the enemy's Attack Planes and Kamikazes, or when he has left the enemy without a possible move, he has won the game.
 
 ## Pacific Type B
