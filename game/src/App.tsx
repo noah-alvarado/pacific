@@ -1,22 +1,18 @@
-import { createEffect, type Component, type ParentProps } from 'solid-js';
+import { Show, type Component, type ParentProps } from 'solid-js';
+import { useLocation } from '@solidjs/router';
 
 import styles from './App.module.css';
-import { useNavigate } from '@solidjs/router';
 import Header from './components/Header';
 import { Page } from './AppRouter';
 
 const App: Component<ParentProps> = (props) => {
-
-  const navigate = useNavigate();
-
-  createEffect(() => {
-    console.log("Navigating to local game:");
-    navigate(Page.Local, { resolve: false, replace: true });
-  });
+  const location = useLocation();
 
   return (
     <div class={styles.App}>
-      <Header />
+      <Show when={location.pathname !== String(Page.Landing)}>
+        <Header />
+      </Show>
       <main>
         {props.children}
       </main>

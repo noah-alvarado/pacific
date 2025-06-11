@@ -8,9 +8,6 @@ html {
 }
 
 .App {
-  text-align: center;
-  /* background-color: var(--board-color); */
-  /* min-height: 100vh; */
   height: 'fit-content';
 }
 
