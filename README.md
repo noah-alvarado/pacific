@@ -10,7 +10,7 @@ This project is inspired by the Pacific board game created by Sir Ian Hamilton F
 
 ## Game Rules
 
-For detailed rules, see [RULES.md](RULES.md).
+For detailed rules, see [GAME_RULES.md](GAME_RULES.md).
 
 ## Authors
 
