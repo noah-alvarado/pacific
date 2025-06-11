@@ -11,7 +11,7 @@
 ## Pacific Type A
 
 ### Board
-The Pacific game board is a 7x7 grid of diagonal intersecting lines. The board is square, with intersections of the grid items forming the playable spaces, such that the actual playable points are 8 "rows" of 4 points each. The back row for each player is the row closest to them, where their four Aircraft Carriers are initially placed. In even numbered rows, each point connects to the corresponding point in the neighboring rows, as well as the point ahead of it. In odd rows, points also connect to the points behind them in row-order. 
+The Pacific game board is a 7x7 grid of diagonal intersecting lines. The board is square, with intersections of the grid cells forming the playable spaces, such that the actual playable points are 8 "rows" of 4 points each. The back row for each player is the row closest to them, where their four Aircraft Carriers are initially placed. In even numbered rows, each point connects to the corresponding point in the neighboring rows, as well as the point ahead of it. In odd rows, points also connect to the points behind them in row-order. 
 
 ### Setup
 - Each player starts the game with four Aircraft Carriers and eight Attack Planes.
