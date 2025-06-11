@@ -1,20 +1,19 @@
 import { Index, type Component, For } from 'solid-js';
 import styles from './Board.module.css';
-import { GamePiece } from '../GamePiece';
-import { usePieces } from '../../store/piecesStore';
-import { useDestinations } from '../../store/destinationsStore';
-import DestinationMarker from '../DestinationMarker/DestinationMarker';
-import { PieceId } from '../../types/GameState';
+import { GamePiece } from './GamePiece';
+import { PieceId } from '../types/GameState';
+import DestinationMarker from './DestinationMarker';
+import { useGameContext } from '../providers/GameLogic';
 
 export const Board: Component = () => {
-  const [pieces] = usePieces();
-  const [destinations] = useDestinations();
+
+  const { destinations, pieces } = useGameContext();
 
   const cells = Array.from({ length: 7 * 7 });
 
   return (
     <div class={styles.board}>
-      
+
       {/* Render the grid cells */}
       <Index each={cells}>
         {(_, index) => {

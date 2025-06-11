@@ -9,7 +9,7 @@ const Landing: Component = () => {
             <p>This is the landing page. From here, you can navigate to different parts of the game.</p>
             <p>Use the navigation menu to explore the game features.</p>
             <p>Enjoy your gaming experience!</p>
-            <A href={Page.Local} />
+            <A href={Page.Local}>Start a local game</A>
         </>
     )
 };

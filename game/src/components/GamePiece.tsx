@@ -1,20 +1,19 @@
-import { createMemo, createSignal, Show, type Component } from 'solid-js';
-import type { JSX } from 'solid-js'; // Import JSX for CSSProperties
-import styles from './GamePiece.module.css';
+import { createMemo, createSignal, Show, type Component, type JSX } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-import { PieceId } from '../../types/GameState';
-import emitter from '../../emitter';
-import { PieceSelectedEvent } from '../../types/GameEvents';
-import { usePieces } from '../../store/piecesStore';
-import { positionStyle, iconForPiece, colorForPiece } from './gamePiece.util';
-import { useEvent } from '../../emitter';
+
+import { PieceId } from '../types/GameState';
+import emitter, { useEvent } from '../emitter';
+import { PieceSelectedEvent } from '../types/GameEvents';
+import { positionStyle, iconForPiece, colorForPiece } from './GamePiece.util';
+import styles from './GamePiece.module.css';
+import { useGameContext } from '../providers/GameLogic';
 
 export interface IGamePieceProps {
     id: PieceId
 }
 export const GamePiece: Component<IGamePieceProps> = (props) => {
 
-    const [pieces] = usePieces();
+    const { pieces } = useGameContext();
     const piece = createMemo(() => pieces[props.id]);
     const [selected, setSelected] = createSignal<boolean>(false);
 

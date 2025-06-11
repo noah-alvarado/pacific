@@ -9,9 +9,9 @@ export interface IPiecePosition {
 
 import type { Component, JSX } from 'solid-js';
 
-import CherryBlossomIcon from '../../assets/cherry-blossom.svg';
-import PlaneIcon from '../../assets/plane.svg';
-import ShipIcon from '../../assets/ship.svg';
+import CherryBlossomIcon from '../assets/cherry-blossom.svg';
+import PlaneIcon from '../assets/plane.svg';
+import ShipIcon from '../assets/ship.svg';
 
 // Calculate position style
 export function positionStyle(position: { x: number, y: number } | undefined, options: { pieceSize: number }): JSX.CSSProperties {

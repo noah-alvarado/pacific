@@ -1,6 +1,4 @@
-import type { IGamePiece, PieceId } from './GameState';
-
-import { IDestinationMarker } from '../store/destinationsStore';
+import type { IDestinationMarker, IGamePiece, PieceId } from './GameState';
 
 export interface PieceSelectedEvent {
     pieceId: PieceId;

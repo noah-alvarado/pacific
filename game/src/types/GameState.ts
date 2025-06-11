@@ -1,3 +1,5 @@
+import { MoveMadeEvent, MoveType } from "./GameEvents";
+
 export type PlayerColor = 'red' | 'blue';
 export type PieceStatus = 'in-play' | 'destroyed';
 export type PieceType = 'ship' | 'plane' | 'kamikaze';
@@ -101,6 +103,11 @@ export interface IGamePiece {
     position: { x: number; y: number };
 }
 
+export interface IDestinationMarker {
+    moveType: MoveType;
+    position: { x: number, y: number };
+}
+
 export interface IPieceMove {
     piece: IGamePiece;
     from: { x: number; y: number };
@@ -119,22 +126,13 @@ export interface IGameAction {
 
 export type GameBoard = (IGamePiece | null)[][];
 export interface IGameState {
-    board: GameBoard;
+    lastMove: MoveMadeEvent | undefined;
+    selectedPieceId: PieceId | undefined;
     turn: PlayerColor;
     phase: GamePhase;
-    history?: IGameAction[];
-    winner?: PlayerColor | null;
-}
-
-export function newGameState(overrides?: Partial<IGameState>): IGameState {
-    const defaults: IGameState = {
-        board: Array.from({ length: 4 }, () =>
-            Array.from({ length: 7 }, () => null)),
-        turn: 'red',
-        // phase: GamePhase.Main,
-        phase: GamePhase.InProgress,
-        history: [],
-        winner: null,
-    };
-    return { ...defaults, ...overrides };
+    history: IGameAction[];
+    winner: PlayerColor | undefined;
+    pieces: Record<PieceId, IGamePiece>;
+    destinations: IDestinationMarker[];
+    pieceToDestinations: Record<PieceId, IDestinationMarker[]>;
 }

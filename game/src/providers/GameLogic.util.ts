@@ -1,7 +1,6 @@
-import { GameBoard, IGamePiece, PieceId, PlayerColor, getShipIdFromPlaneId, pieceCanAttack } from '../../types/GameState';
+import { GameBoard, IDestinationMarker, IGamePiece, PieceId, PlayerColor, getShipIdFromPlaneId, pieceCanAttack } from '../types/GameState';
 
-import { IDestinationMarker } from '../../store/destinationsStore';
-import { MoveMadeEvent } from '../../types/GameEvents';
+import type { MoveMadeEvent } from '../types/GameEvents';
 
 interface GetDestinationsForPieceParams {
     piece: IGamePiece;
