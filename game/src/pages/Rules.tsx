@@ -67,6 +67,31 @@ const Rules: Component = () => {
                     </ul>
                     <img src={figure4} alt="Figure 4: Kamikaze" class={styles.imgFigure} />
                 </section>
+                <section>
+                    <h2>Pacific Type B</h2>
+                    <ul>
+                        <li>For players who have already mastered Pacific A.</li>
+                        <li>In Pacific B, a Kamikaze destroys an Attack Plane, another Kamikaze, or an Aircraft Carrier.</li>
+                        <li>When a Kamikaze destroys an Aircraft Carrier in Type B, it is itself destroyed and must leave the board.</li>
+                    </ul>
+                </section>
+                <section>
+                    <h2>Winning the Game</h2>
+                    <ul>
+                        <li>When a player has destroyed all the enemy's Attack Planes and Kamikazes, or when he has left the enemy without a possible move, he has won the game.</li>
+                    </ul>
+                </section>
+                <section>
+                    <h2>General Notes</h2>
+                    <ul>
+                        <li>Pacific cannot be won by mirror-defence, though an over-cautious strategy may result in one player being unable to move.</li>
+                        <li>The basic rules are easily grasped, but a good game will develop a satisfactory degree of complexity which is never so great that the result becomes merely a matter of chance.</li>
+                        <li>In Pacific A, the first penetration of the enemy back row is often crucial.</li>
+                        <li>In Pacific B, the role of the Kamikaze is less simple and the defending player is more likely to be able to restore the situation by sacrificing a Carrier deprived of its aircraft, and so return to the attack.</li>
+                        <li>Pacific is not intended to be a simulation but a distillation of the Pacific conflict.</li>
+                        <li>Both sides have an equal number of Carriers and Attack Planes, and both may gain Kamikazes, which are identified by the Cherry Blossom symbol of purity, worn by the Ohka (Cherry Blossom) piloted flying bomb.</li>
+                    </ul>
+                </section>
             </div>
         </div>
     )
