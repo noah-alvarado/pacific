@@ -1,6 +1,7 @@
 :root {
-  --board-color: #89CFF0;
   --header-color: #282c34;
+  --background-color: #cfdef3;
+  --board-color: #89CFF0;
 }
 
 html {
