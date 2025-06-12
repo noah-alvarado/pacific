@@ -1,17 +1,22 @@
 import { A } from '@solidjs/router';
 import { Component } from 'solid-js';
 import { Page } from '../AppRouter';
+import PlaneIcon from '../assets/plane.svg';
+import styles from './Landing.module.css';
 
 const Landing: Component = () => {
     return (
-        <>
-            <h1>Welcome to Pacific!</h1>
-            <p>This is the landing page. From here, you can navigate to different parts of the game.</p>
-            <p>Use the navigation menu to explore the game features.</p>
-            <p>Enjoy your gaming experience!</p>
-            <A href={Page.Local}>Start a local game</A>
-        </>
-    )
+        <div class={styles.landingRoot}>
+            <div class={styles.heroSection}>
+                <h1 class={styles.title}>PACIFIC</h1>
+                <p class={styles.subtitle}>A strategic game about WW2 in the Pacific.</p>
+            </div>
+            <div class={styles.buttonGroup}>
+                <A href={Page.Local} class={styles.primaryButton}>Start Local Game</A>
+                <A href={Page.Rules} class={styles.secondaryButton}>Game Rules</A>
+            </div>
+        </div>
+    );
 };
 
 export default Landing;
