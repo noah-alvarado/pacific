@@ -1,9 +1,9 @@
-:root {
+.board {
   --cell-width: 75px;
   --grid-width: calc(((var(--cell-width) + 4px) * 7) + 4px);
   --grid-height: calc(var(--grid-width) + 2px);
   --dot-radius: 3.5px;
-  --grid-color: #2c2c2c;
+  --grid-color: var(--text-color);
 }
 
 .board {

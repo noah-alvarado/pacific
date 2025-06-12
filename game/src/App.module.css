@@ -1,7 +1,14 @@
-:root {
+:root, :root[data-theme="light"] {
   --header-color: #282c34;
   --background-color: #cfdef3;
   --board-color: #89CFF0;
+  --text-color: #2d3a4b;
+}
+
+:root[data-theme="dark"] {
+  --background-color: var(--header-color);
+  --board-color: var(--header-color);
+  --text-color: #f3f6fa;
 }
 
 html {
@@ -13,6 +20,8 @@ html {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  color: var(--text-color);
+  background: var(--background-color);
 }
 
 main {

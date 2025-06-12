@@ -1,4 +1,4 @@
-:root {
+.destinationMarker {
     --marker-size: 45px;
     --marker-color: rgba(255, 215, 0, 0.4);
     --marker-pick-color: rgba(255, 215, 0, 0.8);

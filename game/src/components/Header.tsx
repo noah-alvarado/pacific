@@ -1,19 +1,23 @@
-import { Show, type Component, createSignal, createMemo, createEffect } from 'solid-js';
+import { Show, type Component, createSignal, createMemo, createEffect, onMount } from 'solid-js';
 import { Page } from '../AppRouter';
 import styles from './Header.module.css';
 import { useLocation } from '@solidjs/router';
 import { A } from '@solidjs/router';
 import { useWindowWidth } from '../hooks/useWindowWidth';
-import { create } from 'domain';
 
 const Header: Component = () => {
     const location = useLocation();
-    const [navOpen, setNavOpen] = createSignal(false);
     const windowWidth = useWindowWidth();
+    const [theme, setTheme] = createSignal(localStorage.getItem('theme') || 'auto');
+    const [navOpen, setNavOpen] = createSignal(false);
 
     createEffect(() => {
         location.pathname; // Trigger effect when the route changes
         setNavOpen(false); // Close the navigation when the route changes
+    });
+
+    createEffect(() => {
+        document.documentElement.dataset.theme = theme();
     });
 
     const showBurger = createMemo(() => {
@@ -24,8 +28,31 @@ const Header: Component = () => {
         return showBurger() ? navOpen() : true;
     });
 
+    const toggleDarkMode = () => {
+        setTheme((v) => {
+            const next = v === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('theme', next);
+            return next;
+        });
+    };
+
     return (
         <header class={styles.header}>
+            <button
+                aria-label={theme() === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+                onClick={toggleDarkMode}
+                style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--text-color)',
+                    'font-size': '1.5rem',
+                    cursor: 'pointer',
+                    'margin-right': '1rem',
+                }}
+            >
+                {theme() === 'dark' ? '🌙' : '☀️'}
+            </button>
+
             <p class={styles.title}>PACIFIC</p>
 
             <Show when={showBurger()}>

@@ -5,6 +5,7 @@
   align-items: center;
   justify-content: center;
   background-color: var(--background-color);
+  color: var(--text-color);
 }
 
 .heroSection {
@@ -24,14 +25,14 @@
 .title {
   font-size: 3rem;
   font-weight: 800;
-  color: #2d3a4b;
+  color: var(--text-color);
   margin-bottom: 0.5rem;
   font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
 }
 
 .subtitle {
   font-size: 1.25rem;
-  color: #4a5a6a;
+  color: var(--text-color);
   margin-bottom: 0.5rem;
   text-align: center;
   max-width: 400px;
@@ -93,14 +94,14 @@
 .heading {
   font-size: 2.5rem;
   font-weight: 700;
-  color: #2d3a4b;
+  color: var(--text-color);
   margin-bottom: 1rem;
   font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
 }
 
 .paragraph {
   font-size: 1.15rem;
-  color: #4a5a6a;
+  color: var(--text-color);
   margin-bottom: 0.75rem;
   text-align: center;
 }
