@@ -1,26 +1,16 @@
 import { Board } from '../components/Board';
 import { Component } from 'solid-js';
 import { GameLogicProvider } from '../providers/GameLogic';
+import styles from './Local.module.css';
 
-const InProgress: Component = () => {
+const Local: Component = () => {
     return (
         <GameLogicProvider player={'local'}>
-            <div
-                style={{
-                    display: 'flex',
-                    'justify-content': 'center',
-                    'align-items': 'center',
-                    'min-height': '80vh',
-                    'min-width': 'fit-content',
-                    width: '100%',
-                    overflow: 'scroll',
-                    'background-color': '#89CFF0',
-                }}
-            >
+            <div class={styles.container}>
                 <Board />
             </div>
         </GameLogicProvider>
     );
 };
 
-export default InProgress;
+export default Local;

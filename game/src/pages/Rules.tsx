@@ -5,10 +5,11 @@ import figure3 from '../assets/figure-3.png';
 import figure4 from '../assets/figure-4.png';
 import originalBoard from '../assets/original-board.jpeg';
 import originalInstructions from '../assets/original-instructions.jpeg';
+import styles from './Rules.module.css';
 
 const Rules: Component = () => {
     return (
-        <div style={{ padding: '2rem', 'max-width': '800px', margin: '0 auto' }}>
+        <div class={styles.container}>
             <h1>Pacific Game Rules</h1>
             <section>
                 <h2>General</h2>
@@ -16,8 +17,8 @@ const Rules: Component = () => {
             </section>
             <section>
                 <h2>Original Game Materials</h2>
-                <img src={originalBoard} alt="Original Board" style={{ width: '100%', 'max-width': '500px', 'margin-bottom': '1rem' }} />
-                <img src={originalInstructions} alt="Original Instructions" style={{ width: '100%', 'max-width': '500px' }} />
+                <img src={originalBoard} alt="Original Board" class={styles.imgBoard} />
+                <img src={originalInstructions} alt="Original Instructions" class={styles.imgInstructions} />
             </section>
             <section>
                 <h2>Pacific Type A</h2>
@@ -29,7 +30,7 @@ const Rules: Component = () => {
                     <li>The Carriers, numbered 1, 2, 3, 4, are set out in order on the back row intersections, starting from the left of the board.</li>
                     <li>Each Carrier has two Attack Planes which wear its number and are placed on the intersections ahead of it. (See Figure 1).</li>
                 </ul>
-                <img src={figure1} alt="Figure 1: Initial Setup" style={{ width: '100%', 'max-width': '400px', 'margin': '1rem 0' }} />
+                <img src={figure1} alt="Figure 1: Initial Setup" class={styles.imgFigure} />
                 <h3>Gameplay</h3>
                 <ul>
                     <li>Moves are made by each player alternately.</li>
@@ -39,7 +40,7 @@ const Rules: Component = () => {
                     <li>Carriers and Attack Planes advance up the board diagonally, from one intersection to another.</li>
                     <li>An Attack Plane may only move up to three intersections (rows) ahead of its Carrier. (See Figure 2).</li>
                 </ul>
-                <img src={figure2} alt="Figure 2: Movement Limit" style={{ width: '100%', 'max-width': '400px', 'margin': '1rem 0' }} />
+                <img src={figure2} alt="Figure 2: Movement Limit" class={styles.imgFigure} />
                 <ul>
                     <li>An Attack Plane may only attack if it is within two rows of its Carrier. It may however be any number of moves to the side of its Carrier.</li>
                     <li>An Attack Plane which cannot advance further because of the position of its Carrier is said to be at its limit.</li>
@@ -53,7 +54,7 @@ const Rules: Component = () => {
                     <li>Attacks are made as in draughts, by one piece 'jumping' an adjacent enemy piece in a forward direction. The enemy piece then leaves the board.</li>
                     <li>Once begun, an attack is pressed home on as many enemy pieces as can be jumped, though the attacking piece may end up more than three rows ahead of its Carrier. (See Figure 3).</li>
                 </ul>
-                <img src={figure3} alt="Figure 3: Attack Example" style={{ width: '100%', 'max-width': '400px', 'margin': '1rem 0' }} />
+                <img src={figure3} alt="Figure 3: Attack Example" class={styles.imgFigure} />
                 <ul>
                     <li>At the conclusion of the attack, the attacking piece is unable to advance further until its supporting Carrier is again brought to within two rows.</li>
                 </ul>
@@ -63,7 +64,7 @@ const Rules: Component = () => {
                     <li>The initial strategy of the game is to preserve Carriers while advancing as many Attack Planes as possible into the enemy back row.</li>
                     <li>An Attack Plane which penetrates as far as the enemy back row becomes a Kamikaze. (See Figure 4).</li>
                 </ul>
-                <img src={figure4} alt="Figure 4: Kamikaze" style={{ width: '100%', 'max-width': '400px', 'margin': '1rem 0' }} />
+                <img src={figure4} alt="Figure 4: Kamikaze" class={styles.imgFigure} />
             </section>
         </div>
     )

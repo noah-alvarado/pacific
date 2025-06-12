@@ -1,0 +1,22 @@
+.container {
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.imgBoard {
+  width: 100%;
+  max-width: 500px;
+  margin-bottom: 1rem;
+}
+
+.imgInstructions {
+  width: 100%;
+  max-width: 500px;
+}
+
+.imgFigure {
+  width: 100%;
+  max-width: 400px;
+  margin: 1rem 0;
+}
