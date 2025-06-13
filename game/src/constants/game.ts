@@ -1,4 +1,5 @@
 import { GamePhase, IDestinationMarker, IGamePiece, IGameState, PlayerColor } from '../types/GameState';
+import { getBoardFromPieces, mapPieceToDestinations } from '../providers/GameLogic.util';
 
 import { PieceId } from '../types/GameState';
 
@@ -41,9 +42,10 @@ export const INITIAL_STATE: (params: { player: PlayerColor | 'local', turn: Play
     winner: undefined,
     pieces: INITIAL_PIECES,
     destinations: [],
-    pieceToDestinations: Object.values(INITIAL_PIECES)
-        .reduce((acc, cur) =>
-            (acc[cur.id] = [], acc),
-            {} as Record<PieceId, IDestinationMarker[]>
-        ),
+    pieceToDestinations: mapPieceToDestinations({
+        pieces: INITIAL_PIECES,
+        turn,
+        board: getBoardFromPieces(INITIAL_PIECES),
+        lastMove: undefined,
+    }),
 });

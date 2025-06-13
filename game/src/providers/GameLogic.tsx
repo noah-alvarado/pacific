@@ -1,13 +1,14 @@
-import { batch, Component, createContext, createEffect, createMemo, onMount, ParentProps, untrack, useContext, type JSX } from 'solid-js';
-import { createStore, unwrap } from 'solid-js/store';
+import { batch, Component, createContext, createEffect, createMemo, ParentProps, untrack, useContext } from 'solid-js';
+import { createStore, reconcile, SetStoreFunction, unwrap } from 'solid-js/store';
 
-import { INITIAL_PIECES, INITIAL_STATE } from '../constants/game';
-import emitter, { useEvent } from '../emitter';
-import type { DestinationSelectedEvent, MoveMadeEvent, PieceSelectedEvent } from '../types/GameEvents';
-import { GamePhase, getPlaneIdsFromShipId, IDestinationMarker, IGameState, PlayerColor, type GameBoard, type PieceId } from '../types/GameState';
-import { mapPieceToDestinations } from './GameLogic.util';
+import { INITIAL_STATE } from '../constants/game';
+import { useEvent } from '../emitter';
+import type { MoveMadeEvent } from '../types/GameEvents';
+import { GamePhase, getPlaneIdsFromShipId, IGameState, PlayerColor, type GameBoard } from '../types/GameState';
+import { getBoardFromPieces, mapPieceToDestinations } from './GameLogic.util';
+import { detailedDiff } from 'deep-object-diff';
 
-const GameContext = createContext<IGameState>();
+const GameContext = createContext<{ game: IGameState, setGame: SetStoreFunction<IGameState> }>();
 
 export function useGameContext() {
     const context = useContext(GameContext);
@@ -19,6 +20,11 @@ export function useGameContext() {
 
 function gameIdToLocalStorageKey(gameId: string) {
     return `savedGameState-${gameId}`;
+}
+
+function getGameSave(gameId: string): IGameState | undefined {
+    const savedGame = localStorage.getItem(gameIdToLocalStorageKey(gameId));
+    return savedGame ? JSON.parse(savedGame) as IGameState : undefined;
 }
 
 interface GameLogicProviderProps extends ParentProps {
@@ -44,40 +50,27 @@ interface GameLogicProviderProps extends ParentProps {
  * - Emits and listens for game events to coordinate UI and state updates.
  * 
  * @eventHandlers
- * - `handlePieceSelected`: Handles selection and deselection of pieces, ensuring only valid pieces can be selected.
- * - `handleDestinationSelected`: Handles selection of a destination for a selected piece, emitting a move event.
  * - `handleMoveMade`: Handles the completion of a move, updating piece positions and managing turn logic.
  */
 export const GameLogicProvider: Component<GameLogicProviderProps> = (props) => {
     const [game, setGame] = createStore<IGameState>(
-        localStorage.getItem(gameIdToLocalStorageKey(props.gameId))
-            ? JSON.parse(localStorage.getItem(gameIdToLocalStorageKey(props.gameId))!)
-            : { ...INITIAL_STATE({ player: props.player, turn: props.turn }) }
+        getGameSave(untrack(() => props.gameId))
+        || { ...INITIAL_STATE({ player: props.player, turn: props.turn }) }
     );
-    const [pieces, setPieces] = createStore(game.pieces);
-    const [_destinations, setDestinations] = createStore(game.destinations);
-    const [pieceToDestinations, setPieceToDestinations] = createStore(game.pieceToDestinations);
 
     // Serialize the game store and save to localStorage on every update
     createEffect(() => {
         if (import.meta.env.DEV) {
-            console.log('GameLogicProvider', unwrap(game));
+            console.log('game state change', detailedDiff(
+                getGameSave(untrack(() => props.gameId)) || {},
+                unwrap(game)
+            ));
         }
         localStorage.setItem(gameIdToLocalStorageKey(untrack(() => props.gameId)), JSON.stringify(game));
     });
 
     // board is derived from game.pieces
-    const board = createMemo(() => {
-        const positions: GameBoard = Array.from({ length: 4 },
-            () => Array.from({ length: 8 },
-                () => null));
-        Object.values(pieces).forEach(piece => {
-            if (piece.status === 'in-play') {
-                positions[piece.position.x][piece.position.y] = piece;
-            }
-        });
-        return positions;
-    });
+    const board = createMemo(() => getBoardFromPieces(game.pieces));
 
     // manage the turn state
     createEffect(() => {
@@ -89,22 +82,20 @@ export const GameLogicProvider: Component<GameLogicProviderProps> = (props) => {
         const lastMoveWasAttack = game.lastMove.type === 'attack';
         if (!lastMoveWasAttack) {
             // if the last move was not an attack, switch turns
-            setGame('turn', game.lastMove.piece.owner === 'red' ? 'blue' : 'red');
-            emitter.emit('pieceSelected', {
-                pieceId: game.lastMove.piece.id,
-                selected: false,
+            batch(() => {
+                setGame('turn', game.lastMove!.piece.owner === 'red' ? 'blue' : 'red');
+                setGame('selectedPieceId', undefined);
             });
             return;
         }
 
-        const attackingPieceHasNoMoves = pieceToDestinations[game.lastMove.piece.id].length === 0;
+        const attackingPieceHasNoMoves = game.pieceToDestinations[game.lastMove.piece.id].length === 0;
         if (attackingPieceHasNoMoves) {
             // if the piece attacked last turn and has no further destinations,
             // it must end its turn
-            setGame('turn', (t) => t === 'red' ? 'blue' : 'red');
-            emitter.emit('pieceSelected', {
-                pieceId: game.lastMove.piece.id,
-                selected: false,
+            batch(() => {
+                setGame('turn', (t) => t === 'red' ? 'blue' : 'red');
+                setGame('selectedPieceId', undefined);
             });
             return;
         }
@@ -112,57 +103,55 @@ export const GameLogicProvider: Component<GameLogicProviderProps> = (props) => {
 
     // update destinations whenever a piece is selected
     createEffect(() => {
-        setDestinations(
-            game.selectedPieceId
-                ? pieceToDestinations[game.selectedPieceId]
-                : []
+        setGame(
+            'destinations',
+            reconcile(
+                game.selectedPieceId
+                    ? game.pieceToDestinations[game.selectedPieceId]
+                    : [],
+                { merge: true }
+            )
         );
     });
 
     // calculate destinations for all pieces
     createEffect(() => {
         const map = mapPieceToDestinations({
-            pieces,
+            pieces: game.pieces,
             turn: game.turn,
             board: board(),
             lastMove: game.lastMove,
         });
-        setPieceToDestinations(map);
+        setGame('pieceToDestinations', reconcile(map, { merge: true }));
     });
 
     // detect end of game
-    createEffect(() => {
-        const playerOutOfMoves = Object.values(pieceToDestinations).every(destinations => destinations.length === 0);
-        // if current player has no attack planes or kamikazes left, they have lost
-        // if the current player has no moves left, they have lost
-    });
+    createEffect((turn: PlayerColor | undefined) => {
+        // only run when turn changes
+        if (game.turn === turn || game.phase === GamePhase.Finished) return;
 
-
-    /* Event Handlers */
-    const handlePieceSelected = (e: PieceSelectedEvent) => {
-        setGame('selectedPieceId', e.selected ? e.pieceId : undefined);
-    };
-    useEvent('pieceSelected', handlePieceSelected);
-
-    const handleDestinationSelected = (e: DestinationSelectedEvent) => {
-        const id = game.selectedPieceId;
-        if (!id) {
-            console.error('No piece selected, ignoring destination selection');
+        const playerOutOfMoves = Object.values(game.pieceToDestinations).every(d => d.length === 0);
+        if (playerOutOfMoves) {
+            const winner = game.turn === 'red' ? 'blue' : 'red';
+            batch(() => {
+                setGame('phase', GamePhase.Finished);
+                setGame('winner', winner);
+            });
             return;
         }
 
-        const piece = unwrap(pieces[id]);
-        emitter.emit('moveMade', {
-            piece,
-            type: e.moveType,
-            from: piece.position,
-            to: e.position,
-        });
-    };
-    useEvent('destinationSelected', handleDestinationSelected);
 
+        // if current player has no attack planes or kamikazes left, they have lost
+        // if the current player has no moves left, they have lost      
+
+        return game.turn;
+    });
+
+    /* Event Handlers */
     const handleMoveMade = (e: MoveMadeEvent) => {
         batch(() => {
+            setGame('history', game.history.length, e);
+
             // remove jumped pieces
             if (e.type === 'attack') {
                 const isEvenRow = e.from.y % 2 === 0;
@@ -174,13 +163,13 @@ export const GameLogicProvider: Component<GameLogicProviderProps> = (props) => {
 
                 const takenPiece = board()[takenPieceX][takenPieceY];
                 if (takenPiece) {
-                    setPieces(takenPiece.id, 'status', 'destroyed');
+                    setGame('pieces', takenPiece.id, 'status', 'destroyed');
                     const planeIds = getPlaneIdsFromShipId(takenPiece.id);
                     // when a ship is destroyed, all its planes are also destroyed
                     for (const planeId of planeIds) {
                         // planes become kamikazes, which are not destroyed when the ship is destroyed
-                        if (pieces[planeId].type === 'plane') {
-                            setPieces(planeId, 'status', 'destroyed');
+                        if (game.pieces[planeId].type === 'plane') {
+                            setGame('pieces', planeId, 'status', 'destroyed');
                         }
                     }
                 }
@@ -188,17 +177,17 @@ export const GameLogicProvider: Component<GameLogicProviderProps> = (props) => {
 
             // execute the move
             setGame('lastMove', e);
-            setPieces(e.piece.id, 'position', e.to);
+            setGame('pieces', e.piece.id, 'position', e.to);
             const opposingBackRow = e.piece.owner === 'red' ? 7 : 0;
             if (e.to.y === opposingBackRow && e.piece.type === 'plane') {
-                setPieces(e.piece.id, 'type', 'kamikaze');
+                setGame('pieces', e.piece.id, 'type', 'kamikaze');
             }
         });
     };
     useEvent('moveMade', handleMoveMade);
 
     return (
-        <GameContext.Provider value={game}>
+        <GameContext.Provider value={{ game, setGame }}>
             {props.children}
         </GameContext.Provider>
     );

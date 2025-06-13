@@ -134,3 +134,13 @@ export function mapPieceToDestinations({
 
     return map;
 }
+
+export function getBoardFromPieces(pieces: Record<PieceId, IGamePiece>): GameBoard {
+    const board: GameBoard = Array.from({ length: 4 }, () => Array.from({ length: 8 }, () => null));
+    Object.values(pieces).forEach(piece => {
+        if (piece.status === 'in-play') {
+            board[piece.position.x][piece.position.y] = piece;
+        }
+    });
+    return board;
+}

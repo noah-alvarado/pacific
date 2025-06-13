@@ -5,7 +5,6 @@ import { PieceId } from '../types/GameState';
 import { positionStyle, iconForPiece, colorForPiece } from './GamePiece.util';
 import styles from './GamePiece.module.css';
 import { useGameContext } from '../providers/GameLogic';
-import emitter from '../emitter';
 
 export interface IGamePieceProps {
     id: PieceId
@@ -13,27 +12,21 @@ export interface IGamePieceProps {
 export const GamePiece: Component<IGamePieceProps> = (props) => {
 
     const id = untrack(() => props.id);
-    const game = useGameContext();
-
-    if (id === PieceId.BluePlane3B) {
-        createEffect(() => {
-            console.log(id, { selectedPieceId: game.selectedPieceId, turn: game.turn })
-        });
-    }
+    const { game, setGame } = useGameContext();
 
     const piece = game.pieces[id];
     const owner = untrack(() => piece.owner);
     const isUsersPiece = createMemo(() => owner === game.player || game.player === 'local');
-    const isSelected = createMemo(() => game.selectedPieceId === id);
+    const isSelected =  createMemo(() => game.selectedPieceId === id);
     const isSelectable = createMemo(() =>
         isUsersPiece() &&
         owner === game.turn &&
-        game.pieceToDestinations[id].length > 0
+        game.pieceToDestinations[id]?.length > 0
     );
 
     const onClick: JSX.EventHandler<HTMLButtonElement, MouseEvent> = (e) => {
         e.preventDefault();
-        emitter.emit('pieceSelected', { pieceId: id, selected: !isSelected() });
+        setGame('selectedPieceId', isSelected() ? undefined : id);
     }
 
     return (

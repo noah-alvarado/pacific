@@ -7,7 +7,7 @@ import { useGameContext } from '../providers/GameLogic';
 
 export const Board: Component = () => {
 
-  const game = useGameContext();
+  const { game } = useGameContext();
 
   const cells = Array.from({ length: 7 * 7 });
 

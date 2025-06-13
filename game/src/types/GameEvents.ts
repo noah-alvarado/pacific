@@ -1,11 +1,4 @@
-import type { IDestinationMarker, IGamePiece, PieceId } from './GameState';
-
-export interface PieceSelectedEvent {
-    pieceId: PieceId;
-    selected: boolean;
-}
-
-export type DestinationSelectedEvent = IDestinationMarker
+import type { IGamePiece } from './GameState';
 
 export type MoveType = 'move' | 'attack';
 export interface MoveMadeEvent {
@@ -15,8 +8,8 @@ export interface MoveMadeEvent {
     to: { x: number, y: number };
 }
 
+export type GameEvent = MoveMadeEvent;
+
 export interface GameEvents {
-    pieceSelected: (e: PieceSelectedEvent) => void;
-    destinationSelected: (e: DestinationSelectedEvent) => void;
     moveMade: (e: MoveMadeEvent) => void;
 }

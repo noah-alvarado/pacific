@@ -1,4 +1,4 @@
-import { MoveMadeEvent, MoveType } from "./GameEvents";
+import { GameEvent, MoveMadeEvent, MoveType } from "./GameEvents";
 
 export type PlayerColor = 'red' | 'blue';
 export type PieceStatus = 'in-play' | 'destroyed';
@@ -108,22 +108,6 @@ export interface IDestinationMarker {
     position: { x: number, y: number };
 }
 
-export interface IPieceMove {
-    piece: IGamePiece;
-    from: { x: number; y: number };
-    to: { x: number; y: number }
-}
-
-export type GameActionPayload =
-    | IPieceMove;
-
-export interface IGameAction {
-    player: PlayerColor;
-    type: string;
-    payload: GameActionPayload;
-    timestamp: number;
-}
-
 export type GameBoard = (IGamePiece | null)[][];
 export interface IGameState {
     lastMove: MoveMadeEvent | undefined;
@@ -131,7 +115,7 @@ export interface IGameState {
     player: PlayerColor | 'local'; // The color used by this client
     turn: PlayerColor; // The color of the player whose turn it is
     phase: GamePhase;
-    history: IGameAction[];
+    history: GameEvent[];
     winner: PlayerColor | undefined;
     pieces: Record<PieceId, IGamePiece>;
     destinations: IDestinationMarker[];

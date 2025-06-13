@@ -3,17 +3,28 @@ import styles from './DestinationMarker.module.css';
 import emitter from '../emitter';
 import { positionStyle } from './GamePiece.util';
 import { useGameContext } from '../providers/GameLogic';
+import { unwrap } from 'solid-js/store';
 
 interface IDestinationMarkerProps {
     index: number;
 }
 const DestinationMarker: Component<IDestinationMarkerProps> = (props) => {
 
-    const game = useGameContext();
+    const { game } = useGameContext();
 
     const onClick: JSX.EventHandler<HTMLButtonElement, MouseEvent> = (e) => {
         e.preventDefault();
-        emitter.emit('destinationSelected', game.destinations[props.index]);
+
+        const id = game.selectedPieceId;
+        if (!id) return;
+        const piece = game.pieces[id];
+        
+        emitter.emit('moveMade', {
+            piece,
+            type: game.destinations[props.index].moveType,
+            from: game.pieces[id].position,
+            to: game.destinations[props.index].position,
+        });
     }
 
     return (
