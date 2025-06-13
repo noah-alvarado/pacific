@@ -1,7 +1,7 @@
 import { Component, JSX } from "solid-js";
+import { INITIAL_STATE, ONE_MOVE_TO_WIN } from "../constants/game";
 
 import { IGameState } from "../types/GameState";
-import { INITIAL_STATE } from "../constants/game";
 import { reconcile } from "solid-js/store";
 import styles from './Controls.module.css';
 import { useGameContext } from "../providers/GameLogic";
@@ -11,7 +11,11 @@ export const Controls: Component = () => {
 
     const resetGame: JSX.EventHandler<HTMLButtonElement, MouseEvent> = (e) => {
         e.preventDefault();
-        setGame(reconcile(INITIAL_STATE({ player: game.player, turn: game.turn }), { merge: true }));
+        setGame(reconcile(INITIAL_STATE({
+            pieces: ONE_MOVE_TO_WIN,
+            player: game.player,
+            turn: game.turn,
+        }), { merge: true }));
     }
 
     const undoLastMove: JSX.EventHandler<HTMLButtonElement, MouseEvent> = (e) => {

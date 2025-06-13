@@ -65,7 +65,7 @@ The Pacific game board is a 7x7 grid of diagonal intersecting lines. The board i
 - The basic rules are easily grasped, but a good game will develop a satisfactory degree of complexity which is never so great that the result becomes merely a matter of chance.
 - In Pacific A, the first penetration of the enemy back row is often crucial.
 - In Pacific B, the role of the Kamikaze is less simple and the defending player is more likely to be able to restore the situation by sacrificing a Carrier deprived of its aircraft, and so return to the attack.
-- Pacific is not intended to be a simulation but a distillation of the Pacific conflict.
+- Pacific is not intended to be a simulation but a *distillation* of the Pacific conflict.
 - Both sides have an equal number of Carriers and Attack Planes, and both may gain Kamikazes, which are identified by the Cherry Blossom symbol of purity, worn by the Ohka (Cherry Blossom) piloted flying bomb.
 
 ---

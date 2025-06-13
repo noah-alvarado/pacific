@@ -8,6 +8,7 @@ interface GetDestinationsForPieceParams {
     turn: PlayerColor;
     board: GameBoard;
     lastMove: MoveMadeEvent | undefined;
+    winner: PlayerColor | undefined;
 }
 
 export function getDestinationsForPiece({
@@ -16,8 +17,10 @@ export function getDestinationsForPiece({
     turn,
     board,
     lastMove,
+    winner,
 }: GetDestinationsForPieceParams): IDestinationMarker[] {
     let pieceDestinations: IDestinationMarker[] = [];
+    if (winner) return pieceDestinations;
     if (piece.status !== 'in-play') return pieceDestinations;
     if (piece.owner !== turn) return pieceDestinations;
 
@@ -103,6 +106,7 @@ interface MapPieceToDestinationsParams {
     turn: PlayerColor;
     board: GameBoard;
     lastMove: MoveMadeEvent | undefined;
+    winner: PlayerColor | undefined;
 }
 
 export function mapPieceToDestinations({
@@ -110,6 +114,7 @@ export function mapPieceToDestinations({
     turn,
     board,
     lastMove,
+    winner,
 }: MapPieceToDestinationsParams): Record<PieceId, IDestinationMarker[]> {
     const map = {} as Record<PieceId, IDestinationMarker[]>;
 
@@ -118,7 +123,7 @@ export function mapPieceToDestinations({
         const piece = pieces[id as PieceId];
         if (piece.status === 'in-play') {
             const pieceDestinations = getDestinationsForPiece({
-                piece, pieces, turn, board, lastMove
+                piece, pieces, turn, board, lastMove, winner
             });
             map[piece.id] = pieceDestinations;
             somePieceCanAttack ||= map[piece.id].some(d => d.moveType === 'attack');

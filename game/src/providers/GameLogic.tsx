@@ -1,10 +1,10 @@
 import { batch, Component, createContext, createEffect, createMemo, ParentProps, untrack, useContext } from 'solid-js';
 import { createStore, reconcile, SetStoreFunction, unwrap } from 'solid-js/store';
 
-import { INITIAL_STATE } from '../constants/game';
+import { INITIAL_STATE, ONE_MOVE_TO_WIN } from '../constants/game';
 import { useEvent } from '../emitter';
 import type { MoveMadeEvent } from '../types/GameEvents';
-import { GamePhase, getPlaneIdsFromShipId, IGameState, PlayerColor, type GameBoard } from '../types/GameState';
+import { GamePhase, getPlaneIdsFromShipId, IGameState, pieceCanAttack, PlayerColor, type GameBoard } from '../types/GameState';
 import { getBoardFromPieces, mapPieceToDestinations } from './GameLogic.util';
 import { detailedDiff } from 'deep-object-diff';
 
@@ -55,7 +55,7 @@ interface GameLogicProviderProps extends ParentProps {
 export const GameLogicProvider: Component<GameLogicProviderProps> = (props) => {
     const [game, setGame] = createStore<IGameState>(
         getGameSave(untrack(() => props.gameId))
-        || { ...INITIAL_STATE({ player: props.player, turn: props.turn }) }
+        || INITIAL_STATE({ pieces: ONE_MOVE_TO_WIN, player: props.player, turn: props.turn })
     );
 
     // Serialize the game store and save to localStorage on every update
@@ -121,6 +121,7 @@ export const GameLogicProvider: Component<GameLogicProviderProps> = (props) => {
             turn: game.turn,
             board: board(),
             lastMove: game.lastMove,
+            winner: game.winner,
         });
         setGame('pieceToDestinations', reconcile(map, { merge: true }));
     });
@@ -128,21 +129,29 @@ export const GameLogicProvider: Component<GameLogicProviderProps> = (props) => {
     // detect end of game
     createEffect((turn: PlayerColor | undefined) => {
         // only run when turn changes
-        if (game.turn === turn || game.phase === GamePhase.Finished) return;
+        if (game.turn === turn || game.phase === GamePhase.Finished) return game.turn;
 
-        const playerOutOfMoves = Object.values(game.pieceToDestinations).every(d => d.length === 0);
-        if (playerOutOfMoves) {
+        const { hasMove, numPlanes } = Object.values(game.pieces)
+            .filter(piece => piece.owner === game.turn)
+            .reduce((acc, piece) => {
+                if (pieceCanAttack(piece.type) && piece.status === 'in-play') {
+                    acc.numPlanes++;
+                }
+                acc.hasMove ||= game.pieceToDestinations[piece.id]?.length > 0;
+                return acc;
+            }, { hasMove: false, numPlanes: 0 });
+
+        console.log(`hasMove: ${hasMove}, numPlanes: ${numPlanes}`);
+
+        if (!hasMove || !numPlanes) {
             const winner = game.turn === 'red' ? 'blue' : 'red';
+            console.log(`Game over! ${winner} wins!`);
             batch(() => {
                 setGame('phase', GamePhase.Finished);
                 setGame('winner', winner);
             });
             return;
         }
-
-
-        // if current player has no attack planes or kamikazes left, they have lost
-        // if the current player has no moves left, they have lost      
 
         return game.turn;
     });
