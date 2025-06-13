@@ -1,7 +1,7 @@
 import { batch, Component, createContext, createEffect, createMemo, ParentProps, untrack, useContext, type JSX } from 'solid-js';
 import { createStore, unwrap } from 'solid-js/store';
 
-import { INITIAL_PIECES } from '../constants/initialPieces';
+import { INITIAL_PIECES, INITIAL_STATE } from '../constants/game';
 import emitter, { useEvent } from '../emitter';
 import type { DestinationSelectedEvent, MoveMadeEvent, PieceSelectedEvent } from '../types/GameEvents';
 import { GamePhase, getPlaneIdsFromShipId, IDestinationMarker, IGameState, PlayerColor, type GameBoard, type PieceId } from '../types/GameState';
@@ -19,6 +19,7 @@ export function useGameContext() {
 
 interface GameLogicProviderProps extends ParentProps {
     player: PlayerColor | 'local';
+    turn: PlayerColor;
 }
 
 /**
@@ -43,22 +44,7 @@ interface GameLogicProviderProps extends ParentProps {
  * - `handleMoveMade`: Handles the completion of a move, updating piece positions and managing turn logic.
  */
 export const GameLogicProvider: Component<GameLogicProviderProps> = (props) => {
-    const [game, setGame] = createStore<IGameState>({
-        lastMove: undefined,
-        selectedPieceId: undefined,
-        player: props.player,
-        turn: 'blue' as PlayerColor,
-        phase: GamePhase.InProgress,
-        history: [],
-        winner: undefined,
-        pieces: INITIAL_PIECES,
-        destinations: [] as IDestinationMarker[],
-        pieceToDestinations: Object.values(INITIAL_PIECES)
-            .reduce((acc, cur) =>
-                (acc[cur.id] = [], acc),
-                {} as Record<PieceId, IDestinationMarker[]>
-            ),
-    });
+    const [game, setGame] = createStore<IGameState>({ ...INITIAL_STATE({ player: props.player, turn: props.turn }) });
     const [pieces, setPieces] = createStore(game.pieces);
     const [_destinations, setDestinations] = createStore(game.destinations);
     const [pieceToDestinations, setPieceToDestinations] = createStore(game.pieceToDestinations);

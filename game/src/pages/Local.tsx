@@ -5,7 +5,7 @@ import styles from './Local.module.css';
 
 const Local: Component = () => {
     return (
-        <GameLogicProvider player={'local'}>
+        <GameLogicProvider player='local' turn='blue'>
             <div class={styles.container}>
                 <Board />
             </div>

@@ -1,4 +1,5 @@
-import { IGamePiece } from '../types/GameState';
+import { GamePhase, IDestinationMarker, IGamePiece, IGameState, PlayerColor } from '../types/GameState';
+
 import { PieceId } from '../types/GameState';
 
 export const INITIAL_PIECES: Record<PieceId, IGamePiece> = {
@@ -29,3 +30,20 @@ export const INITIAL_PIECES: Record<PieceId, IGamePiece> = {
     [PieceId.BluePlane4A]: { id: PieceId.BluePlane4A, type: 'plane', number: 4, owner: 'blue', status: 'in-play', position: { x: 3, y: 6 } },
     [PieceId.BluePlane4B]: { id: PieceId.BluePlane4B, type: 'plane', number: 4, owner: 'blue', status: 'in-play', position: { x: 3, y: 5 } },
 };
+
+export const INITIAL_STATE: (params: { player: PlayerColor | 'local', turn: PlayerColor }) => IGameState = ({ player, turn }) => ({
+    lastMove: undefined,
+    selectedPieceId: undefined,
+    player,
+    turn,
+    phase: GamePhase.InProgress,
+    history: [],
+    winner: undefined,
+    pieces: INITIAL_PIECES,
+    destinations: [],
+    pieceToDestinations: Object.values(INITIAL_PIECES)
+        .reduce((acc, cur) =>
+            (acc[cur.id] = [], acc),
+            {} as Record<PieceId, IDestinationMarker[]>
+        ),
+});
