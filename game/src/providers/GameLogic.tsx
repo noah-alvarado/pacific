@@ -1,4 +1,4 @@
-import { batch, Component, createContext, createEffect, createMemo, ParentProps, untrack, useContext, type JSX } from 'solid-js';
+import { batch, Component, createContext, createEffect, createMemo, onMount, ParentProps, untrack, useContext, type JSX } from 'solid-js';
 import { createStore, unwrap } from 'solid-js/store';
 
 import { INITIAL_PIECES, INITIAL_STATE } from '../constants/game';
@@ -17,7 +17,12 @@ export function useGameContext() {
     return context;
 }
 
+function gameIdToLocalStorageKey(gameId: string) {
+    return `savedGameState-${gameId}`;
+}
+
 interface GameLogicProviderProps extends ParentProps {
+    gameId: string;
     player: PlayerColor | 'local';
     turn: PlayerColor;
 }
@@ -44,20 +49,22 @@ interface GameLogicProviderProps extends ParentProps {
  * - `handleMoveMade`: Handles the completion of a move, updating piece positions and managing turn logic.
  */
 export const GameLogicProvider: Component<GameLogicProviderProps> = (props) => {
-    const [game, setGame] = createStore<IGameState>({ ...INITIAL_STATE({ player: props.player, turn: props.turn }) });
+    const [game, setGame] = createStore<IGameState>(
+        localStorage.getItem(gameIdToLocalStorageKey(props.gameId))
+            ? JSON.parse(localStorage.getItem(gameIdToLocalStorageKey(props.gameId))!)
+            : { ...INITIAL_STATE({ player: props.player, turn: props.turn }) }
+    );
     const [pieces, setPieces] = createStore(game.pieces);
     const [_destinations, setDestinations] = createStore(game.destinations);
     const [pieceToDestinations, setPieceToDestinations] = createStore(game.pieceToDestinations);
 
-    // logging state
-    if (import.meta.env.DEV) {
-        createEffect(() => {
-            console.log('GameLogicProvider', {
-                selectedPieceId: game.selectedPieceId,
-                turn: game.turn,
-            });
-        });
-    }
+    // Serialize the game store and save to localStorage on every update
+    createEffect(() => {
+        if (import.meta.env.DEV) {
+            console.log('GameLogicProvider', unwrap(game));
+        }
+        localStorage.setItem(gameIdToLocalStorageKey(untrack(() => props.gameId)), JSON.stringify(game));
+    });
 
     // board is derived from game.pieces
     const board = createMemo(() => {

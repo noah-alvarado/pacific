@@ -10,7 +10,7 @@ const Header: Component = () => {
     const windowWidth = useWindowWidth();
     const [theme, setTheme] = createSignal(
         localStorage.getItem('theme')
-        || window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
     const [navOpen, setNavOpen] = createSignal(false);
 
     createEffect(() => {
