@@ -137,6 +137,14 @@ export const GameLogicProvider: Component<GameLogicProviderProps> = (props) => {
         setPieceToDestinations(map);
     });
 
+    // detect end of game
+    createEffect(() => {
+        const playerOutOfMoves = Object.values(pieceToDestinations).every(destinations => destinations.length === 0);
+        // if current player has no attack planes or kamikazes left, they have lost
+        // if the current player has no moves left, they have lost
+    });
+
+
     /* Event Handlers */
     const handlePieceSelected = (e: PieceSelectedEvent) => {
         setGame('selectedPieceId', e.selected ? e.pieceId : undefined);

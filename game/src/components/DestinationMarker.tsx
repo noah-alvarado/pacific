@@ -17,7 +17,8 @@ const DestinationMarker: Component<IDestinationMarkerProps> = (props) => {
     }
 
     return (
-        <button onClick={onClick}
+        <button type="button"
+            onClick={onClick}
             class={styles.destinationMarker}
             style={{ ...positionStyle(game.destinations[props.index].position, { pieceSize: 45 }) }}
         />

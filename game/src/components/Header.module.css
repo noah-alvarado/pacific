@@ -84,4 +84,14 @@
   transition: 0.3s;
 }
 
+.themeToggle {
+  background: none;
+  border: none;
+  color: var(--text-color);
+  font-size: 1.5rem;
+  cursor: pointer;
+  margin-right: 1rem;
+  width: fit-content;
+}
+
 

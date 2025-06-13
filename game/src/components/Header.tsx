@@ -8,7 +8,9 @@ import { useWindowWidth } from '../hooks/useWindowWidth';
 const Header: Component = () => {
     const location = useLocation();
     const windowWidth = useWindowWidth();
-    const [theme, setTheme] = createSignal(localStorage.getItem('theme') || 'auto');
+    const [theme, setTheme] = createSignal(
+        localStorage.getItem('theme')
+        || window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
     const [navOpen, setNavOpen] = createSignal(false);
 
     createEffect(() => {
@@ -39,16 +41,10 @@ const Header: Component = () => {
     return (
         <header class={styles.header}>
             <button
+                type="button"
                 aria-label={theme() === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
                 onClick={toggleDarkMode}
-                style={{
-                    background: 'none',
-                    border: 'none',
-                    color: 'var(--text-color)',
-                    'font-size': '1.5rem',
-                    cursor: 'pointer',
-                    'margin-right': '1rem',
-                }}
+                class={styles.themeToggle}
             >
                 {theme() === 'dark' ? '🌙' : '☀️'}
             </button>
