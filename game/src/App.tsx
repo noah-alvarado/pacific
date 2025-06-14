@@ -5,7 +5,7 @@ import Header from './components/Header';
 
 const App: Component<ParentProps> = (props) => {
   return (
-    <div class={styles.App}>
+    <div class={styles.app}>
       <Header />
       <main>
         {props.children}

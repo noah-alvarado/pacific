@@ -1,7 +1,6 @@
 import { A } from '@solidjs/router';
 import { Component } from 'solid-js';
 import { Page } from '../AppRouter';
-import PlaneIcon from '../assets/plane.svg';
 import styles from './Landing.module.css';
 
 const Landing: Component = () => {

@@ -1,4 +1,4 @@
-import { Index, type Component, For, createEffect } from 'solid-js';
+import { Index, type Component, For } from 'solid-js';
 import styles from './Board.module.css';
 import { GamePiece } from './GamePiece';
 import { PieceId } from '../types/GameState';
@@ -7,7 +7,7 @@ import { useGameContext } from '../providers/GameLogic';
 
 export const Board: Component = () => {
 
-  const { game } = useGameContext();
+  const { game, pieceToDestinations } = useGameContext();
 
   const cells = Array.from({ length: 7 * 7 });
 
@@ -24,7 +24,7 @@ export const Board: Component = () => {
 
           if (isEvenRow && !isEvenCol || !isEvenRow && isEvenCol) {
             return (
-              <div class={`${styles.cell}`}>
+              <div class={styles.cell}>
                 <div class={styles.line1} />
                 <div class={`${styles.dot} ${styles.topLeft}`} />
                 <div class={`${styles.dot} ${styles.bottomRight}`} />
@@ -33,7 +33,7 @@ export const Board: Component = () => {
           }
 
           return (
-            <div class={`${styles.cell}`}>
+            <div class={styles.cell}>
               <div class={styles.line2} />
               <div class={`${styles.dot} ${styles.topRight}`} />
               <div class={`${styles.dot} ${styles.bottomLeft}`} />
@@ -48,7 +48,7 @@ export const Board: Component = () => {
       </Index>
 
       {/* Render the destination markers */}
-      <For each={game.destinations}>
+      <For each={game.selectedPieceId ? pieceToDestinations()[game.selectedPieceId] : []}>
         {(_, i) => <DestinationMarker index={i()} />}
       </For>
     </div>

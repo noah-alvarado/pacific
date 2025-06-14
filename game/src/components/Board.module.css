@@ -4,9 +4,7 @@
   --grid-height: calc(var(--grid-width) + 2px);
   --dot-radius: 3.5px;
   --grid-color: var(--text-color);
-}
-
-.board {
+  
   position: relative;
   background-color: var(--board-color);
   display: grid;
@@ -20,6 +18,29 @@
 .board[style*="--grid-size: 7"] {
   grid-template-columns: repeat(7, 1fr);
   grid-template-rows: repeat(7, 1fr);
+}
+
+.cell {
+  position: relative;
+  width: var(--cell-width);
+  height: var(--cell-width);
+  padding: 2px;
+}
+
+/*
+ * Target cells in the first column
+ * Add a border on the left of these cells
+ */
+ .board>.cell:nth-child(7n+1) {
+  border-left: 2px solid var(--grid-color);
+}
+
+/*
+ * Target cells in the seventh column
+ * Add a border on the right of these cells
+ */
+.board>.cell:nth-child(7n+7) {
+  border-right: 2px solid var(--grid-color);
 }
 
 /*
@@ -39,22 +60,6 @@
 }
 
 /*
- * Target cells in the first column
- * Add a border on the left of these cells
- */
-.board>.cell:nth-child(7n+1) {
-  border-left: 2px solid var(--grid-color);
-}
-
-/*
- * Target cells in the seventh column
- * Add a border on the right of these cells
- */
-.board>.cell:nth-child(7n+7) {
-  border-right: 2px solid var(--grid-color);
-}
-
-/*
  * Target cells in the fourth row (children 22 through 28 for a 7-column grid)
  * Add a thin horizontal line on the top and bottom of these cells
  */
@@ -63,25 +68,14 @@
   border-bottom: 1px solid var(--grid-color);
 }
 
-.cell {
-  position: relative;
-  width: var(--cell-width);
-  height: var(--cell-width);
-  padding: 2px;
-}
-
 .line1,
 .line2 {
   position: absolute;
-  background-color: var(--grid-color);
-  /* Line color */
-  height: 2px;
-  /* Line thickness */
-  width: 141.42%;
-  /* sqrt(2) * 100% to span the diagonal */
+  background-color: var(--grid-color); /* Line color */
+  height: 2px; /* Line thickness */
+  width: 141.42%; /* sqrt(2) * 100% to span the diagonal */
   top: 50%;
-  left: -20.71%;
-  /* (100% - 141.42%) / 2 */
+  left: -20.71%; /* (100% - 141.42%) / 2 */
 }
 
 .line1 {

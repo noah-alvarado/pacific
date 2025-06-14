@@ -1,14 +1,18 @@
-import { batch, Component, createContext, createEffect, createMemo, ParentProps, untrack, useContext } from 'solid-js';
-import { createStore, reconcile, SetStoreFunction, unwrap } from 'solid-js/store';
-
-import { INITIAL_STATE, ONE_MOVE_TO_WIN } from '../constants/game';
-import { useEvent } from '../emitter';
-import type { MoveMadeEvent } from '../types/GameEvents';
-import { GamePhase, getPlaneIdsFromShipId, IGameState, pieceCanAttack, PlayerColor, type GameBoard } from '../types/GameState';
+import { Accessor, Component, ParentProps, batch, createContext, createEffect, createMemo, untrack, useContext } from 'solid-js';
+import { BLUE_STALEMATE_OR_DECISIVE, INITIAL_STATE } from '../constants/game';
+import type { GameEndEvent, MoveMadeEvent, TurnChangeEvent } from '../types/GameEvents';
+import { GamePhase, IDestinationMarker, IGameState, PieceId, PlayerColor, getPlaneIdsFromShipId, pieceCanAttack } from '../types/GameState';
+import { SetStoreFunction, createStore, unwrap } from 'solid-js/store';
+import emitter, { useEvent } from '../emitter';
 import { getBoardFromPieces, mapPieceToDestinations } from './GameLogic.util';
+
 import { detailedDiff } from 'deep-object-diff';
 
-const GameContext = createContext<{ game: IGameState, setGame: SetStoreFunction<IGameState> }>();
+const GameContext = createContext<{
+    game: IGameState,
+    setGame: SetStoreFunction<IGameState>,
+    pieceToDestinations: Accessor<Record<PieceId, (IDestinationMarker[] | undefined)>>,
+}>();
 
 export function useGameContext() {
     const context = useContext(GameContext);
@@ -55,67 +59,21 @@ interface GameLogicProviderProps extends ParentProps {
 export const GameLogicProvider: Component<GameLogicProviderProps> = (props) => {
     const [game, setGame] = createStore<IGameState>(
         getGameSave(untrack(() => props.gameId))
-        || INITIAL_STATE({ pieces: ONE_MOVE_TO_WIN, player: props.player, turn: props.turn })
+        ?? INITIAL_STATE({ pieces: BLUE_STALEMATE_OR_DECISIVE, player: props.player, turn: props.turn })
     );
-
-    // Serialize the game store and save to localStorage on every update
-    createEffect(() => {
-        if (import.meta.env.DEV) {
-            console.log('game state change', detailedDiff(
-                getGameSave(untrack(() => props.gameId)) || {},
-                unwrap(game)
-            ));
-        }
-        localStorage.setItem(gameIdToLocalStorageKey(untrack(() => props.gameId)), JSON.stringify(game));
-    });
 
     // board is derived from game.pieces
     const board = createMemo(() => getBoardFromPieces(game.pieces));
 
-    // manage the turn state
-    createEffect(() => {
-        if (!game.lastMove) return;
-
-        const lastMoverHasTurn = game.lastMove.piece.owner === game.turn;
-        if (!lastMoverHasTurn) return;
-
-        const lastMoveWasAttack = game.lastMove.type === 'attack';
-        if (!lastMoveWasAttack) {
-            // if the last move was not an attack, switch turns
-            batch(() => {
-                setGame('turn', game.lastMove!.piece.owner === 'red' ? 'blue' : 'red');
-                setGame('selectedPieceId', undefined);
-            });
-            return;
-        }
-
-        const attackingPieceHasNoMoves = game.pieceToDestinations[game.lastMove.piece.id].length === 0;
-        if (attackingPieceHasNoMoves) {
-            // if the piece attacked last turn and has no further destinations,
-            // it must end its turn
-            batch(() => {
-                setGame('turn', (t) => t === 'red' ? 'blue' : 'red');
-                setGame('selectedPieceId', undefined);
-            });
-            return;
-        }
-    });
-
-    // update destinations whenever a piece is selected
-    createEffect(() => {
-        setGame(
-            'destinations',
-            reconcile(
-                game.selectedPieceId
-                    ? game.pieceToDestinations[game.selectedPieceId]
-                    : [],
-                { merge: true }
-            )
-        );
-    });
-
-    // calculate destinations for all pieces
-    createEffect(() => {
+    // Maps pieces to their possible destinations
+    const pieceToDestinations = createMemo(() => {
+        console.log({
+            pieces: game.pieces,
+            turn: game.turn,
+            board: board(),
+            lastMove: game.lastMove,
+            winner: game.winner,
+        })
         const map = mapPieceToDestinations({
             pieces: game.pieces,
             turn: game.turn,
@@ -123,13 +81,49 @@ export const GameLogicProvider: Component<GameLogicProviderProps> = (props) => {
             lastMove: game.lastMove,
             winner: game.winner,
         });
-        setGame('pieceToDestinations', reconcile(map, { merge: true }));
+        console.log(map)
+
+        return map
+    });
+
+    // Serialize the game store and save to localStorage on every update
+    createEffect(() => {
+        if (import.meta.env.DEV) {
+            console.log('game state change', detailedDiff(
+                getGameSave(untrack(() => props.gameId)) ?? {},
+                unwrap(game)
+            ));
+        }
+        localStorage.setItem(gameIdToLocalStorageKey(untrack(() => props.gameId)), JSON.stringify(game));
+    });
+
+    // manage the turn state
+    // detect end of game
+    createEffect((lastMoveHash?: string) => {
+        const moveToHash = (move: MoveMadeEvent) => JSON.stringify(move);
+        if (!game.lastMove) return lastMoveHash;
+        // only run when lastMove changes
+        if (moveToHash(game.lastMove) === lastMoveHash) return lastMoveHash;
+
+        const lastMoveWasNotAttack = game.lastMove.moveType !== 'attack';
+        const attackingPieceHasNoMoves = pieceToDestinations()[game.lastMove.piece.id].length === 0;
+        console.log({ lastMoveWasNotAttack, attackingPieceHasNoMoves });
+        if (lastMoveWasNotAttack || attackingPieceHasNoMoves) {
+            // the turn will change, but here we also check for victory conditions
+            emitter.emit('turnChange', JSON.parse(JSON.stringify({
+                from: game.turn,
+                to: game.turn === 'red' ? 'blue' : 'red',
+            })) as TurnChangeEvent);
+        }
+
+        return moveToHash(game.lastMove);
     });
 
     // detect end of game
     createEffect((turn: PlayerColor | undefined) => {
         // only run when turn changes
-        if (game.turn === turn || game.phase === GamePhase.Finished) return game.turn;
+        if (game.phase === GamePhase.Finished) return turn;
+        if (game.turn === turn) return turn;
 
         const { hasMove, numPlanes } = Object.values(game.pieces)
             .filter(piece => piece.owner === game.turn)
@@ -137,32 +131,28 @@ export const GameLogicProvider: Component<GameLogicProviderProps> = (props) => {
                 if (pieceCanAttack(piece.type) && piece.status === 'in-play') {
                     acc.numPlanes++;
                 }
-                acc.hasMove ||= game.pieceToDestinations[piece.id]?.length > 0;
+                acc.hasMove ||= pieceToDestinations()[piece.id].length > 0;
                 return acc;
             }, { hasMove: false, numPlanes: 0 });
 
         console.log(`hasMove: ${hasMove}, numPlanes: ${numPlanes}`);
 
-        if (!hasMove || !numPlanes) {
-            const winner = game.turn === 'red' ? 'blue' : 'red';
-            console.log(`Game over! ${winner} wins!`);
-            batch(() => {
-                setGame('phase', GamePhase.Finished);
-                setGame('winner', winner);
-            });
-            return;
-        }
+        const reason = !numPlanes ? 'no-planes'
+            : !hasMove ? 'no-moves'
+                : undefined;
+        if (!reason) return game.turn;
 
+        const winner = game.turn === 'red' ? 'blue' : 'red';
+        console.log(`Game over! ${winner} wins by ${reason}!`);
+        emitter.emit('gameEnd', JSON.parse(JSON.stringify({ winner, loser: game.turn, reason })) as GameEndEvent);
         return game.turn;
     });
 
     /* Event Handlers */
     const handleMoveMade = (e: MoveMadeEvent) => {
         batch(() => {
-            setGame('history', game.history.length, e);
-
             // remove jumped pieces
-            if (e.type === 'attack') {
+            if (e.moveType === 'attack') {
                 const isEvenRow = e.from.y % 2 === 0;
                 const takenPieceX = isEvenRow
                     ? Math.max(e.from.x, e.to.x)
@@ -171,6 +161,7 @@ export const GameLogicProvider: Component<GameLogicProviderProps> = (props) => {
                 const takenPieceY = (e.from.y + e.to.y) / 2;
 
                 const takenPiece = board()[takenPieceX][takenPieceY];
+                console.log({ takenPiece })
                 if (takenPiece) {
                     setGame('pieces', takenPiece.id, 'status', 'destroyed');
                     const planeIds = getPlaneIdsFromShipId(takenPiece.id);
@@ -195,8 +186,25 @@ export const GameLogicProvider: Component<GameLogicProviderProps> = (props) => {
     };
     useEvent('moveMade', handleMoveMade);
 
+    const handleTurnChange = (e: TurnChangeEvent) => {
+        batch(() => {
+            setGame('turn', e.to);
+            setGame('selectedPieceId', undefined);
+        });
+    };
+    useEvent('turnChange', handleTurnChange);
+
+    const handleGameEnd = (e: GameEndEvent) => {
+        window.alert(`Game ended: ${e.winner} wins via ${e.reason}`);
+        batch(() => {
+            setGame('phase', GamePhase.Finished);
+            setGame('winner', e.winner);
+        });
+    };
+    useEvent('gameEnd', handleGameEnd);
+
     return (
-        <GameContext.Provider value={{ game, setGame }}>
+        <GameContext.Provider value={{ game, setGame, pieceToDestinations }}>
             {props.children}
         </GameContext.Provider>
     );

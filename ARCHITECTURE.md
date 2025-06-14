@@ -17,7 +17,7 @@ This project is a monorepo containing both frontend and gameserver code. It supp
     - Implementing WebRTC for P2P game sessions.
     - Subscribing to Firestore for real-time updates in server-mediated games.
 - **State Management:**
-    - SolidJS Stores/Context API are used to hold and share all game state, move history, and player/session data across components.
+    - SolidJS Stores/Context API are used to hold and share all game state and player/session data across components.
     - Game events (such as moves, state transitions, and system messages) are dispatched and handled centrally, updating stores and triggering UI updates.
 - **Game Logic Execution:**
     - All move validation, rule enforcement, and state transitions are performed client-side in the frontend for both P2P and server-mediated games.

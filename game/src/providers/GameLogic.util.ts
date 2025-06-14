@@ -24,21 +24,22 @@ export function getDestinationsForPiece({
     if (piece.status !== 'in-play') return pieceDestinations;
     if (piece.owner !== turn) return pieceDestinations;
 
-    const lastMoveWasThisPlayer = lastMove?.piece.owner === piece.owner;
-    const lastMoveWasAttack = lastMove?.type === 'attack';
+    const lastMoveWasThisPlayer = lastMove?.piece.owner === turn;
+    const lastMoveWasAttack = lastMove?.moveType === 'attack';
     const lastMoveWasThisPiece = lastMove?.piece.id === piece.id;
     if (lastMoveWasThisPlayer && lastMoveWasAttack && !lastMoveWasThisPiece) {
         return pieceDestinations;
     }
 
-    const thisPieceAttackedLastTurn = lastMoveWasThisPlayer && lastMoveWasAttack && lastMoveWasThisPiece;
-    if (piece.type === 'plane' && !thisPieceAttackedLastTurn) {
+    const thisPieceIsAttackChaining = lastMoveWasThisPlayer && lastMoveWasAttack && lastMoveWasThisPiece;
+    if (piece.type === 'plane' && !thisPieceIsAttackChaining) {
         const shipId = getShipIdFromPlaneId(piece.id);
         if (!shipId) {
             return pieceDestinations;
         }
         const ship = pieces[shipId];
         const rowsApart = piece.position.y - ship.position.y;
+        console.log(piece.id, 'rowsApart', rowsApart, 'shipId', shipId);
         if (piece.owner === 'red' ? rowsApart >= 3 : rowsApart <= -3) {
             return pieceDestinations;
         }
@@ -65,7 +66,7 @@ export function getDestinationsForPiece({
 
     function addDirectionalDestinations({ x, y, xInc, yInc }: { x: number, y: number, xInc: number, yInc: number }) {
         const nextY = y + yInc;
-        if (posIsEmpty(x, nextY)) {
+        if (posIsEmpty(x, nextY) && !thisPieceIsAttackChaining) {
             pieceDestinations.push({
                 moveType: 'move',
                 position: { x, y: nextY },
@@ -93,8 +94,7 @@ export function getDestinationsForPiece({
         }
     }
 
-    const thisPieceAttackedLast = lastMoveWasAttack && lastMoveWasThisPiece;
-    if (pieceDestinations.some(pd => pd.moveType === 'attack') || thisPieceAttackedLast) {
+    if (pieceDestinations.some(pd => pd.moveType === 'attack') || thisPieceIsAttackChaining) {
         pieceDestinations = pieceDestinations.filter(pd => pd.moveType === 'attack');
     }
 

@@ -13,10 +13,10 @@
 }
 
 section > ul {
-    padding-left: 1rem;
-    @media (min-width: 300px){ padding-left: 1.5rem;}
-    @media (min-width: 400px) { padding-left: 2rem; }
-    @media (min-width: 500px) { padding-left: 2.5rem; }
+  padding-left: 1rem;
+  @media (width >= 300px) { padding-left: 1.5rem; }
+  @media (width >= 400px) { padding-left: 2rem; }
+  @media (width >= 500px) { padding-left: 2.5rem; }
 }
 
 .imgBoard {

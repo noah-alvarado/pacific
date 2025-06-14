@@ -3,35 +3,32 @@ import styles from './DestinationMarker.module.css';
 import emitter from '../emitter';
 import { positionStyle } from './GamePiece.util';
 import { useGameContext } from '../providers/GameLogic';
-import { unwrap } from 'solid-js/store';
+import { MoveMadeEvent } from '../types/GameEvents';
 
 interface IDestinationMarkerProps {
     index: number;
 }
 const DestinationMarker: Component<IDestinationMarkerProps> = (props) => {
 
-    const { game } = useGameContext();
+    const { game, pieceToDestinations } = useGameContext();
 
     const onClick: JSX.EventHandler<HTMLButtonElement, MouseEvent> = (e) => {
         e.preventDefault();
 
-        const id = game.selectedPieceId;
-        if (!id) return;
-        const piece = game.pieces[id];
-        
-        emitter.emit('moveMade', {
+        const piece = game.pieces[game.selectedPieceId!];
+        emitter.emit('moveMade', JSON.parse(JSON.stringify({
             piece,
-            type: game.destinations[props.index].moveType,
-            from: game.pieces[id].position,
-            to: game.destinations[props.index].position,
-        });
+            moveType: pieceToDestinations()[game.selectedPieceId!][props.index].moveType,
+            from: game.pieces[game.selectedPieceId!].position,
+            to: pieceToDestinations()[game.selectedPieceId!][props.index].position,
+        })) as MoveMadeEvent);
     }
 
     return (
         <button type="button"
             onClick={onClick}
             class={styles.destinationMarker}
-            style={{ ...positionStyle(game.destinations[props.index].position, { pieceSize: 45 }) }}
+            style={{ ...positionStyle(pieceToDestinations()[game.selectedPieceId!][props.index].position, { pieceSize: 45 }) }}
         />
     );
 };

@@ -14,10 +14,19 @@
   font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 8%);
 }
 
 .button:hover,
 .button:focus {
   outline: none;
+}
+
+.red {
+  background: red;
+}
+
+.turnIndicator {
+  display: flex;
+  gap: 0.5rem;
 }

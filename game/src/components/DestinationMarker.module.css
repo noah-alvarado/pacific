@@ -1,10 +1,8 @@
 .destinationMarker {
     --marker-size: 45px;
-    --marker-color: rgba(255, 215, 0, 0.4);
-    --marker-pick-color: rgba(255, 215, 0, 0.8);
-}
-
-.destinationMarker {
+    --marker-color: rgb(255 215 0 / 40%);
+    --marker-pick-color: rgb(255 215 0 / 80%);
+    
     width: var(--marker-size);
     height: var(--marker-size);
     border-radius: 50%;
@@ -13,7 +11,7 @@
     justify-content: center;
     align-items: center;
     background-color: var(--marker-color);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 4px rgb(0 0 0 / 20%);
     padding: 0;
 }
 

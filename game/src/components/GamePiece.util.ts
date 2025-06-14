@@ -53,8 +53,8 @@ export function positionStyle(position: { x: number, y: number } | undefined, op
     const top = intersectionY - (options.pieceSize / 2) + boardPadding + 1.5;
     return {
         position: 'absolute',
-        left: String(left) + 'px',
-        top: String(top) + 'px',
+        left: `${left}px`,
+        top: `${top}px`,
     };
 }
 

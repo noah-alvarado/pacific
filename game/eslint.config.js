@@ -7,10 +7,26 @@ import tsParser from "@typescript-eslint/parser";
 import tseslint from "typescript-eslint";
 
 export default defineConfig([
-  eslint.configs.recommended,
-  tseslint.configs.strictTypeChecked,
-  tseslint.configs.stylisticTypeChecked,
-  jsxA11y.configs.strict,
+  {
+    ...eslint.configs.recommended,
+    files: ["**/*.{js,mjs,cjs,jsx,mjsx,ts,tsx,mtsx}"],
+    ignores: ["**/*.css"],
+  },
+  ...tseslint.configs.strictTypeChecked.map((cfg) => ({
+    ...cfg,
+    files: ["**/*.{js,mjs,cjs,jsx,mjsx,ts,tsx,mtsx}"],
+    ignores: ["**/*.css"],
+  })),
+  ...tseslint.configs.stylisticTypeChecked.map((cfg) => ({
+    ...cfg,
+    files: ["**/*.{js,mjs,cjs,jsx,mjsx,ts,tsx,mtsx}"],
+    ignores: ["**/*.css"],
+  })),
+  {
+    ...jsxA11y.flatConfigs.strict,
+    files: ["**/*.{js,mjs,cjs,jsx,mjsx,ts,tsx,mtsx}"],
+    ignores: ["**/*.css"],
+  },
   {
     files: ["**/*.{js,mjs,cjs,jsx,mjsx,ts,tsx,mtsx}"],
     ...solid,
@@ -23,7 +39,7 @@ export default defineConfig([
       parser: tsParser,
       parserOptions: {
         projectService: {
-          allowDefaultProject: ['*.js'],
+          allowDefaultProject: ["*.js"],
         },
         project: ["./tsconfig.json"],
         ecmaFeatures: {
@@ -31,5 +47,17 @@ export default defineConfig([
         },
       },
     },
+    rules: {
+      "@typescript-eslint/restrict-template-expressions": [
+        "error",
+        {
+          allowBoolean: true,
+          allowNullish: true,
+          allowNumber: true,
+        },
+      ],
+      "@typescript-eslint/no-non-null-assertion": "off",
+    },
+    ignores: ["**/*.css"],
   },
 ]);

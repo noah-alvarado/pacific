@@ -6,7 +6,7 @@ export function useWindowWidth() {
     onMount(() => {
         const handler = () => setWindowWidth(window.innerWidth);
         window.addEventListener('resize', handler);
-        onCleanup(() => window.removeEventListener('resize', handler));
+        onCleanup(() => { window.removeEventListener('resize', handler); });
     });
 
     return windowWidth;

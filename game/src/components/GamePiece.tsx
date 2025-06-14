@@ -1,4 +1,4 @@
-import { createEffect, createMemo, Show, untrack, type Component, type JSX } from 'solid-js';
+import { createMemo, Show, untrack, type Component, type JSX } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 
 import { PieceId } from '../types/GameState';
@@ -12,16 +12,16 @@ export interface IGamePieceProps {
 export const GamePiece: Component<IGamePieceProps> = (props) => {
 
     const id = untrack(() => props.id);
-    const { game, setGame } = useGameContext();
+    const { game, setGame, pieceToDestinations } = useGameContext();
 
     const piece = game.pieces[id];
     const owner = untrack(() => piece.owner);
     const isUsersPiece = createMemo(() => owner === game.player || game.player === 'local');
-    const isSelected =  createMemo(() => game.selectedPieceId === id);
+    const isSelected = createMemo(() => game.selectedPieceId === id);
     const isSelectable = createMemo(() =>
         isUsersPiece() &&
         owner === game.turn &&
-        game.pieceToDestinations[id]?.length > 0
+        pieceToDestinations()[id]?.length
     );
 
     const onClick: JSX.EventHandler<HTMLButtonElement, MouseEvent> = (e) => {

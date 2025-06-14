@@ -2,9 +2,7 @@
     --piece-size: 50px;
     --piece-color: #F5F5DC;
     --icon-size: 80%;
-}
 
-.piece {
     width: var(--piece-size);
     height: var(--piece-size);
     border-radius: 50%;
@@ -13,7 +11,7 @@
     justify-content: center;
     align-items: center;
     background-color: var(--piece-color);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 4px rgb(0 0 0 / 20%);
 }
 
 .piece.selected {
@@ -32,7 +30,11 @@
         pointer-events: none;
         filter: grayscale(10%);
     }
-    
+}
+
+.icon {
+    width: var(--icon-size);
+    height: var(--icon-size);
 }
 
 .number {
@@ -41,19 +43,11 @@
     right: 18%;
     font-size: 1rem;
     font-weight: 600;
-}
 
-@media (min-width: 768px) {
-  .number {
-    top: 8%;
-    right: 22%;
-    font-size: 1.2rem;
-    font-weight: 800;
-  }
+    @media (width <= 768px) {
+        top: 8%;
+        right: 22%;
+        font-size: 1.2rem;
+        font-weight: 800;
+    }
 }
-
-.icon {
-    width: var(--icon-size);
-    height: var(--icon-size);
-}
-
