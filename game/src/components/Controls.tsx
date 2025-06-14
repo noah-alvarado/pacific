@@ -1,5 +1,5 @@
-import { BLUE_STALEMATE_OR_DECISIVE, INITIAL_STATE } from "../constants/game";
 import { Component, JSX } from "solid-js";
+import { INITIAL_PIECES, INITIAL_STATE } from "../constants/game";
 
 import { reconcile } from "solid-js/store";
 import styles from './Controls.module.css';
@@ -11,7 +11,7 @@ export const Controls: Component = () => {
     const resetGame: JSX.EventHandler<HTMLButtonElement, MouseEvent> = (e) => {
         e.preventDefault();
         setGame(reconcile(INITIAL_STATE({
-            pieces: BLUE_STALEMATE_OR_DECISIVE,
+            pieces: INITIAL_PIECES,
             player: game.player,
             turn: game.turn,
         }), { merge: true }));

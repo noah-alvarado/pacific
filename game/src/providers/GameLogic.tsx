@@ -1,7 +1,7 @@
 import { Accessor, Component, ParentProps, batch, createContext, createEffect, createMemo, untrack, useContext } from 'solid-js';
-import { BLUE_STALEMATE_OR_DECISIVE, INITIAL_STATE } from '../constants/game';
 import type { GameEndEvent, MoveMadeEvent, TurnChangeEvent } from '../types/GameEvents';
 import { GamePhase, IDestinationMarker, IGameState, PieceId, PlayerColor, getPlaneIdsFromShipId, pieceCanAttack } from '../types/GameState';
+import { INITIAL_PIECES, INITIAL_STATE } from '../constants/game';
 import { SetStoreFunction, createStore, unwrap } from 'solid-js/store';
 import emitter, { useEvent } from '../emitter';
 import { getBoardFromPieces, mapPieceToDestinations } from './GameLogic.util';
@@ -59,7 +59,7 @@ interface GameLogicProviderProps extends ParentProps {
 export const GameLogicProvider: Component<GameLogicProviderProps> = (props) => {
     const [game, setGame] = createStore<IGameState>(
         getGameSave(untrack(() => props.gameId))
-        ?? INITIAL_STATE({ pieces: BLUE_STALEMATE_OR_DECISIVE, player: props.player, turn: props.turn })
+        ?? INITIAL_STATE({ pieces: INITIAL_PIECES, player: props.player, turn: props.turn })
     );
 
     // board is derived from game.pieces
