@@ -3,7 +3,7 @@ import styles from "./Board.module.css";
 import { GamePiece } from "./GamePiece";
 import { PieceId } from "../types/GameState";
 import DestinationMarker from "./DestinationMarker";
-import { useGameContext } from "../providers/GameLogic";
+import { useGameContext } from "../providers/Game";
 
 export const Board: Component = () => {
   const { game, pieceToDestinations } = useGameContext();

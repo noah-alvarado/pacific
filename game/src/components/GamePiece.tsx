@@ -4,7 +4,7 @@ import { Dynamic } from "solid-js/web";
 import { PieceId } from "../types/GameState";
 import { positionStyle, iconForPiece, colorForPiece } from "./GamePiece.util";
 import styles from "./GamePiece.module.css";
-import { useGameContext } from "../providers/GameLogic";
+import { useGameContext } from "../providers/Game";
 
 export interface IGamePieceProps {
   id: PieceId;

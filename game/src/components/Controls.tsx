@@ -3,7 +3,7 @@ import { INITIAL_PIECES, INITIAL_STATE } from "../constants/game";
 
 import { reconcile } from "solid-js/store";
 import styles from "./Controls.module.css";
-import { useGameContext } from "../providers/GameLogic";
+import { useGameContext } from "../providers/Game";
 
 export const Controls: Component = () => {
   const { game, setGame } = useGameContext();

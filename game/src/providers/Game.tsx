@@ -26,7 +26,7 @@ import {
 import { INITIAL_PIECES, INITIAL_STATE } from "../constants/game";
 import { SetStoreFunction, createStore, unwrap } from "solid-js/store";
 import emitter, { useEvent } from "../emitter";
-import { getBoardFromPieces, mapPieceToDestinations } from "./GameLogic.util";
+import { getBoardFromPieces, mapPieceToDestinations } from "./Game.util";
 
 import { detailedDiff } from "deep-object-diff";
 

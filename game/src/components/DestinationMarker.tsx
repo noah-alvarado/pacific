@@ -2,7 +2,7 @@ import { type JSX, type Component } from "solid-js";
 import styles from "./DestinationMarker.module.css";
 import emitter from "../emitter";
 import { positionStyle } from "./GamePiece.util";
-import { useGameContext } from "../providers/GameLogic";
+import { useGameContext } from "../providers/Game";
 import { MoveMadeEvent } from "../types/GameEvents";
 
 interface IDestinationMarkerProps {

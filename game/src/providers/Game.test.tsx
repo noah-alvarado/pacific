@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { GameLogicProvider } from "./GameLogic";
+import { GameLogicProvider } from "./Game";
 import { render } from "@solidjs/testing-library";
 
 describe("<GameLogicProvider />", () => {

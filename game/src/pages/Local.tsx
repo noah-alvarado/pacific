@@ -1,7 +1,7 @@
 import { Board } from "../components/Board";
 import { Component } from "solid-js";
 import { Controls } from "../components/Controls";
-import { GameLogicProvider } from "../providers/GameLogic";
+import { GameLogicProvider } from "../providers/Game";
 import styles from "./Local.module.css";
 
 const Local: Component = () => {

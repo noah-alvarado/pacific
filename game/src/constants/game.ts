@@ -8,7 +8,7 @@ import {
 import {
   getBoardFromPieces,
   mapPieceToDestinations,
-} from "../providers/GameLogic.util";
+} from "../providers/Game.util";
 
 export const INITIAL_STATE: (params: {
   pieces: Record<PieceId, IGamePiece>;

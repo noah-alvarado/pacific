@@ -11,6 +11,7 @@
     "serve": "vite preview",
     "test": "vitest",
     "prettier": "prettier --write .",
+    "prettier:ci": "prettier --check .",
     "lint": "yarn lint:ts && yarn lint:css",
     "lint:ts": "eslint src",
     "lint:css": "stylelint 'src/**/*.css' --allow-empty-input",

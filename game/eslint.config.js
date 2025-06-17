@@ -24,6 +24,7 @@ export default defineConfig([
     ignores: ["**/*.css"],
   })),
   {
+    /* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access */
     ...jsxA11y.flatConfigs.strict,
     files: ["**/*.{js,mjs,cjs,jsx,mjsx,ts,tsx,mtsx}"],
     ignores: ["**/*.css"],
