@@ -1,10 +1,11 @@
 import { defineConfig } from "eslint/config";
 import eslint from "@eslint/js";
+import eslintConfigPrettier from "eslint-config-prettier/flat";
 import globals from "globals";
-import jsxA11y from "eslint-plugin-jsx-a11y";
 import solid from "eslint-plugin-solid/configs/typescript";
 import tsParser from "@typescript-eslint/parser";
 import tseslint from "typescript-eslint";
+import jsxA11y from "eslint-plugin-jsx-a11y";
 
 export default defineConfig([
   {
@@ -60,4 +61,5 @@ export default defineConfig([
     },
     ignores: ["**/*.css"],
   },
+  eslintConfigPrettier,
 ]);

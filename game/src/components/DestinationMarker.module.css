@@ -1,21 +1,21 @@
 .destinationMarker {
-    --marker-size: 45px;
-    --marker-color: rgb(255 215 0 / 40%);
-    --marker-pick-color: rgb(255 215 0 / 80%);
-    
-    width: var(--marker-size);
-    height: var(--marker-size);
-    border-radius: 50%;
-    border: none;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: var(--marker-color);
-    box-shadow: 0 2px 4px rgb(0 0 0 / 20%);
-    padding: 0;
+  --marker-size: 45px;
+  --marker-color: rgb(255 215 0 / 40%);
+  --marker-pick-color: rgb(255 215 0 / 80%);
+
+  width: var(--marker-size);
+  height: var(--marker-size);
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--marker-color);
+  box-shadow: 0 2px 4px rgb(0 0 0 / 20%);
+  padding: 0;
 }
 
 .destinationMarker:hover {
-    cursor: pointer;
-    background-color: var(--marker-pick-color);
+  cursor: pointer;
+  background-color: var(--marker-pick-color);
 }

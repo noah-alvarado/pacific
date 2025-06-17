@@ -1,8 +1,8 @@
 // Event bus using nanoevents
-import { Emitter, createNanoEvents } from 'nanoevents';
-import { createEffect, onCleanup } from 'solid-js';
+import { Emitter, createNanoEvents } from "nanoevents";
+import { createEffect, onCleanup } from "solid-js";
 
-import { GameEvents } from './types/GameEvents';
+import { GameEvents } from "./types/GameEvents";
 
 const emitter: Emitter<GameEvents> = createNanoEvents<GameEvents>();
 
@@ -15,11 +15,13 @@ export default emitter;
  * @param handler The event handler function
  */
 export function useEvent<TEvent extends keyof GameEvents>(
-    event: TEvent,
-    handler: GameEvents[TEvent]
+  event: TEvent,
+  handler: GameEvents[TEvent],
 ) {
-    createEffect(() => {
-        const unbind = emitter.on(event, handler);
-        onCleanup(() => { unbind(); });
+  createEffect(() => {
+    const unbind = emitter.on(event, handler);
+    onCleanup(() => {
+      unbind();
     });
+  });
 }

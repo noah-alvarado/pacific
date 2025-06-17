@@ -1,7 +1,8 @@
-:root, :root[data-theme="light"] {
+:root,
+:root[data-theme="light"] {
   --header-color: #282c34;
   --background-color: #cfdef3;
-  --board-color: #89CFF0;
+  --board-color: #89cff0;
   --text-color: #2d3a4b;
 }
 

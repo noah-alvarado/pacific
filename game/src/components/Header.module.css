@@ -16,7 +16,6 @@
   }
 }
 
-
 .title {
   grid-area: title;
   margin: 0;
@@ -80,5 +79,3 @@
   margin-right: 1rem;
   width: fit-content;
 }
-
-

@@ -4,7 +4,7 @@
   --grid-height: calc(var(--grid-width) + 2px);
   --dot-radius: 3.5px;
   --grid-color: var(--text-color);
-  
+
   position: relative;
   background-color: var(--board-color);
   display: grid;
@@ -31,7 +31,7 @@
  * Target cells in the first column
  * Add a border on the left of these cells
  */
- .board>.cell:nth-child(7n+1) {
+.board > .cell:nth-child(7n + 1) {
   border-left: 2px solid var(--grid-color);
 }
 
@@ -39,7 +39,7 @@
  * Target cells in the seventh column
  * Add a border on the right of these cells
  */
-.board>.cell:nth-child(7n+7) {
+.board > .cell:nth-child(7n + 7) {
   border-right: 2px solid var(--grid-color);
 }
 
@@ -47,7 +47,7 @@
  * Target cells in the first row (children 1 through 7 for a 7-column grid)
  * Add a border on top of these cells
  */
-.board>.cell:nth-child(n+1):nth-child(-n+7) {
+.board > .cell:nth-child(n + 1):nth-child(-n + 7) {
   border-top: 2px solid var(--grid-color);
 }
 
@@ -55,7 +55,7 @@
  * Target cells in the seventh row (children 43 through 49 for a 7-column grid)
  * Add a border on the bottom of these cells
  */
-.board>.cell:nth-child(n+43):nth-child(-n+49) {
+.board > .cell:nth-child(n + 43):nth-child(-n + 49) {
   border-bottom: 2px solid var(--grid-color);
 }
 
@@ -63,7 +63,7 @@
  * Target cells in the fourth row (children 22 through 28 for a 7-column grid)
  * Add a thin horizontal line on the top and bottom of these cells
  */
-.board>.cell:nth-child(n+22):nth-child(-n+28) {
+.board > .cell:nth-child(n + 22):nth-child(-n + 28) {
   border-top: 1px solid var(--grid-color);
   border-bottom: 1px solid var(--grid-color);
 }

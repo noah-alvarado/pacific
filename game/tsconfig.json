@@ -15,17 +15,8 @@
       "@types/node"
     ],
     "noEmit": true,
-    "isolatedModules": true,
+    "isolatedModules": true
   },
-  "include": [
-    "src",
-    "vite.config.ts",
-    "eslint.config.js"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "build",
-    "coverage",
-  ]
+  "include": ["src", "vite.config.ts", "eslint.config.js"],
+  "exclude": ["node_modules", "dist", "build", "coverage"]
 }

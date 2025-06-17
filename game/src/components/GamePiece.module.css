@@ -1,53 +1,54 @@
 .piece {
-    --piece-size: 50px;
-    --piece-color: #F5F5DC;
-    --icon-size: 80%;
+  --piece-size: 50px;
+  --piece-color: #f5f5dc;
+  --icon-size: 80%;
 
-    width: var(--piece-size);
-    height: var(--piece-size);
-    border-radius: 50%;
-    border: none;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: var(--piece-color);
-    box-shadow: 0 2px 4px rgb(0 0 0 / 20%);
+  width: var(--piece-size);
+  height: var(--piece-size);
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--piece-color);
+  box-shadow: 0 2px 4px rgb(0 0 0 / 20%);
 }
 
 .piece.selected {
-    transform: scale(1.2);
-    border: 2px solid #000;
+  transform: scale(1.2);
+  border: 2px solid #000;
 }
 
 .piece:hover {
-    cursor: pointer;
-    background-color: #E0E0D1;
+  cursor: pointer;
+  background-color: #e0e0d1;
 }
 
 .piece.disabled {
-    .icon, .number {
-        opacity: 0.4;
-        pointer-events: none;
-        filter: grayscale(10%);
-    }
+  .icon,
+  .number {
+    opacity: 0.4;
+    pointer-events: none;
+    filter: grayscale(10%);
+  }
 }
 
 .icon {
-    width: var(--icon-size);
-    height: var(--icon-size);
+  width: var(--icon-size);
+  height: var(--icon-size);
 }
 
 .number {
-    position: absolute;
-    top: 5%;
-    right: 18%;
-    font-size: 1rem;
-    font-weight: 600;
+  position: absolute;
+  top: 5%;
+  right: 18%;
+  font-size: 1rem;
+  font-weight: 600;
 
-    @media (width <= 768px) {
-        top: 8%;
-        right: 22%;
-        font-size: 1.2rem;
-        font-weight: 800;
-    }
+  @media (width <= 768px) {
+    top: 8%;
+    right: 22%;
+    font-size: 1.2rem;
+    font-weight: 800;
+  }
 }
