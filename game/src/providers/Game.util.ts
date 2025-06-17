@@ -1,3 +1,9 @@
+/**
+ * @file Utility functions for calculating game state transformations.
+ * This file includes functions for determining valid piece destinations,
+ * mapping all pieces to their possible moves, and deriving the board state from the pieces.
+ * These functions are pure and do not have side effects.
+ */
 import {
   GameBoard,
   IDestinationMarker,
@@ -48,7 +54,6 @@ export function getDestinationsForPiece({
     }
     const ship = pieces[shipId];
     const rowsApart = piece.position.y - ship.position.y;
-    console.log(piece.id, "rowsApart", rowsApart, "shipId", shipId);
     if (piece.owner === "red" ? rowsApart >= 3 : rowsApart <= -3) {
       return pieceDestinations;
     }
@@ -146,6 +151,9 @@ export function getDestinationsForPiece({
   return pieceDestinations;
 }
 
+/**
+ * Parameters for the `mapPieceToDestinations` function.
+ */
 interface MapPieceToDestinationsParams {
   pieces: Record<PieceId, IGamePiece>;
   turn: PlayerColor;
@@ -154,6 +162,13 @@ interface MapPieceToDestinationsParams {
   winner: PlayerColor | undefined;
 }
 
+/**
+ * Maps each piece to its possible destinations.
+ * If any piece can attack, only attack destinations are returned for all pieces.
+ *
+ * @param params - The parameters for the function.
+ * @returns A record mapping each piece ID to an array of its possible destinations.
+ */
 export function mapPieceToDestinations({
   pieces,
   turn,
@@ -192,6 +207,13 @@ export function mapPieceToDestinations({
   return map;
 }
 
+/**
+ * Derives the game board from the current state of the pieces.
+ * The board is represented as a 2D array, where each cell contains either a game piece or null.
+ *
+ * @param pieces - A record of all pieces in the game.
+ * @returns The game board.
+ */
 export function getBoardFromPieces(
   pieces: Record<PieceId, IGamePiece>,
 ): GameBoard {

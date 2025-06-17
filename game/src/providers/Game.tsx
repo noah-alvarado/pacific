@@ -1,3 +1,9 @@
+/**
+ * @file This file defines the `GameLogicProvider` component, which is the core of the game's
+ * client-side logic. It manages the game state, including piece positions, player turn, and game phase.
+ * It also handles game events, calculates valid moves, and persists the game state to localStorage.
+ */
+
 import {
   Accessor,
   Component,
@@ -17,18 +23,26 @@ import type {
 import {
   GamePhase,
   IDestinationMarker,
+  IGamePiece,
   IGameState,
   PieceId,
   PlayerColor,
   getPlaneIdsFromShipId,
-  pieceCanAttack,
 } from "../types/GameState";
-import { INITIAL_PIECES, INITIAL_STATE } from "../constants/game";
+import {
+  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
+  BLUE_STALEMATE_OR_DECISIVE,
+  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
+  INITIAL_PIECES,
+  INITIAL_STATE,
+  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
+  ONE_MOVE_TO_WIN,
+} from "../constants/game";
 import { SetStoreFunction, createStore, unwrap } from "solid-js/store";
-import emitter, { useEvent } from "../emitter";
+import { useEvent } from "../emitter";
 import { getBoardFromPieces, mapPieceToDestinations } from "./Game.util";
-
 import { detailedDiff } from "deep-object-diff";
+import { useLocalGame } from "../primitives/useLocalGame";
 
 const GameContext = createContext<{
   game: IGameState;
@@ -36,6 +50,7 @@ const GameContext = createContext<{
   pieceToDestinations: Accessor<
     Record<PieceId, IDestinationMarker[] | undefined>
   >;
+  initialPieces: Record<PieceId, IGamePiece>;
 }>();
 
 export function useGameContext() {
@@ -62,29 +77,37 @@ interface GameLogicProviderProps extends ParentProps {
 }
 
 /**
- * Provides game logic context and state management for the game board and pieces.
+ * Provides game logic, state management, and event handling for a game instance.
  *
- * This provider manages the selection and movement of pieces, calculates possible destinations,
- * and handles game events such as piece selection, destination selection, and move completion.
- * It uses signals and effects to reactively update the game state and emit events as needed.
+ * This provider is the core of the game's client-side logic. It manages the game state,
+ * including piece positions, player turn, and game phase. It persists the game state
+ * to localStorage, allowing games to be resumed.
+ *
+ * It calculates valid moves for each piece, handles game events like moves and turn changes,
+ * and detects end-of-game conditions.
  *
  * @component
+ * @param props.gameId - A unique identifier for the game, or "local" for a hot-seat game.
+ * @param props.player - The color of the player using this client, or "local" for a hot-seat game.
+ * @param props.turn - The color of the player whose turn it is.
  * @param props.children - The child components that will have access to the game logic context.
  *
  * @remarks
- * - Initializes the board state and pieces on mount.
- * - Calculates valid destinations for each piece, including special rules for planes and kamikaze pieces.
- * - Handles mandatory attack moves and piece collisions (TODO).
- * - Emits and listens for game events to coordinate UI and state updates.
- *
- * @eventHandlers
- * - `handleMoveMade`: Handles the completion of a move, updating piece positions and managing turn logic.
+ * - Initializes game state from localStorage if a saved game exists for the given `gameId`,
+ *   otherwise it uses the initial default state.
+ * - Derives the board layout and possible piece destinations from the game state.
+ * - Automatically saves the game state to localStorage on any change.
+ * - Manages turn progression based on move types. A turn ends after a non-attack move,
+ *   or when an attacking piece has no more available moves.
+ * - Detects and handles game-ending conditions, such as a player having no more planes or no valid moves.
+ * - Listens for and handles game events to update the state.
  */
-export const GameLogicProvider: Component<GameLogicProviderProps> = (props) => {
+export const GameProvider: Component<GameLogicProviderProps> = (props) => {
+  const initialPieces = ONE_MOVE_TO_WIN;
   const [game, setGame] = createStore<IGameState>(
     getGameSave(untrack(() => props.gameId)) ??
       INITIAL_STATE({
-        pieces: INITIAL_PIECES,
+        pieces: initialPieces,
         player: props.player,
         turn: props.turn,
       }),
@@ -95,13 +118,6 @@ export const GameLogicProvider: Component<GameLogicProviderProps> = (props) => {
 
   // Maps pieces to their possible destinations
   const pieceToDestinations = createMemo(() => {
-    console.log({
-      pieces: game.pieces,
-      turn: game.turn,
-      board: board(),
-      lastMove: game.lastMove,
-      winner: game.winner,
-    });
     const map = mapPieceToDestinations({
       pieces: game.pieces,
       turn: game.turn,
@@ -109,10 +125,16 @@ export const GameLogicProvider: Component<GameLogicProviderProps> = (props) => {
       lastMove: game.lastMove,
       winner: game.winner,
     });
-    console.log(map);
-
     return map;
   });
+
+  // For local games, use the useLocalGame hook to manage turns and end-of-game conditions.
+  if (props.gameId === "local") {
+    useLocalGame({
+      game,
+      pieceToDestinations,
+    });
+  }
 
   // Serialize the game store and save to localStorage on every update
   createEffect(() => {
@@ -131,70 +153,27 @@ export const GameLogicProvider: Component<GameLogicProviderProps> = (props) => {
     );
   });
 
-  // manage the turn state
-  // detect end of game
-  createEffect((lastMoveHash?: string) => {
-    const moveToHash = (move: MoveMadeEvent) => JSON.stringify(move);
-    if (!game.lastMove) return lastMoveHash;
-    // only run when lastMove changes
-    if (moveToHash(game.lastMove) === lastMoveHash) return lastMoveHash;
+  createEffect((prev) => {
+    const deps = `${game.phase}-${game.winner}`;
+    if (prev === deps) return prev;
 
-    const lastMoveWasNotAttack = game.lastMove.moveType !== "attack";
-    const attackingPieceHasNoMoves =
-      pieceToDestinations()[game.lastMove.piece.id].length === 0;
-    console.log({ lastMoveWasNotAttack, attackingPieceHasNoMoves });
-    if (lastMoveWasNotAttack || attackingPieceHasNoMoves) {
-      // the turn will change, but here we also check for victory conditions
-      emitter.emit(
-        "turnChange",
-        JSON.parse(
-          JSON.stringify({
-            from: game.turn,
-            to: game.turn === "red" ? "blue" : "red",
-          }),
-        ) as TurnChangeEvent,
-      );
+    if (game.phase === GamePhase.Finished && game.winner) {
+      setTimeout(() => {
+        window.alert(`Game over! ${game.winner?.toLocaleUpperCase()} wins!`);
+      }, 0);
     }
 
-    return moveToHash(game.lastMove);
-  });
-
-  // detect end of game
-  createEffect((turn: PlayerColor | undefined) => {
-    // only run when turn changes
-    if (game.phase === GamePhase.Finished) return turn;
-    if (game.turn === turn) return turn;
-
-    const { hasMove, numPlanes } = Object.values(game.pieces)
-      .filter((piece) => piece.owner === game.turn)
-      .reduce(
-        (acc, piece) => {
-          if (pieceCanAttack(piece.type) && piece.status === "in-play") {
-            acc.numPlanes++;
-          }
-          acc.hasMove ||= pieceToDestinations()[piece.id].length > 0;
-          return acc;
-        },
-        { hasMove: false, numPlanes: 0 },
-      );
-
-    console.log(`hasMove: ${hasMove}, numPlanes: ${numPlanes}`);
-
-    const reason = !numPlanes ? "no-planes" : !hasMove ? "no-moves" : undefined;
-    if (!reason) return game.turn;
-
-    const winner = game.turn === "red" ? "blue" : "red";
-    console.log(`Game over! ${winner} wins by ${reason}!`);
-    emitter.emit(
-      "gameEnd",
-      JSON.parse(
-        JSON.stringify({ winner, loser: game.turn, reason }),
-      ) as GameEndEvent,
-    );
-    return game.turn;
+    return deps;
   });
 
   /* Event Handlers */
+
+  /**
+   * Handles the `moveMade` event.
+   * Updates piece positions, handles captures of opposing pieces, and promotes planes to kamikazes
+   * when they reach the opposite side of the board.
+   * @param e - The move made event.
+   */
   const handleMoveMade = (e: MoveMadeEvent) => {
     batch(() => {
       // remove jumped pieces
@@ -207,7 +186,6 @@ export const GameLogicProvider: Component<GameLogicProviderProps> = (props) => {
         const takenPieceY = (e.from.y + e.to.y) / 2;
 
         const takenPiece = board()[takenPieceX][takenPieceY];
-        console.log({ takenPiece });
         if (takenPiece) {
           setGame("pieces", takenPiece.id, "status", "destroyed");
           const planeIds = getPlaneIdsFromShipId(takenPiece.id);
@@ -232,6 +210,11 @@ export const GameLogicProvider: Component<GameLogicProviderProps> = (props) => {
   };
   useEvent("moveMade", handleMoveMade);
 
+  /**
+   * Handles the `turnChange` event.
+   * Updates the current turn and clears the selected piece.
+   * @param e - The turn change event.
+   */
   const handleTurnChange = (e: TurnChangeEvent) => {
     batch(() => {
       setGame("turn", e.to);
@@ -240,8 +223,12 @@ export const GameLogicProvider: Component<GameLogicProviderProps> = (props) => {
   };
   useEvent("turnChange", handleTurnChange);
 
+  /**
+   * Handles the `gameEnd` event.
+   * Sets the game to a finished state and records the winner.
+   * @param e - The game end event.
+   */
   const handleGameEnd = (e: GameEndEvent) => {
-    window.alert(`Game ended: ${e.winner} wins via ${e.reason}`);
     batch(() => {
       setGame("phase", GamePhase.Finished);
       setGame("winner", e.winner);
@@ -250,7 +237,9 @@ export const GameLogicProvider: Component<GameLogicProviderProps> = (props) => {
   useEvent("gameEnd", handleGameEnd);
 
   return (
-    <GameContext.Provider value={{ game, setGame, pieceToDestinations }}>
+    <GameContext.Provider
+      value={{ game, setGame, pieceToDestinations, initialPieces }}
+    >
       {props.children}
     </GameContext.Provider>
   );

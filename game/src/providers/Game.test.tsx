@@ -1,14 +1,14 @@
 import { describe, expect, test } from "vitest";
 
-import { GameLogicProvider } from "./Game";
+import { GameProvider } from "./Game";
 import { render } from "@solidjs/testing-library";
 
 describe("<GameLogicProvider />", () => {
   test("renders children", () => {
     const results = render(() => (
-      <GameLogicProvider player={"local"}>
+      <GameProvider player={"local"}>
         <div>Test Child</div>
-      </GameLogicProvider>
+      </GameProvider>
     ));
     expect(results.getByText("Test Child")).toBeDefined();
   });

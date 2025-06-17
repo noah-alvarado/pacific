@@ -10,7 +10,7 @@
 - [x] Calculate all possible piece movements
 - [x] Calculate possible movements for just the selected piece
 - [x] Capture a piece
-- [ ] Detect victory
+- [x] Detect victory
 
 ### Service
 - [ ] Interface player commands with WebRTC peer commands
@@ -18,10 +18,11 @@
 
 ## Polish
 - [x] Add numbers to game pieces
-- [ ] Improve overall appearance of game pieces
+- [x] Make GamePiece reactive, no props other than a piece id
+- [x] ~~Option to have non-moveable game pieces~~ Only moveable pieces are highlighted
+- [x] Auto-end turn
 - [x] Highlight available positions when moving game piece
+- [ ] Improve overall appearance of game pieces
 - [ ] Drag and drop piece
 - [ ] Snappable + highlighted locations during drag-and-drop
-- [x] Make GamePiece reactive, no props other than a piece id
-- [ ] Option to have non-moveable game pieces
-- [x] Auto-end turn
+

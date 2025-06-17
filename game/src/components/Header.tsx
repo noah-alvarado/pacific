@@ -9,7 +9,7 @@ import { Page } from "../AppRouter";
 import styles from "./Header.module.css";
 import { useLocation } from "@solidjs/router";
 import { A } from "@solidjs/router";
-import { useWindowWidth } from "../hooks/useWindowWidth";
+import { useWindowWidth } from "../primitives/useWindowWidth";
 
 const Header: Component = () => {
   const location = useLocation();

@@ -1,19 +1,19 @@
 import { Component, JSX } from "solid-js";
-import { INITIAL_PIECES, INITIAL_STATE } from "../constants/game";
+import { INITIAL_STATE } from "../constants/game";
 
 import { reconcile } from "solid-js/store";
 import styles from "./Controls.module.css";
 import { useGameContext } from "../providers/Game";
 
 export const Controls: Component = () => {
-  const { game, setGame } = useGameContext();
+  const { game, setGame, initialPieces } = useGameContext();
 
   const resetGame: JSX.EventHandler<HTMLButtonElement, MouseEvent> = (e) => {
     e.preventDefault();
     setGame(
       reconcile(
         INITIAL_STATE({
-          pieces: INITIAL_PIECES,
+          pieces: initialPieces,
           player: game.player,
           turn: game.turn,
         }),
