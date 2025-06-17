@@ -129,7 +129,7 @@ export const GameProvider: Component<GameLogicProviderProps> = (props) => {
   });
 
   // For local games, use the useLocalGame hook to manage turns and end-of-game conditions.
-  if (props.gameId === "local") {
+  if (props.gameId.startsWith("local")) {
     useLocalGame({
       game,
       pieceToDestinations,
