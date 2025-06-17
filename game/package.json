@@ -19,6 +19,7 @@
   },
   "license": "CC-BY-NC-SA-4.0",
   "devDependencies": {
+    "vite-plugin-mkcert": "^1.17.5",
     "@eslint/js": "^9.28.0",
     "@solidjs/testing-library": "^0.8.10",
     "@testing-library/dom": "^10.4.0",

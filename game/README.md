@@ -26,7 +26,7 @@ Run the following command to start the local development server:
 yarn dev
 ```
 
-The application will be running at `http://localhost:3000`.
+The application will be running at `https://localhost:3000`.
 
 ### 4. Configure Git Hooks
 
@@ -45,7 +45,7 @@ In the project directory, you can run:
 ### `yarn dev` or `yarn start`
 
 Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Open [https://localhost:3000](https://localhost:3000) to view it in the browser.
 
 The page will reload if you make edits.<br>
 
