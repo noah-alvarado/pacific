@@ -2,7 +2,6 @@ import "./index.css";
 
 import AppRouter from "./AppRouter";
 import { render } from "solid-js/web";
-import ModalProvider from "./providers/Modal";
 
 const root = document.getElementById("root");
 if (!(root instanceof HTMLElement)) {
@@ -11,11 +10,4 @@ if (!(root instanceof HTMLElement)) {
   );
 }
 
-render(
-  () => (
-    <ModalProvider>
-      <AppRouter />
-    </ModalProvider>
-  ),
-  root,
-);
+render(() => <AppRouter />, root);

@@ -1,25 +1,30 @@
-import { Component, JSX } from "solid-js";
+import { batch, Component, JSX } from "solid-js";
 import { INITIAL_STATE } from "../constants/game";
 
 import { reconcile } from "solid-js/store";
 import styles from "./Controls.module.css";
 import { useGameContext } from "../providers/Game";
+import { useModalContext } from "../providers/Modal";
 
 export const Controls: Component = () => {
   const { game, setGame, initialPieces } = useGameContext();
+  const { closeModal } = useModalContext();
 
   const resetGame: JSX.EventHandler<HTMLButtonElement, MouseEvent> = (e) => {
     e.preventDefault();
-    setGame(
-      reconcile(
-        INITIAL_STATE({
-          pieces: initialPieces,
-          player: game.player,
-          turn: game.turn,
-        }),
-        { merge: true },
-      ),
-    );
+    batch(() => {
+      closeModal();
+      setGame(
+        reconcile(
+          INITIAL_STATE({
+            pieces: initialPieces,
+            player: game.player,
+            turn: game.turn,
+          }),
+          { merge: true },
+        ),
+      );
+    });
   };
 
   return (

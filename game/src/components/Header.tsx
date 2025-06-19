@@ -48,6 +48,10 @@ const Header: Component = () => {
     });
   };
 
+  const onClickNavA = () => {
+    setNavOpen(false);
+  };
+
   return (
     <header class={styles.header}>
       <button
@@ -56,7 +60,7 @@ const Header: Component = () => {
           theme() === "dark" ? "Switch to light mode" : "Switch to dark mode"
         }
         onClick={toggleDarkMode}
-        class={styles.themeToggle}
+        class={`${styles.themeToggle} ${styles.clickable}`}
       >
         {theme() === "dark" ? "🌙" : "☀️"}
       </button>
@@ -87,13 +91,23 @@ const Header: Component = () => {
       >
         <ul>
           <li>
-            <A href={Page.Landing}>home</A>
+            <A
+              href={Page.Landing}
+              class={styles.clickable}
+              onclick={onClickNavA}
+            >
+              home
+            </A>
           </li>
           <li>
-            <A href={Page.Rules}>rules</A>
+            <A href={Page.Rules} class={styles.clickable} onclick={onClickNavA}>
+              rules
+            </A>
           </li>
           <li>
-            <A href={Page.Local}>local play</A>
+            <A href={Page.Local} class={styles.clickable} onclick={onClickNavA}>
+              local play
+            </A>
           </li>
         </ul>
       </nav>

@@ -44,7 +44,6 @@ import { getBoardFromPieces, mapPieceToDestinations } from "./Game.util";
 import { detailedDiff } from "deep-object-diff";
 import { useLocalGame } from "../primitives/useLocalGame";
 import { useModalContext } from "./Modal";
-import { Modal } from "../components/Modal";
 
 const GameContext = createContext<{
   game: IGameState;
@@ -115,7 +114,7 @@ export const GameProvider: Component<GameLogicProviderProps> = (props) => {
       }),
   );
 
-  const { setIsOpen: setModalOpen } = useModalContext();
+  const { setModal, closeModal } = useModalContext();
 
   // board is derived from game.pieces
   const board = createMemo(() => getBoardFromPieces(game.pieces));
@@ -162,7 +161,18 @@ export const GameProvider: Component<GameLogicProviderProps> = (props) => {
     const deps = `${game.phase}-${game.winner}`;
     if (prev === deps) return prev;
 
-    setModalOpen(game.phase === GamePhase.Finished && !!game.winner);
+    if (game.phase === GamePhase.Finished)
+      setModal(
+        <div>
+          <h2>Game Over</h2>
+          <p>
+            {game.winner
+              ? `The winner is ${game.winner}!`
+              : "The game has ended in a draw."}
+          </p>
+          <button onClick={closeModal}>Close</button>
+        </div>,
+      );
 
     return deps;
   });
@@ -238,24 +248,10 @@ export const GameProvider: Component<GameLogicProviderProps> = (props) => {
   useEvent("gameEnd", handleGameEnd);
 
   return (
-    <>
-      <Modal>
-        <div>
-          <h2>Game Over</h2>
-          <p>
-            {game.winner
-              ? `The winner is ${game.winner}!`
-              : "The game has ended in a draw."}
-          </p>
-          <button onClick={() => setModalOpen(false)}>Close</button>
-        </div>
-      </Modal>
-
-      <GameContext.Provider
-        value={{ game, setGame, pieceToDestinations, initialPieces }}
-      >
-        {props.children}
-      </GameContext.Provider>
-    </>
+    <GameContext.Provider
+      value={{ game, setGame, pieceToDestinations, initialPieces }}
+    >
+      {props.children}
+    </GameContext.Provider>
   );
 };

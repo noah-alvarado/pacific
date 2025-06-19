@@ -2,17 +2,18 @@ import {
   Accessor,
   createContext,
   createSignal,
+  JSX,
   ParentProps,
   Setter,
+  Show,
   useContext,
   type Component,
 } from "solid-js";
 
-export const MODAL_MOUNT_ID = "modal-mount";
-
 const ModalContext = createContext<{
-  isOpen: Accessor<boolean>;
-  setIsOpen: Setter<boolean>;
+  modal: Accessor<JSX.Element>;
+  setModal: Setter<JSX.Element>;
+  closeModal: () => void;
 }>();
 
 export function useModalContext() {
@@ -23,12 +24,36 @@ export function useModalContext() {
   return context;
 }
 
-const ModalProvider: Component<ParentProps> = (props) => {
-  const [isOpen, setIsOpen] = createSignal(false);
+const Modal: Component = () => {
+  const { modal, closeModal } = useModalContext();
 
   return (
-    <ModalContext.Provider value={{ isOpen, setIsOpen }}>
-      <div id={MODAL_MOUNT_ID} />
+    <Show when={modal()}>
+      <div>
+        <button
+          type="button"
+          tabIndex={0}
+          aria-label="Close modal"
+          onClick={closeModal}
+        >
+          &times;
+        </button>
+      </div>
+      <div>{modal()}</div>
+    </Show>
+  );
+};
+
+const ModalProvider: Component<ParentProps> = (props) => {
+  const [modal, setModal] = createSignal<JSX.Element>();
+
+  function closeModal() {
+    setModal(undefined);
+  }
+
+  return (
+    <ModalContext.Provider value={{ modal, setModal, closeModal }}>
+      <Modal />
       {props.children}
     </ModalContext.Provider>
   );

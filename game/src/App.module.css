@@ -1,14 +1,14 @@
 :root,
 :root[data-theme="light"] {
-  --header-color: #282c34;
+  --header-color: #1c1724;
   --background-color: #cfdef3;
   --board-color: #89cff0;
   --text-color: #2d3a4b;
 }
 
 :root[data-theme="dark"] {
-  --background-color: var(--header-color);
-  --board-color: var(--header-color);
+  --background-color: #282c34;
+  --board-color: #282c34;
   --text-color: #f3f6fa;
 }
 

@@ -52,6 +52,8 @@
   color: var(--text-color);
   text-decoration: none;
   font-size: 1.2rem;
+  font-weight: 600;
+  padding: 0.5rem 1.1rem;
 }
 
 .burger {
@@ -85,4 +87,30 @@
   cursor: pointer;
   margin-right: 1rem;
   width: fit-content;
+}
+
+.clickable {
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
+  transition:
+    background 0.18s,
+    box-shadow 0.18s,
+    transform 0.12s;
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+}
+
+.clickable:hover,
+.clickable:focus {
+  background: rgb(255 255 255 / 18%);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 13%);
+  transform: translateY(-2px) scale(1.04);
+  outline: none;
+}
+
+.clickable:active {
+  background: rgb(255 255 255 / 28%);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 10%);
+  transform: translateY(1px) scale(0.98);
 }
