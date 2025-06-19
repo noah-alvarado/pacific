@@ -43,6 +43,8 @@ import { useEvent } from "../emitter";
 import { getBoardFromPieces, mapPieceToDestinations } from "./Game.util";
 import { detailedDiff } from "deep-object-diff";
 import { useLocalGame } from "../primitives/useLocalGame";
+import { useModalContext } from "./Modal";
+import { Modal } from "../components/Modal";
 
 const GameContext = createContext<{
   game: IGameState;
@@ -113,6 +115,8 @@ export const GameProvider: Component<GameLogicProviderProps> = (props) => {
       }),
   );
 
+  const { setIsOpen: setModalOpen } = useModalContext();
+
   // board is derived from game.pieces
   const board = createMemo(() => getBoardFromPieces(game.pieces));
 
@@ -153,15 +157,12 @@ export const GameProvider: Component<GameLogicProviderProps> = (props) => {
     );
   });
 
+  // Show an alert when the game ends
   createEffect((prev) => {
     const deps = `${game.phase}-${game.winner}`;
     if (prev === deps) return prev;
 
-    if (game.phase === GamePhase.Finished && game.winner) {
-      setTimeout(() => {
-        window.alert(`Game over! ${game.winner?.toLocaleUpperCase()} wins!`);
-      }, 0);
-    }
+    setModalOpen(game.phase === GamePhase.Finished && !!game.winner);
 
     return deps;
   });
@@ -237,10 +238,24 @@ export const GameProvider: Component<GameLogicProviderProps> = (props) => {
   useEvent("gameEnd", handleGameEnd);
 
   return (
-    <GameContext.Provider
-      value={{ game, setGame, pieceToDestinations, initialPieces }}
-    >
-      {props.children}
-    </GameContext.Provider>
+    <>
+      <Modal>
+        <div>
+          <h2>Game Over</h2>
+          <p>
+            {game.winner
+              ? `The winner is ${game.winner}!`
+              : "The game has ended in a draw."}
+          </p>
+          <button onClick={() => setModalOpen(false)}>Close</button>
+        </div>
+      </Modal>
+
+      <GameContext.Provider
+        value={{ game, setGame, pieceToDestinations, initialPieces }}
+      >
+        {props.children}
+      </GameContext.Provider>
+    </>
   );
 };
