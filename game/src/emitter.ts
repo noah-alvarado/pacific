@@ -20,8 +20,6 @@ export function useEvent<TEvent extends keyof GameEvents>(
 ) {
   createEffect(() => {
     const unbind = emitter.on(event, handler);
-    onCleanup(() => {
-      unbind();
-    });
+    onCleanup(unbind);
   });
 }

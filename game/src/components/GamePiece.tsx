@@ -2,7 +2,11 @@ import { createMemo, Show, untrack, type Component, type JSX } from "solid-js";
 import { Dynamic } from "solid-js/web";
 
 import { PieceId } from "../types/GameState";
-import { positionStyle, iconForPiece, colorForPiece } from "./GamePiece.util";
+import {
+  positionStyle,
+  iconForPiece,
+  playerColorToHex,
+} from "./GamePiece.util";
 import styles from "./GamePiece.module.css";
 import { useGameContext } from "../providers/Game";
 
@@ -48,8 +52,8 @@ export const GamePiece: Component<IGamePieceProps> = (props) => {
           .join(" ")}
         style={{
           ...positionStyle(piece.position, { pieceSize: 50 }),
-          color: colorForPiece(owner),
-          "border-color": colorForPiece(owner),
+          color: playerColorToHex(owner),
+          "border-color": playerColorToHex(owner),
         }}
       >
         <Show when={piece.type !== "kamikaze"}>

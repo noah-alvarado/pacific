@@ -12,6 +12,7 @@ import type { Component, JSX } from "solid-js";
 import CherryBlossomIcon from "../assets/cherry-blossom.svg";
 import PlaneIcon from "../assets/plane.svg";
 import ShipIcon from "../assets/ship.svg";
+import { PlayerColor } from "../types/GameState";
 
 // Calculate position style
 export function positionStyle(
@@ -75,13 +76,11 @@ export const iconForPiece = (
 };
 
 // Returns the color for a piece owner
-export const colorForPiece = (
-  owner: string | undefined,
-): string | undefined => {
-  switch (owner) {
+export const playerColorToHex = (player: PlayerColor): string => {
+  switch (player) {
     case "red":
-      return "#FF0000"; // Red
+      return "#FF0000";
     case "blue":
-      return "#0000FF"; // Blue
+      return "#0000FF";
   }
 };

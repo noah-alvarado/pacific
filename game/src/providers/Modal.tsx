@@ -28,7 +28,7 @@ export function useModalContext() {
   return context;
 }
 
-const Modal: Component = () => {
+const BaseModal: Component = () => {
   const { modal, closeModal } = useModalContext();
 
   return (
@@ -82,9 +82,7 @@ const Modal: Component = () => {
           >
             &times;
           </button>
-          <div style={{ "margin-top": "12px", "word-break": "break-word" }}>
-            {modal()}
-          </div>
+          {modal()}
         </div>
       </div>
     </Show>
@@ -100,7 +98,7 @@ const ModalProvider: Component<ParentProps> = (props) => {
 
   return (
     <ModalContext.Provider value={{ modal, setModal, closeModal }}>
-      <Modal />
+      <BaseModal />
       {props.children}
     </ModalContext.Provider>
   );

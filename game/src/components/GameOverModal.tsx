@@ -1,0 +1,28 @@
+import { Component } from "solid-js";
+import { playerColorToHex } from "./GamePiece.util";
+import { PlayerColor } from "../types/GameState";
+
+interface GameOverModalProps {
+  winner: PlayerColor | undefined;
+}
+
+const GameOverModal: Component<GameOverModalProps> = (props) => {
+  const styledWinner = props.winner && (
+    <span style={{ color: playerColorToHex(props.winner), "font-weight": 600 }}>
+      {props.winner.toLocaleUpperCase()}
+    </span>
+  );
+
+  return (
+    <>
+      <h2 style={{ "margin-top": 0 }}>Game Over</h2>
+      {props.winner ? (
+        <p>The winner is {styledWinner}!</p>
+      ) : (
+        <p>The game has ended in a draw.</p>
+      )}
+    </>
+  );
+};
+
+export default GameOverModal;

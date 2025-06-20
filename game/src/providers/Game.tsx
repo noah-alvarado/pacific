@@ -12,6 +12,7 @@ import {
   createContext,
   createEffect,
   createMemo,
+  on,
   untrack,
   useContext,
 } from "solid-js";
@@ -38,12 +39,13 @@ import {
   /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
   ONE_MOVE_TO_WIN,
 } from "../constants/game";
-import { SetStoreFunction, createStore, unwrap } from "solid-js/store";
+import { SetStoreFunction, createStore } from "solid-js/store";
 import { useEvent } from "../emitter";
 import { getBoardFromPieces, mapPieceToDestinations } from "./Game.util";
 import { detailedDiff } from "deep-object-diff";
 import { useLocalGame } from "../primitives/useLocalGame";
 import { useModalContext } from "./Modal";
+import GameOverModal from "../components/GameOverModal";
 
 const GameContext = createContext<{
   game: IGameState;
@@ -114,24 +116,23 @@ export const GameProvider: Component<GameLogicProviderProps> = (props) => {
       }),
   );
 
-  const { setModal, closeModal } = useModalContext();
+  const { setModal } = useModalContext();
 
   // board is derived from game.pieces
   const board = createMemo(() => getBoardFromPieces(game.pieces));
 
   // Maps pieces to their possible destinations
-  const pieceToDestinations = createMemo(() => {
-    const map = mapPieceToDestinations({
+  const pieceToDestinations = createMemo(() =>
+    mapPieceToDestinations({
       pieces: game.pieces,
       turn: game.turn,
       board: board(),
       lastMove: game.lastMove,
       winner: game.winner,
-    });
-    return map;
-  });
+    }),
+  );
 
-  // For local games, use the useLocalGame hook to manage turns and end-of-game conditions.
+  // For local games, useLocalGame manages turns and end-of-game conditions.
   if (props.gameId.startsWith("local")) {
     useLocalGame({
       game,
@@ -140,42 +141,35 @@ export const GameProvider: Component<GameLogicProviderProps> = (props) => {
   }
 
   // Serialize the game store and save to localStorage on every update
-  createEffect(() => {
-    if (import.meta.env.DEV) {
-      console.log(
-        "game state change",
-        detailedDiff(
-          getGameSave(untrack(() => props.gameId)) ?? {},
-          unwrap(game),
-        ),
-      );
-    }
-    localStorage.setItem(
-      gameIdToLocalStorageKey(untrack(() => props.gameId)),
-      JSON.stringify(game),
-    );
-  });
+  createEffect(
+    on(
+      () => JSON.stringify(game),
+      (g) => {
+        console.log("here1");
+        if (import.meta.env.DEV)
+          // prettier-ignore
+          console.log("game state change",
+            detailedDiff(getGameSave(props.gameId) ?? {}, JSON.parse(g) as IGameState));
 
-  // Show an alert when the game ends
-  createEffect((prev) => {
-    const deps = `${game.phase}-${game.winner}`;
-    if (prev === deps) return prev;
+        localStorage.setItem(gameIdToLocalStorageKey(props.gameId), g);
+      },
+      { defer: true },
+    ),
+  );
 
-    if (game.phase === GamePhase.Finished)
-      setModal(
-        <div>
-          <h2>Game Over</h2>
-          <p>
-            {game.winner
-              ? `The winner is ${game.winner}!`
-              : "The game has ended in a draw."}
-          </p>
-          <button onClick={closeModal}>Close</button>
-        </div>,
-      );
-
-    return deps;
-  });
+  // Show a modal once when the game ends
+  createEffect(
+    on(
+      () => [game.phase, game.winner],
+      () => {
+        console.log("here2");
+        if (game.phase === GamePhase.Finished) {
+          setModal(<GameOverModal winner={game.winner} />);
+        }
+      },
+      { defer: true },
+    ),
+  );
 
   /* Event Handlers */
 
@@ -185,7 +179,7 @@ export const GameProvider: Component<GameLogicProviderProps> = (props) => {
    * when they reach the opposite side of the board.
    * @param e - The move made event.
    */
-  const handleMoveMade = (e: MoveMadeEvent) => {
+  useEvent("moveMade", (e: MoveMadeEvent) => {
     batch(() => {
       // remove jumped pieces
       if (e.moveType === "attack") {
@@ -218,34 +212,31 @@ export const GameProvider: Component<GameLogicProviderProps> = (props) => {
         setGame("pieces", e.piece.id, "type", "kamikaze");
       }
     });
-  };
-  useEvent("moveMade", handleMoveMade);
+  });
 
   /**
    * Handles the `turnChange` event.
    * Updates the current turn and clears the selected piece.
    * @param e - The turn change event.
    */
-  const handleTurnChange = (e: TurnChangeEvent) => {
+  useEvent("turnChange", (e: TurnChangeEvent) => {
     batch(() => {
       setGame("turn", e.to);
       setGame("selectedPieceId", undefined);
     });
-  };
-  useEvent("turnChange", handleTurnChange);
+  });
 
   /**
    * Handles the `gameEnd` event.
    * Sets the game to a finished state and records the winner.
    * @param e - The game end event.
    */
-  const handleGameEnd = (e: GameEndEvent) => {
+  useEvent("gameEnd", (e: GameEndEvent) => {
     batch(() => {
       setGame("phase", GamePhase.Finished);
       setGame("winner", e.winner);
     });
-  };
-  useEvent("gameEnd", handleGameEnd);
+  });
 
   return (
     <GameContext.Provider
