@@ -4,6 +4,7 @@ import {
   createSignal,
   createMemo,
   createEffect,
+  JSX,
 } from "solid-js";
 import { Page } from "../AppRouter";
 import styles from "./Header.module.css";
@@ -48,8 +49,9 @@ const Header: Component = () => {
     });
   };
 
-  const onClickNavA = () => {
+  const onClickNavA: JSX.EventHandler<HTMLAnchorElement, MouseEvent> = () => {
     setNavOpen(false);
+    (document.activeElement as HTMLElement | undefined)?.blur();
   };
 
   return (
