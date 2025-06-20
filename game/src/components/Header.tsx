@@ -11,16 +11,12 @@ import styles from "./Header.module.css";
 import { useLocation } from "@solidjs/router";
 import { A } from "@solidjs/router";
 import { useWindowWidth } from "../primitives/useWindowWidth";
+import { useThemeContext } from "../providers/Theme";
 
 const Header: Component = () => {
   const location = useLocation();
   const windowWidth = useWindowWidth();
-  const [theme, setTheme] = createSignal(
-    localStorage.getItem("theme") ??
-      (window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light"),
-  );
+  const { theme, toggleDarkMode } = useThemeContext();
   const [navOpen, setNavOpen] = createSignal(false);
 
   createEffect(() => {
@@ -40,14 +36,6 @@ const Header: Component = () => {
   const showNav = createMemo(() => {
     return showBurger() ? navOpen() : true;
   });
-
-  const toggleDarkMode = () => {
-    setTheme((v) => {
-      const next = v === "dark" ? "light" : "dark";
-      localStorage.setItem("theme", next);
-      return next;
-    });
-  };
 
   const onClickNavA: JSX.EventHandler<HTMLAnchorElement, MouseEvent> = () => {
     setNavOpen(false);

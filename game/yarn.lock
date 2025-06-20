@@ -641,6 +641,11 @@
   resolved "https://registry.yarnpkg.com/@rollup/rollup-win32-x64-msvc/-/rollup-win32-x64-msvc-4.43.0.tgz#42a88207659e404e8ffa655cae763cbad94906ab"
   integrity sha512-SnGhLiE5rlK0ofq8kzuDkM0g7FN1s5VYY+YSMTibP7CqShxCQvqtNxTARS4xX4PFJfHjG0ZQYX9iGzI3FQh5Aw==
 
+"@solid-primitives/context@^0.3.1":
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/@solid-primitives/context/-/context-0.3.1.tgz#f474f15500d7e5c1965d09c5c5a7b92f4a122161"
+  integrity sha512-Be8wI8G2XJdH3vivVDxmOlFai5j0ojmvcTqwCiAazlSfLaqQaLACAR8dePBxuG49MzMBerZfikWeI5jpREp0DA==
+
 "@solidjs/router@^0.15.3":
   version "0.15.3"
   resolved "https://registry.yarnpkg.com/@solidjs/router/-/router-0.15.3.tgz#2c5e7aa637980ab7fce956aedc8cd20614163f2a"

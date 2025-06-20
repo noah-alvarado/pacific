@@ -1,14 +1,22 @@
 import { Component } from "solid-js";
 import { playerColorToHex } from "./GamePiece.util";
 import { PlayerColor } from "../types/GameState";
+import { useThemeContext } from "../providers/Theme";
 
 interface GameOverModalProps {
   winner: PlayerColor | undefined;
 }
 
 const GameOverModal: Component<GameOverModalProps> = (props) => {
+  const { theme } = useThemeContext();
+
   const styledWinner = props.winner && (
-    <span style={{ color: playerColorToHex(props.winner), "font-weight": 600 }}>
+    <span
+      style={{
+        ...(theme() === "light" && { color: playerColorToHex(props.winner) }),
+        "font-weight": 600,
+      }}
+    >
       {props.winner.toLocaleUpperCase()}
     </span>
   );
