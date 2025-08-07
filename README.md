@@ -6,7 +6,7 @@ PACIFIC is a non-scale war game for 2 players. It is played on a board with piec
 
 ## Acknowledgements
 
-This project is inspired by the Pacific board game created by Sir Ian Hamilton Finlay.
+This project is a digital adaptation of the Pacific board game created by Ian Hamilton Finlay.
 
 ## Game Rules
 
