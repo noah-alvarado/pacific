@@ -1,6 +1,6 @@
 import { A } from "@solidjs/router";
 import { Component } from "solid-js";
-import { Page } from "../AppRouter";
+import { Page } from "../AppRouter.jsx";
 import styles from "./Landing.module.css";
 
 const Landing: Component = () => {

@@ -1,7 +1,7 @@
 import { Component } from "solid-js";
-import { playerColorToHex } from "./GamePiece.util";
-import { PlayerColor } from "../types/GameState";
-import { useThemeContext } from "../providers/Theme";
+import { playerColorToHex } from "./GamePiece.util.js";
+import { PlayerColor } from "../types/GameState.js";
+import { useThemeContext } from "../providers/Theme.jsx";
 
 interface GameOverModalProps {
   winner: PlayerColor | undefined;

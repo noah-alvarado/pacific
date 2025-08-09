@@ -8,7 +8,7 @@ import {
   useContext,
   type Component,
 } from "solid-js";
-import BaseModal from "../components/BaseModal";
+import BaseModal from "../components/BaseModal.jsx";
 
 const ModalContext = createContext<{
   modal: Accessor<JSX.Element>;

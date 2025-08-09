@@ -1,6 +1,6 @@
 import "./index.css";
 
-import AppRouter from "./AppRouter";
+import AppRouter from "./AppRouter.jsx";
 import { render } from "solid-js/web";
 
 const root = document.getElementById("root");

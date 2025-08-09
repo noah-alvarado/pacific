@@ -59,6 +59,7 @@ export default defineConfig([
         },
       ],
       "@typescript-eslint/no-non-null-assertion": "off",
+      "@typescript-eslint/ban-ts-comment": "off",
     },
     ignores: ["**/*.css"],
   },

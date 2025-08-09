@@ -20,7 +20,7 @@ import type {
   GameEndEvent,
   MoveMadeEvent,
   TurnChangeEvent,
-} from "../types/GameEvents";
+} from "../types/GameEvents.js";
 import {
   GamePhase,
   IDestinationMarker,
@@ -29,7 +29,7 @@ import {
   PieceId,
   PlayerColor,
   getPlaneIdsFromShipId,
-} from "../types/GameState";
+} from "../types/GameState.js";
 import {
   /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
   BLUE_STALEMATE_OR_DECISIVE,
@@ -38,14 +38,14 @@ import {
   INITIAL_STATE,
   /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
   ONE_MOVE_TO_WIN,
-} from "../constants/game";
+} from "../constants/game.js";
 import { SetStoreFunction, createStore } from "solid-js/store";
-import { useEvent } from "../emitter";
-import { getBoardFromPieces, mapPieceToDestinations } from "./Game.util";
+import { useEvent } from "../emitter.js";
+import { getBoardFromPieces, mapPieceToDestinations } from "./Game.util.js";
 import { detailedDiff } from "deep-object-diff";
-import { useLocalGame } from "../primitives/useLocalGame";
-import { useModalContext } from "./Modal";
-import GameOverModal from "../components/GameOverModal";
+import { useLocalGame } from "../primitives/useLocalGame.js";
+import { useModalContext } from "./Modal.jsx";
+import GameOverModal from "../components/GameOverModal.jsx";
 
 const GameContext = createContext<{
   game: IGameState;

@@ -2,7 +2,7 @@
 import { Emitter, createNanoEvents } from "nanoevents";
 import { createEffect, onCleanup } from "solid-js";
 
-import { GameEvents } from "./types/GameEvents";
+import { GameEvents } from "./types/GameEvents.js";
 
 const emitter: Emitter<GameEvents> = createNanoEvents<GameEvents>();
 

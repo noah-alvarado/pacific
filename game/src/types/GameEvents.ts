@@ -1,4 +1,4 @@
-import type { IGamePiece, PlayerColor } from "./GameState";
+import type { IGamePiece, PlayerColor } from "./GameState.js";
 
 export type MoveType = "move" | "attack";
 export interface MoveMadeEvent {

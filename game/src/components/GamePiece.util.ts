@@ -12,7 +12,7 @@ import type { Component, JSX } from "solid-js";
 import CherryBlossomIcon from "../assets/cherry-blossom.svg";
 import PlaneIcon from "../assets/plane.svg";
 import ShipIcon from "../assets/ship.svg";
-import { PlayerColor } from "../types/GameState";
+import { PlayerColor } from "../types/GameState.js";
 
 // Calculate position style
 export function positionStyle(

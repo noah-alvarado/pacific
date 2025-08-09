@@ -4,11 +4,11 @@ import {
   IGameState,
   PieceId,
   PlayerColor,
-} from "../types/GameState";
+} from "../types/GameState.js";
 import {
   getBoardFromPieces,
   mapPieceToDestinations,
-} from "../providers/Game.util";
+} from "../providers/Game.util.js";
 
 export const INITIAL_STATE: (params: {
   pieces: Record<PieceId, IGamePiece>;

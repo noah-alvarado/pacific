@@ -12,9 +12,9 @@ import {
   PlayerColor,
   getShipIdFromPlaneId,
   pieceCanAttack,
-} from "../types/GameState";
+} from "../types/GameState.js";
 
-import type { MoveMadeEvent } from "../types/GameEvents";
+import type { MoveMadeEvent } from "../types/GameEvents.js";
 
 interface GetDestinationsForPieceParams {
   piece: IGamePiece;

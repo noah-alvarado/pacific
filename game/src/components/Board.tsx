@@ -1,9 +1,9 @@
 import { Index, type Component, For } from "solid-js";
 import styles from "./Board.module.css";
-import { GamePiece } from "./GamePiece";
-import { PieceId } from "../types/GameState";
-import DestinationMarker from "./DestinationMarker";
-import { useGameContext } from "../providers/Game";
+import { GamePiece } from "./GamePiece.jsx";
+import { PieceId } from "../types/GameState.js";
+import DestinationMarker from "./DestinationMarker.jsx";
+import { useGameContext } from "../providers/Game.jsx";
 
 export const Board: Component = () => {
   const { game, pieceToDestinations } = useGameContext();

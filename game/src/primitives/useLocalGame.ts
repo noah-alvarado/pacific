@@ -11,9 +11,9 @@ import {
   IGameState,
   pieceCanAttack,
   PieceId,
-} from "../types/GameState";
-import { GameEndEvent, TurnChangeEvent } from "../types/GameEvents";
-import emitter from "../emitter";
+} from "../types/GameState.js";
+import { GameEndEvent, TurnChangeEvent } from "../types/GameEvents.js";
+import emitter from "../emitter.js";
 
 /**
  * A SolidJS hook that encapsulates game logic for local (hot-seat) games.

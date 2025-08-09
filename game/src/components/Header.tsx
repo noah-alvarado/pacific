@@ -6,12 +6,12 @@ import {
   createEffect,
   JSX,
 } from "solid-js";
-import { Page } from "../AppRouter";
+import { Page } from "../AppRouter.jsx";
 import styles from "./Header.module.css";
 import { useLocation } from "@solidjs/router";
 import { A } from "@solidjs/router";
-import { useWindowWidth } from "../primitives/useWindowWidth";
-import { useThemeContext } from "../providers/Theme";
+import { useWindowWidth } from "../primitives/useWindowWidth.js";
+import { useThemeContext } from "../providers/Theme.jsx";
 
 const Header: Component = () => {
   const location = useLocation();

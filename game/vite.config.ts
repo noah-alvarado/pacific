@@ -13,19 +13,24 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd());
 
   return {
-    define: {
-      __APP_ENV__: JSON.stringify(env.APP_ENV),
-    },
     base: env.VITE_GITHUB_PAGES ? "/pacific/" : "/",
-    plugins: [solidPlugin(), solidSvg(), mkcert()],
+    plugins: [
+      solidPlugin(),
+      solidSvg(),
+      // @ts-ignore
+      mkcert(),
+    ],
     server: {
       port: 3000,
     },
     build: {
-      target: "esnext",
+      target: "es2020",
     },
     resolve: {
-      conditions: ["development", "browser"],
+      conditions: [
+        "browser",
+        mode === "development" ? "development" : "production",
+      ],
     },
     test: {
       environment: "jsdom",

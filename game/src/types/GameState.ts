@@ -1,4 +1,4 @@
-import { MoveMadeEvent, MoveType } from "./GameEvents";
+import { MoveMadeEvent, MoveType } from "./GameEvents.js";
 
 export type PlayerColor = "red" | "blue";
 export type PieceStatus = "in-play" | "destroyed";

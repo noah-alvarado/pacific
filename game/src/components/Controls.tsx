@@ -1,10 +1,10 @@
 import { batch, Component, JSX } from "solid-js";
-import { INITIAL_STATE } from "../constants/game";
+import { INITIAL_STATE } from "../constants/game.js";
 
 import { reconcile } from "solid-js/store";
 import styles from "./Controls.module.css";
-import { useGameContext } from "../providers/Game";
-import { useModalContext } from "../providers/Modal";
+import { useGameContext } from "../providers/Game.jsx";
+import { useModalContext } from "../providers/Modal.jsx";
 
 export const Controls: Component = () => {
   const { game, setGame, initialPieces } = useGameContext();

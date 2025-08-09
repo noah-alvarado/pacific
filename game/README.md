@@ -28,16 +28,6 @@ yarn dev
 
 The application will be running at `https://localhost:3000`.
 
-### 4. Configure Git Hooks
-
-To ensure code quality and consistency, this project uses a pre-commit hook that automatically formats and lints your code before you commit. To enable this hook, run the following command from the project's root directory:
-
-```bash
-chmod +x ../.git/hooks/pre-commit
-```
-
-This will make the hook executable, and it will run automatically every time you make a commit.
-
 ## Available Scripts
 
 In the project directory, you can run:
@@ -55,13 +45,33 @@ Builds the app for production to the `dist` folder.<br><br>
 It correctly bundles Solid in production mode and optimizes the build for the best performance.
 The build is minified and the filenames include the hashes.
 
+### `yarn serve`
+
+Serves the production build locally for preview. Run this after `yarn build` to test the production build locally.
+
+### `yarn test`
+
+Runs the test suite using Vitest. Tests run in watch mode by default during development.
+
 ### `yarn lint`
 
-Lints all TypeScript and CSS files in the `src` directory.
+Lints all TypeScript and CSS files in the `src` directory. This runs both TypeScript and CSS linting.
+
+### `yarn lint:ts`
+
+Lints only TypeScript files using ESLint.
+
+### `yarn lint:css`
+
+Lints only CSS files using Stylelint.
 
 ### `yarn prettier`
 
 Formats all files with Prettier.
+
+### `yarn prettier:ci`
+
+Checks if all files are formatted correctly with Prettier (used in CI/CD).
 
 ## Deployment
 

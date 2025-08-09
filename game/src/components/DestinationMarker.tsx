@@ -1,9 +1,9 @@
 import { type JSX, type Component } from "solid-js";
 import styles from "./DestinationMarker.module.css";
-import emitter from "../emitter";
-import { positionStyle } from "./GamePiece.util";
-import { useGameContext } from "../providers/Game";
-import { MoveMadeEvent } from "../types/GameEvents";
+import emitter from "../emitter.js";
+import { positionStyle } from "./GamePiece.util.js";
+import { useGameContext } from "../providers/Game.jsx";
+import { MoveMadeEvent } from "../types/GameEvents.js";
 
 interface IDestinationMarkerProps {
   index: number;
@@ -14,17 +14,26 @@ const DestinationMarker: Component<IDestinationMarkerProps> = (props) => {
   const onClick: JSX.EventHandler<HTMLButtonElement, MouseEvent> = (e) => {
     e.preventDefault();
 
-    const piece = game.pieces[game.selectedPieceId!];
+    if (!game.selectedPieceId) {
+      console.warn("No piece selected");
+      return;
+    }
+
+    const dest = pieceToDestinations()[game.selectedPieceId]?.[props.index];
+    if (!dest) {
+      console.warn("No destinations found");
+      return;
+    }
+
+    const piece = game.pieces[game.selectedPieceId];
     emitter.emit(
       "moveMade",
       JSON.parse(
         JSON.stringify({
           piece,
-          moveType:
-            pieceToDestinations()[game.selectedPieceId!][props.index].moveType,
-          from: game.pieces[game.selectedPieceId!].position,
-          to: pieceToDestinations()[game.selectedPieceId!][props.index]
-            .position,
+          moveType: dest.moveType,
+          from: game.pieces[game.selectedPieceId].position,
+          to: dest.position,
         }),
       ) as MoveMadeEvent,
     );
@@ -37,7 +46,7 @@ const DestinationMarker: Component<IDestinationMarkerProps> = (props) => {
       class={styles.destinationMarker}
       style={{
         ...positionStyle(
-          pieceToDestinations()[game.selectedPieceId!][props.index].position,
+          pieceToDestinations()[game.selectedPieceId!]?.[props.index].position,
           { pieceSize: 45 },
         ),
       }}

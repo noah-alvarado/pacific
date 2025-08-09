@@ -1,14 +1,14 @@
 import { createMemo, Show, untrack, type Component, type JSX } from "solid-js";
 import { Dynamic } from "solid-js/web";
 
-import { PieceId } from "../types/GameState";
+import { PieceId } from "../types/GameState.js";
 import {
   positionStyle,
   iconForPiece,
   playerColorToHex,
-} from "./GamePiece.util";
+} from "./GamePiece.util.js";
 import styles from "./GamePiece.module.css";
-import { useGameContext } from "../providers/Game";
+import { useGameContext } from "../providers/Game.jsx";
 
 export interface IGamePieceProps {
   id: PieceId;
