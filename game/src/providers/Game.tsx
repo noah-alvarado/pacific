@@ -43,7 +43,12 @@ import {
 import { SetStoreFunction, createStore } from "solid-js/store";
 import { createNanoEvents, Emitter } from "nanoevents";
 import { useEvent } from "../primitives/useEvent.js";
-import { getBoardFromPieces, mapPieceToDestinations } from "./Game.util.js";
+import {
+  gameIdToLocalStorageKey,
+  getBoardFromPieces,
+  getGameSave,
+  mapPieceToDestinations,
+} from "./Game.util.js";
 import { useLocalGame } from "../primitives/useLocalGame.js";
 import { useModalContext } from "./Modal.jsx";
 import GameOverModal from "../components/GameOverModal.jsx";
@@ -64,15 +69,6 @@ export function useGameContext() {
     throw new Error(`can't find GameContext`);
   }
   return context;
-}
-
-function gameIdToLocalStorageKey(gameId: string) {
-  return `savedGameState-${gameId}`;
-}
-
-function getGameSave(gameId: string): IGameState | undefined {
-  const savedGame = localStorage.getItem(gameIdToLocalStorageKey(gameId));
-  return savedGame ? (JSON.parse(savedGame) as IGameState) : undefined;
 }
 
 interface GameLogicProviderProps extends ParentProps {
@@ -108,7 +104,7 @@ interface GameLogicProviderProps extends ParentProps {
  * - Listens for and handles game events to update the state.
  */
 export const GameProvider: Component<GameLogicProviderProps> = (props) => {
-  const initialPieces = INITIAL_PIECES;
+  const initialPieces = ONE_MOVE_TO_WIN;
   const [game, setGame] = createStore<IGameState>(
     getGameSave(untrack(() => props.gameId)) ??
       INITIAL_STATE({
@@ -133,20 +129,6 @@ export const GameProvider: Component<GameLogicProviderProps> = (props) => {
       winner: game.winner,
     }),
   );
-
-  // For local games, useLocalGame manages turns and end-of-game conditions.
-  let emitter: Emitter<GameEvents>;
-  if (props.gameId.startsWith("local")) {
-    emitter = createNanoEvents<GameEvents>();
-    useLocalGame({
-      emitter,
-      game,
-      pieceToDestinations,
-    });
-  } else {
-    console.error("Remote games are not supported yet");
-    return <p>Remote games are not supported yet</p>;
-  }
 
   // Serialize the game store and save to localStorage on every update
   createEffect(
@@ -185,6 +167,21 @@ export const GameProvider: Component<GameLogicProviderProps> = (props) => {
   );
 
   /* Event Handlers */
+
+  let emitter: Emitter<GameEvents>;
+
+  // For local games, useLocalGame manages turns and end-of-game conditions.
+  if (props.gameId.startsWith("local")) {
+    emitter = createNanoEvents<GameEvents>();
+    useLocalGame({
+      emitter,
+      game,
+      pieceToDestinations,
+    });
+  } else {
+    console.error("Remote games are not supported yet");
+    return <p>Remote games are not supported yet</p>;
+  }
 
   /**
    * Handles the `moveMade` event.

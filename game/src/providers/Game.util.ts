@@ -8,6 +8,7 @@ import {
   GameBoard,
   IDestinationMarker,
   IGamePiece,
+  IGameState,
   PieceId,
   PlayerColor,
   getShipIdFromPlaneId,
@@ -226,4 +227,13 @@ export function getBoardFromPieces(
     }
   });
   return board;
+}
+
+export function gameIdToLocalStorageKey(gameId: string) {
+  return `savedGameState-${gameId}`;
+}
+
+export function getGameSave(gameId: string): IGameState | undefined {
+  const savedGame = localStorage.getItem(gameIdToLocalStorageKey(gameId));
+  return savedGame ? (JSON.parse(savedGame) as IGameState) : undefined;
 }
