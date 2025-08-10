@@ -22,7 +22,9 @@
 - [x] ~~Option to have non-moveable game pieces~~ Only moveable pieces are highlighted
 - [x] Auto-end turn
 - [x] Highlight available positions when moving game piece
+- [ ] Rotate game board
+- [ ] Custom player names
+- [ ] Custom colors
 - [ ] Improve overall appearance of game pieces
-- [ ] Drag and drop piece
-- [ ] Snappable + highlighted locations during drag-and-drop
+- [ ] Option to drag and drop pieces
 
