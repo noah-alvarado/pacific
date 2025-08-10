@@ -18,6 +18,7 @@ import {
 } from "solid-js";
 import type {
   GameEndEvent,
+  GameEvents,
   MoveMadeEvent,
   TurnChangeEvent,
 } from "../types/GameEvents.js";
@@ -40,7 +41,8 @@ import {
   ONE_MOVE_TO_WIN,
 } from "../constants/game.js";
 import { SetStoreFunction, createStore } from "solid-js/store";
-import { useEvent } from "../emitter.js";
+import { createNanoEvents, Emitter } from "nanoevents";
+import { useEvent } from "../primitives/useEvent.js";
 import { getBoardFromPieces, mapPieceToDestinations } from "./Game.util.js";
 import { detailedDiff } from "deep-object-diff";
 import { useLocalGame } from "../primitives/useLocalGame.js";
@@ -48,6 +50,7 @@ import { useModalContext } from "./Modal.jsx";
 import GameOverModal from "../components/GameOverModal.jsx";
 
 const GameContext = createContext<{
+  emitter: Emitter<GameEvents>;
   game: IGameState;
   setGame: SetStoreFunction<IGameState>;
   pieceToDestinations: Accessor<
@@ -133,11 +136,17 @@ export const GameProvider: Component<GameLogicProviderProps> = (props) => {
   );
 
   // For local games, useLocalGame manages turns and end-of-game conditions.
+  let emitter: Emitter<GameEvents>;
   if (props.gameId.startsWith("local")) {
+    emitter = createNanoEvents<GameEvents>();
     useLocalGame({
+      emitter,
       game,
       pieceToDestinations,
     });
+  } else {
+    console.error("Remote games are not supported yet");
+    return <p>Remote games are not supported yet</p>;
   }
 
   // Serialize the game store and save to localStorage on every update
@@ -145,7 +154,6 @@ export const GameProvider: Component<GameLogicProviderProps> = (props) => {
     on(
       () => JSON.stringify(game),
       (g) => {
-        console.log("here1");
         if (import.meta.env.DEV)
           // prettier-ignore
           console.log("game state change",
@@ -162,7 +170,6 @@ export const GameProvider: Component<GameLogicProviderProps> = (props) => {
     on(
       () => [game.phase, game.winner],
       () => {
-        console.log("here2");
         if (game.phase === GamePhase.Finished) {
           setModal(<GameOverModal winner={game.winner} />);
         }
@@ -179,8 +186,9 @@ export const GameProvider: Component<GameLogicProviderProps> = (props) => {
    * when they reach the opposite side of the board.
    * @param e - The move made event.
    */
-  useEvent("moveMade", (e: MoveMadeEvent) => {
+  useEvent(emitter, "moveMade", (e: MoveMadeEvent) => {
     batch(() => {
+      console.log({ e });
       // remove jumped pieces
       if (e.moveType === "attack") {
         const isEvenRow = e.from.y % 2 === 0;
@@ -219,7 +227,7 @@ export const GameProvider: Component<GameLogicProviderProps> = (props) => {
    * Updates the current turn and clears the selected piece.
    * @param e - The turn change event.
    */
-  useEvent("turnChange", (e: TurnChangeEvent) => {
+  useEvent(emitter, "turnChange", (e: TurnChangeEvent) => {
     batch(() => {
       setGame("turn", e.to);
       setGame("selectedPieceId", undefined);
@@ -231,7 +239,7 @@ export const GameProvider: Component<GameLogicProviderProps> = (props) => {
    * Sets the game to a finished state and records the winner.
    * @param e - The game end event.
    */
-  useEvent("gameEnd", (e: GameEndEvent) => {
+  useEvent(emitter, "gameEnd", (e: GameEndEvent) => {
     batch(() => {
       setGame("phase", GamePhase.Finished);
       setGame("winner", e.winner);
@@ -240,7 +248,7 @@ export const GameProvider: Component<GameLogicProviderProps> = (props) => {
 
   return (
     <GameContext.Provider
-      value={{ game, setGame, pieceToDestinations, initialPieces }}
+      value={{ emitter, game, setGame, pieceToDestinations, initialPieces }}
     >
       {props.children}
     </GameContext.Provider>

@@ -1,6 +1,5 @@
 import { type JSX, type Component } from "solid-js";
 import styles from "./DestinationMarker.module.css";
-import emitter from "../emitter.js";
 import { positionStyle } from "./GamePiece.util.js";
 import { useGameContext } from "../providers/Game.jsx";
 import { MoveMadeEvent } from "../types/GameEvents.js";
@@ -9,7 +8,7 @@ interface IDestinationMarkerProps {
   index: number;
 }
 const DestinationMarker: Component<IDestinationMarkerProps> = (props) => {
-  const { game, pieceToDestinations } = useGameContext();
+  const { game, pieceToDestinations, emitter } = useGameContext();
 
   const onClick: JSX.EventHandler<HTMLButtonElement, MouseEvent> = (e) => {
     e.preventDefault();

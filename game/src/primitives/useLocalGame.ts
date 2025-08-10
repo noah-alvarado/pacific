@@ -5,6 +5,7 @@
  */
 
 import { Accessor, createEffect, on } from "solid-js";
+import { Emitter } from "nanoevents";
 import {
   GamePhase,
   IDestinationMarker,
@@ -12,8 +13,7 @@ import {
   pieceCanAttack,
   PieceId,
 } from "../types/GameState.js";
-import { GameEndEvent, TurnChangeEvent } from "../types/GameEvents.js";
-import emitter from "../emitter.js";
+import { GameEndEvent, GameEvents, TurnChangeEvent } from "../types/GameEvents.js";
 
 /**
  * A SolidJS hook that encapsulates game logic for local (hot-seat) games.
@@ -25,6 +25,7 @@ import emitter from "../emitter.js";
  * @param params.pieceToDestinations - An accessor that provides a map of pieces to their possible destinations.
  */
 export function useLocalGame(params: {
+  emitter: Emitter<GameEvents>;
   game: IGameState;
   pieceToDestinations: Accessor<Record<PieceId, IDestinationMarker[]>>;
 }) {
@@ -43,7 +44,7 @@ export function useLocalGame(params: {
         if (lastMoveWasNotAttack || attackingPieceHasNoMoves) {
           // If the turn should change, emit a 'turnChange' event.
           // This also implicitly checks for victory conditions before changing the turn.
-          emitter.emit(
+          params.emitter.emit(
             "turnChange",
             JSON.parse(
               JSON.stringify({
@@ -88,7 +89,7 @@ export function useLocalGame(params: {
 
         // If there's a reason for the game to end, emit a 'gameEnd' event.
         const winner = params.game.turn === "red" ? "blue" : "red";
-        emitter.emit(
+        params.emitter.emit(
           "gameEnd",
           JSON.parse(
             JSON.stringify({ winner, loser: params.game.turn, reason }),
