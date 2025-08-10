@@ -44,7 +44,6 @@ import { SetStoreFunction, createStore } from "solid-js/store";
 import { createNanoEvents, Emitter } from "nanoevents";
 import { useEvent } from "../primitives/useEvent.js";
 import { getBoardFromPieces, mapPieceToDestinations } from "./Game.util.js";
-import { detailedDiff } from "deep-object-diff";
 import { useLocalGame } from "../primitives/useLocalGame.js";
 import { useModalContext } from "./Modal.jsx";
 import GameOverModal from "../components/GameOverModal.jsx";
@@ -153,11 +152,18 @@ export const GameProvider: Component<GameLogicProviderProps> = (props) => {
   createEffect(
     on(
       () => JSON.stringify(game),
-      (g) => {
-        if (import.meta.env.DEV)
-          // prettier-ignore
-          console.log("game state change",
-            detailedDiff(getGameSave(props.gameId) ?? {}, JSON.parse(g) as IGameState));
+      async (g) => {
+        if (import.meta.env.DEV) {
+          await import("deep-object-diff").then(({ detailedDiff }) => {
+            console.log(
+              "game state change",
+              detailedDiff(
+                getGameSave(props.gameId) ?? {},
+                JSON.parse(g) as IGameState,
+              ),
+            );
+          });
+        }
 
         localStorage.setItem(gameIdToLocalStorageKey(props.gameId), g);
       },
@@ -188,7 +194,6 @@ export const GameProvider: Component<GameLogicProviderProps> = (props) => {
    */
   useEvent(emitter, "moveMade", (e: MoveMadeEvent) => {
     batch(() => {
-      console.log({ e });
       // remove jumped pieces
       if (e.moveType === "attack") {
         const isEvenRow = e.from.y % 2 === 0;

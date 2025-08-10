@@ -33,7 +33,7 @@ export function useLocalGame(params: {
   // A turn ends if the last move was not an attack, or if the attacking piece has no more moves.
   createEffect(
     on(
-      () => params.game.lastMove,
+      () => JSON.stringify(params.game.lastMove),
       () => {
         if (!params.game.lastMove) return;
 
