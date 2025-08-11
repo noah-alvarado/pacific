@@ -167,7 +167,7 @@ export const GameProvider: Component<GameLogicProviderProps> = (props) => {
   );
 
   /* Event Handlers */
-  
+
   let emitter: Emitter<GameEvents>;
 
   // For local games, useLocalGame manages turns and end-of-game conditions.
