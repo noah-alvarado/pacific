@@ -104,7 +104,7 @@ interface GameLogicProviderProps extends ParentProps {
  * - Listens for and handles game events to update the state.
  */
 export const GameProvider: Component<GameLogicProviderProps> = (props) => {
-  const initialPieces = ONE_MOVE_TO_WIN;
+  const initialPieces = INITIAL_PIECES;
   const [game, setGame] = createStore<IGameState>(
     getGameSave(untrack(() => props.gameId)) ??
       INITIAL_STATE({
@@ -167,7 +167,7 @@ export const GameProvider: Component<GameLogicProviderProps> = (props) => {
   );
 
   /* Event Handlers */
-
+  
   let emitter: Emitter<GameEvents>;
 
   // For local games, useLocalGame manages turns and end-of-game conditions.
