@@ -2,7 +2,7 @@ import { Board } from "../components/Board.jsx";
 import { Component } from "solid-js";
 import { Controls } from "../components/Controls.jsx";
 import { GameProvider } from "../providers/Game.jsx";
-import styles from "./Local.module.css";
+import styles from "./Game.module.css";
 
 const Local: Component = () => {
   return (

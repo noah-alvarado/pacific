@@ -71,7 +71,7 @@ export function useGameContext() {
   return context;
 }
 
-interface GameLogicProviderProps extends ParentProps {
+interface GameProviderProps extends ParentProps {
   gameId: string;
   player: PlayerColor | "local";
   turn: PlayerColor;
@@ -103,7 +103,7 @@ interface GameLogicProviderProps extends ParentProps {
  * - Detects and handles game-ending conditions, such as a player having no more planes or no valid moves.
  * - Listens for and handles game events to update the state.
  */
-export const GameProvider: Component<GameLogicProviderProps> = (props) => {
+export const GameProvider: Component<GameProviderProps> = (props) => {
   const initialPieces = INITIAL_PIECES;
   const [game, setGame] = createStore<IGameState>(
     getGameSave(untrack(() => props.gameId)) ??
@@ -168,19 +168,23 @@ export const GameProvider: Component<GameLogicProviderProps> = (props) => {
 
   /* Event Handlers */
 
-  let emitter: Emitter<GameEvents>;
-
+  const emitter = createNanoEvents<GameEvents>();
   // For local games, useLocalGame manages turns and end-of-game conditions.
   if (props.gameId.startsWith("local")) {
-    emitter = createNanoEvents<GameEvents>();
     useLocalGame({
       emitter,
       game,
       pieceToDestinations,
     });
+  } else if (props.gameId.startsWith("p2p")) {
+    console.error("P2P games are not supported yet");
+    return <p>P2P games are not supported yet</p>;
+  } else if (props.gameId.startsWith("ranked")) {
+    console.error("Ranked games are not supported yet");
+    return <p>Ranked games are not supported yet</p>;
   } else {
-    console.error("Remote games are not supported yet");
-    return <p>Remote games are not supported yet</p>;
+    console.error(`Unknown game type for id: ${props.gameId}`);
+    return <p>Unknown game type for id: {props.gameId}</p>;
   }
 
   /**
