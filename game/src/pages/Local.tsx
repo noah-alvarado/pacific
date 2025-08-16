@@ -1,12 +1,18 @@
-import { Board } from "../components/Board.jsx";
 import { Component } from "solid-js";
 import { Controls } from "../components/Controls.jsx";
-import { GameProvider } from "../providers/Game.jsx";
+import { Board } from "../components/Board.jsx";
+import { GameProvider, LocalGameConfig } from "../providers/Game.jsx";
 import styles from "./Game.module.css";
 
 const Local: Component = () => {
+  const gameConfig: LocalGameConfig = {
+    gameType: "local",
+    player: "blue",
+    turn: "blue",
+  };
+  
   return (
-    <GameProvider gameId="local" player="local" turn="blue">
+    <GameProvider gameConfig={gameConfig}>
       <div class={styles.container}>
         <Controls />
         <Board />

@@ -1,12 +1,18 @@
 import { describe, expect, test } from "vitest";
 
-import { GameProvider } from "./Game.jsx";
+import { GameProvider, LocalGameConfig } from "./Game.jsx";
 import { render } from "@solidjs/testing-library";
 
 describe("<GameProvider />", () => {
   test("renders children", () => {
+    const gameConfig: LocalGameConfig = {
+      gameType: "local",
+      player: "blue",
+      turn: "blue",
+    };
+
     const results = render(() => (
-      <GameProvider player="local" gameId="local" turn="blue">
+      <GameProvider gameConfig={gameConfig}>
         <div>Test Child</div>
       </GameProvider>
     ));

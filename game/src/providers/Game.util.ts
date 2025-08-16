@@ -163,6 +163,11 @@ interface MapPieceToDestinationsParams {
   winner: PlayerColor | undefined;
 }
 
+export type PieceToDestinationsMap = Record<
+  PieceId,
+  IDestinationMarker[] | undefined
+>;
+
 /**
  * Maps each piece to its possible destinations.
  * If any piece can attack, only attack destinations are returned for all pieces.
@@ -176,8 +181,8 @@ export function mapPieceToDestinations({
   board,
   lastMove,
   winner,
-}: MapPieceToDestinationsParams): Record<PieceId, IDestinationMarker[]> {
-  const map = {} as Record<PieceId, IDestinationMarker[]>;
+}: MapPieceToDestinationsParams): PieceToDestinationsMap {
+  const map = {} as PieceToDestinationsMap;
 
   let somePieceCanAttack = false;
   for (const id in pieces) {
@@ -192,14 +197,16 @@ export function mapPieceToDestinations({
         winner,
       });
       map[piece.id] = pieceDestinations;
-      somePieceCanAttack ||= map[piece.id].some((d) => d.moveType === "attack");
+      somePieceCanAttack ||= (map[piece.id] ?? []).some(
+        (d) => d.moveType === "attack",
+      );
     }
   }
 
   // if any piece can attack, we only show attack destinations
   if (somePieceCanAttack) {
     Object.keys(map).forEach((id) => {
-      map[id as PieceId] = map[id as PieceId].filter(
+      map[id as PieceId] = (map[id as PieceId] ?? []).filter(
         (d) => d.moveType === "attack",
       );
     });
@@ -223,17 +230,19 @@ export function getBoardFromPieces(
   );
   Object.values(pieces).forEach((piece) => {
     if (piece.status === "in-play") {
-      board[piece.position.x][piece.position.y] = piece;
+      board[piece.position.x][piece.position.y] = JSON.parse(
+        JSON.stringify(piece),
+      ) as IGamePiece;
     }
   });
   return board;
 }
 
-export function gameIdToLocalStorageKey(gameId: string) {
-  return `savedGameState-${gameId}`;
+export function saveIdToLocalStorageKey(saveId: string) {
+  return `savedGame-${saveId}`;
 }
 
-export function getGameSave(gameId: string): IGameState | undefined {
-  const savedGame = localStorage.getItem(gameIdToLocalStorageKey(gameId));
+export function getGameSave(saveId: string): IGameState | undefined {
+  const savedGame = localStorage.getItem(saveIdToLocalStorageKey(saveId));
   return savedGame ? (JSON.parse(savedGame) as IGameState) : undefined;
 }

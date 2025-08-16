@@ -12,7 +12,7 @@ import {
 
 export const INITIAL_STATE: (params: {
   pieces: Record<PieceId, IGamePiece>;
-  player: PlayerColor | "local";
+  player: PlayerColor;
   turn: PlayerColor;
 }) => IGameState = ({ pieces, player, turn }) => ({
   lastMove: undefined,

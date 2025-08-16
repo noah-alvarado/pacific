@@ -60,6 +60,7 @@ export default defineConfig([
       ],
       "@typescript-eslint/no-non-null-assertion": "off",
       "@typescript-eslint/ban-ts-comment": "off",
+      "@typescript-eslint/no-unused-vars": "warn",
     },
     ignores: ["**/*.css"],
   },

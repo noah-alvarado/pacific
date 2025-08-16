@@ -99,6 +99,11 @@ const Header: Component = () => {
               local play
             </A>
           </li>
+          <li>
+            <A href={Page.P2P} class={styles.clickable} onclick={onClickNavA}>
+              P2P game
+            </A>
+          </li>
         </ul>
       </nav>
     </header>

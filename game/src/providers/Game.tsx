@@ -24,42 +24,34 @@ import type {
 } from "../types/GameEvents.js";
 import {
   GamePhase,
-  IDestinationMarker,
   IGamePiece,
   IGameState,
   PieceId,
   PlayerColor,
   getPlaneIdsFromShipId,
 } from "../types/GameState.js";
-import {
-  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
-  BLUE_STALEMATE_OR_DECISIVE,
-  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
-  INITIAL_PIECES,
-  INITIAL_STATE,
-  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
-  ONE_MOVE_TO_WIN,
-} from "../constants/game.js";
+import { INITIAL_PIECES, INITIAL_STATE } from "../constants/game.js";
 import { SetStoreFunction, createStore } from "solid-js/store";
 import { createNanoEvents, Emitter } from "nanoevents";
 import { useEvent } from "../primitives/useEvent.js";
 import {
-  gameIdToLocalStorageKey,
+  saveIdToLocalStorageKey,
   getBoardFromPieces,
   getGameSave,
   mapPieceToDestinations,
+  PieceToDestinationsMap,
 } from "./Game.util.js";
 import { useLocalGame } from "../primitives/useLocalGame.js";
 import { useModalContext } from "./Modal.jsx";
 import GameOverModal from "../components/GameOverModal.jsx";
+import { useP2PGame } from "../primitives/useP2PGame.js";
 
 const GameContext = createContext<{
   emitter: Emitter<GameEvents>;
+  gameConfig: GameConfig;
   game: IGameState;
   setGame: SetStoreFunction<IGameState>;
-  pieceToDestinations: Accessor<
-    Record<PieceId, IDestinationMarker[] | undefined>
-  >;
+  pieceToDestinations: Accessor<PieceToDestinationsMap>;
   initialPieces: Record<PieceId, IGamePiece>;
 }>();
 
@@ -71,10 +63,22 @@ export function useGameContext() {
   return context;
 }
 
-interface GameProviderProps extends ParentProps {
-  gameId: string;
-  player: PlayerColor | "local";
+export interface LocalGameConfig {
+  gameType: "local";
+  player: PlayerColor;
   turn: PlayerColor;
+}
+
+export interface P2PGameConfig {
+  gameType: "p2p";
+  player: PlayerColor;
+  turn: PlayerColor;
+}
+
+type GameConfig = LocalGameConfig | P2PGameConfig;
+
+interface GameProviderProps extends ParentProps {
+  gameConfig: GameConfig;
 }
 
 /**
@@ -88,31 +92,33 @@ interface GameProviderProps extends ParentProps {
  * and detects end-of-game conditions.
  *
  * @component
- * @param props.gameId - A unique identifier for the game, or "local" for a hot-seat game.
- * @param props.player - The color of the player using this client, or "local" for a hot-seat game.
- * @param props.turn - The color of the player whose turn it is.
- * @param props.children - The child components that will have access to the game logic context.
+ * @param props
+ * @param props.gameConfig - See {@link GameConfig} for all available properties.
  *
  * @remarks
- * - Initializes game state from localStorage if a saved game exists for the given `gameId`,
- *   otherwise it uses the initial default state.
+ * - Initializes game state from local storage when playing locally, and automatically saves
+ *   the game state to local storage on any change.
  * - Derives the board layout and possible piece destinations from the game state.
- * - Automatically saves the game state to localStorage on any change.
- * - Manages turn progression based on move types. A turn ends after a non-attack move,
- *   or when an attacking piece has no more available moves.
- * - Detects and handles game-ending conditions, such as a player having no more planes or no valid moves.
+ * - Manages turn progression based on move types. A turn ends after a non-attack move and
+ *   when an attacking piece has no more moves.
+ * - Detects and handles game-ending conditions, such as a player having no more planes or
+ *   no valid moves.
  * - Listens for and handles game events to update the state.
  */
 export const GameProvider: Component<GameProviderProps> = (props) => {
   const initialPieces = INITIAL_PIECES;
-  const [game, setGame] = createStore<IGameState>(
-    getGameSave(untrack(() => props.gameId)) ??
+  const initialState = untrack(
+    () =>
+      (props.gameConfig.gameType === "local"
+        ? getGameSave("local")
+        : undefined) ??
       INITIAL_STATE({
         pieces: initialPieces,
-        player: props.player,
-        turn: props.turn,
+        player: "blue",
+        turn: "blue",
       }),
   );
+  const [game, setGame] = createStore<IGameState>(initialState);
 
   const { setModal } = useModalContext();
 
@@ -134,20 +140,22 @@ export const GameProvider: Component<GameProviderProps> = (props) => {
   createEffect(
     on(
       () => JSON.stringify(game),
-      async (g) => {
+      async (g, prev) => {
         if (import.meta.env.DEV) {
           await import("deep-object-diff").then(({ detailedDiff }) => {
             console.log(
               "game state change",
               detailedDiff(
-                getGameSave(props.gameId) ?? {},
+                JSON.parse(prev ?? "{}") as IGameState,
                 JSON.parse(g) as IGameState,
               ),
             );
           });
         }
 
-        localStorage.setItem(gameIdToLocalStorageKey(props.gameId), g);
+        if (props.gameConfig.gameType === "local") {
+          localStorage.setItem(saveIdToLocalStorageKey("local"), g);
+        }
       },
       { defer: true },
     ),
@@ -169,23 +177,20 @@ export const GameProvider: Component<GameProviderProps> = (props) => {
   /* Event Handlers */
 
   const emitter = createNanoEvents<GameEvents>();
-  // For local games, useLocalGame manages turns and end-of-game conditions.
-  if (props.gameId.startsWith("local")) {
+  if (props.gameConfig.gameType === "local")
     useLocalGame({
       emitter,
+      gameConfig: props.gameConfig,
       game,
       pieceToDestinations,
     });
-  } else if (props.gameId.startsWith("p2p")) {
-    console.error("P2P games are not supported yet");
-    return <p>P2P games are not supported yet</p>;
-  } else if (props.gameId.startsWith("ranked")) {
-    console.error("Ranked games are not supported yet");
-    return <p>Ranked games are not supported yet</p>;
-  } else {
-    console.error(`Unknown game type for id: ${props.gameId}`);
-    return <p>Unknown game type for id: {props.gameId}</p>;
-  }
+  if (props.gameConfig.gameType === "p2p")
+    useP2PGame({
+      emitter,
+      gameConfig: props.gameConfig,
+      game,
+      pieceToDestinations,
+    });
 
   /**
    * Handles the `moveMade` event.
@@ -254,7 +259,14 @@ export const GameProvider: Component<GameProviderProps> = (props) => {
 
   return (
     <GameContext.Provider
-      value={{ emitter, game, setGame, pieceToDestinations, initialPieces }}
+      value={{
+        emitter,
+        gameConfig: props.gameConfig,
+        game,
+        setGame,
+        pieceToDestinations,
+        initialPieces,
+      }}
     >
       {props.children}
     </GameContext.Provider>

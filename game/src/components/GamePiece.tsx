@@ -15,12 +15,12 @@ export interface IGamePieceProps {
 }
 export const GamePiece: Component<IGamePieceProps> = (props) => {
   const id = untrack(() => props.id);
-  const { game, setGame, pieceToDestinations } = useGameContext();
+  const { gameConfig, game, setGame, pieceToDestinations } = useGameContext();
 
   const piece = game.pieces[id];
   const owner = untrack(() => piece.owner);
   const isUsersPiece = createMemo(
-    () => owner === game.player || game.player === "local",
+    () => owner === game.player || gameConfig.gameType === "local",
   );
   const isSelected = createMemo(() => game.selectedPieceId === id);
   const isSelectable = createMemo(

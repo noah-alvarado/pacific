@@ -6,14 +6,14 @@
 
 import { Accessor, createEffect, on } from "solid-js";
 import { Emitter } from "nanoevents";
+import { GamePhase, IGameState, pieceCanAttack } from "../types/GameState.js";
 import {
-  GamePhase,
-  IDestinationMarker,
-  IGameState,
-  pieceCanAttack,
-  PieceId,
-} from "../types/GameState.js";
-import { GameEndEvent, GameEvents, TurnChangeEvent } from "../types/GameEvents.js";
+  GameEndEvent,
+  GameEvents,
+  TurnChangeEvent,
+} from "../types/GameEvents.js";
+import { PieceToDestinationsMap } from "../providers/Game.util.js";
+import { LocalGameConfig } from "../providers/Game.jsx";
 
 /**
  * A SolidJS hook that encapsulates game logic for local (hot-seat) games.
@@ -21,13 +21,15 @@ import { GameEndEvent, GameEvents, TurnChangeEvent } from "../types/GameEvents.j
  * game-ending conditions.
  *
  * @param params - The parameters for the hook.
+ * @param params.emitter - The event emitter for game events.
  * @param params.game - The reactive game state.
  * @param params.pieceToDestinations - An accessor that provides a map of pieces to their possible destinations.
  */
 export function useLocalGame(params: {
   emitter: Emitter<GameEvents>;
+  gameConfig: LocalGameConfig;
   game: IGameState;
-  pieceToDestinations: Accessor<Record<PieceId, IDestinationMarker[]>>;
+  pieceToDestinations: Accessor<PieceToDestinationsMap>;
 }) {
   // Effect to manage turn state progression.
   // A turn ends if the last move was not an attack, or if the attacking piece has no more moves.
@@ -39,8 +41,8 @@ export function useLocalGame(params: {
 
         const lastMoveWasNotAttack = params.game.lastMove.moveType !== "attack";
         const attackingPieceHasNoMoves =
-          params.pieceToDestinations()[params.game.lastMove.piece.id].length ===
-          0;
+          (params.pieceToDestinations()[params.game.lastMove.piece.id] ?? [])
+            .length === 0;
         if (lastMoveWasNotAttack || attackingPieceHasNoMoves) {
           // If the turn should change, emit a 'turnChange' event.
           // This also implicitly checks for victory conditions before changing the turn.
@@ -74,7 +76,8 @@ export function useLocalGame(params: {
               if (pieceCanAttack(piece.type) && piece.status === "in-play") {
                 acc.numPlanes++;
               }
-              acc.hasMove ||= params.pieceToDestinations()[piece.id].length > 0;
+              acc.hasMove ||=
+                (params.pieceToDestinations()[piece.id] ?? []).length > 0;
               return acc;
             },
             { hasMove: false, numPlanes: 0 },
