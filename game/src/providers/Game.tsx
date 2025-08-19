@@ -65,7 +65,6 @@ export function useGameContext() {
 
 export interface LocalGameConfig {
   gameType: "local";
-  player: PlayerColor;
   turn: PlayerColor;
 }
 

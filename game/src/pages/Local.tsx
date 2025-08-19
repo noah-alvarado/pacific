@@ -7,7 +7,6 @@ import styles from "./Game.module.css";
 const Local: Component = () => {
   const gameConfig: LocalGameConfig = {
     gameType: "local",
-    player: "blue",
     turn: "blue",
   };
   

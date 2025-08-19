@@ -7,7 +7,6 @@ describe("<GameProvider />", () => {
   test("renders children", () => {
     const gameConfig: LocalGameConfig = {
       gameType: "local",
-      player: "blue",
       turn: "blue",
     };
 

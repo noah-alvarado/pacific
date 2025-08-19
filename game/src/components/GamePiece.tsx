@@ -45,7 +45,7 @@ export const GamePiece: Component<IGamePieceProps> = (props) => {
         onClick={onClick}
         class={[
           styles.piece,
-          isSelected() && styles.selected,
+          isSelected() && isUsersPiece() && styles.selected,
           !isSelectable() && isUsersPiece() && styles.disabled,
         ]
           .filter(Boolean)
