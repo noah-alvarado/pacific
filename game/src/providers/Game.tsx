@@ -18,6 +18,7 @@ import {
 } from "solid-js";
 import type {
   GameEndEvent,
+  GameEvent,
   GameEvents,
   MoveMadeEvent,
   TurnChangeEvent,
@@ -71,7 +72,7 @@ export interface P2PGameConfig {
   gameType: "p2p";
   player: PlayerColor;
   turn: PlayerColor;
-  sendMessage: (msg: string) => void;
+  sendGameEvent: (msg: GameEvent) => void;
 }
 
 export interface RankedGameConfig {
@@ -119,8 +120,11 @@ export const GameProvider: Component<GameProviderProps> = (props) => {
         : undefined) ??
       INITIAL_STATE({
         pieces: initialPieces,
-        player: "blue",
-        turn: "blue",
+        player:
+          props.gameConfig.gameType !== "local"
+            ? props.gameConfig.player
+            : "blue",
+        turn: props.gameConfig.turn,
       }),
   );
   const [game, setGame] = createStore<IGameState>(initialState);
@@ -261,7 +265,7 @@ export const GameProvider: Component<GameProviderProps> = (props) => {
   function makeMove(e: MoveMadeEvent): void {
     emitter.emit("moveMade", e);
     if (props.gameConfig.gameType === "p2p") {
-      // Forward the moveMade event to the peer
+      props.gameConfig.sendGameEvent(e);
     }
   }
 

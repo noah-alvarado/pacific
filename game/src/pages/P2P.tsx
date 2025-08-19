@@ -6,21 +6,6 @@ import { Board } from "../components/Board.jsx";
 
 import styles from "./Game.module.css";
 
-interface P2PGameProps {
-  gameConfig: P2PGameConfig;
-}
-
-const P2PGame: Component<P2PGameProps> = (props) => {
-  return (
-    <GameProvider gameConfig={props.gameConfig}>
-      <div class={styles.container}>
-        <Controls />
-        <Board />
-      </div>
-    </GameProvider>
-  );
-};
-
 const P2P: Component = () => {
   const p2p = useP2PConnection();
 
@@ -52,13 +37,11 @@ const P2P: Component = () => {
   createEffect(() => {
     if (!p2p.ready()) return;
 
-    // TODO: negotiate player and turn between peers
-
     setGameConfig({
       gameType: "p2p",
-      player: "red",
+      player: p2p.player()!,
       turn: "red",
-      sendMessage: p2p.sendMessage,
+      sendGameEvent: p2p.sendGameEvent,
     });
   });
 
@@ -95,6 +78,17 @@ const P2P: Component = () => {
 
       {gameConfig() && <P2PGame gameConfig={gameConfig()!} />}
     </>
+  );
+};
+
+const P2PGame: Component<{ gameConfig: P2PGameConfig }> = (props) => {
+  return (
+    <GameProvider gameConfig={props.gameConfig}>
+      <div class={styles.container}>
+        <Controls />
+        <Board />
+      </div>
+    </GameProvider>
   );
 };
 

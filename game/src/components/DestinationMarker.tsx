@@ -28,6 +28,7 @@ const DestinationMarker: Component<IDestinationMarkerProps> = (props) => {
     makeMove(
       JSON.parse(
         JSON.stringify({
+          eventType: "moveMade",
           piece,
           moveType: dest.moveType,
           from: game.pieces[game.selectedPieceId].position,

@@ -50,6 +50,7 @@ export function useLocalGameLogic(params: {
             "turnChange",
             JSON.parse(
               JSON.stringify({
+                eventType: "turnChange",
                 from: params.game.turn,
                 to: params.game.turn === "red" ? "blue" : "red",
               }),
@@ -95,7 +96,12 @@ export function useLocalGameLogic(params: {
         params.emitter.emit(
           "gameEnd",
           JSON.parse(
-            JSON.stringify({ winner, loser: params.game.turn, reason }),
+            JSON.stringify({
+              eventType: "gameEnd",
+              winner,
+              loser: params.game.turn,
+              reason,
+            }),
           ) as GameEndEvent,
         );
       },

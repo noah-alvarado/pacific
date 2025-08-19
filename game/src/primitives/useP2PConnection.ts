@@ -1,7 +1,36 @@
 import { createSignal, Setter, onCleanup, batch } from "solid-js";
+import { GameEvent } from "../types/GameEvents.js";
+import { PlayerColor } from "../types/GameState.js";
+
+interface GameChannelMessage {
+  channel: "game";
+  event: GameEvent;
+}
+
+interface ChatChannelMessage {
+  channel: "chat";
+  event: ChatEvent;
+}
+
+type ChannelMessage = GameChannelMessage | ChatChannelMessage;
+
+interface ChatIntroduction {
+  chatType: "introduction";
+  displayName: string;
+}
+
+interface ChatMessage {
+  chatType: "message";
+  sender: string;
+  content: string;
+}
+
+type ChatEvent = ChatIntroduction | ChatMessage;
 
 export function useP2PConnection() {
+  const [player, setPlayer] = createSignal<PlayerColor>();
   const [ready, setReady] = createSignal(false);
+
   const [pc, _setPC] = createSignal(createConnection());
   const [channel, setChannel] = createSignal(createChannel(pc()));
 
@@ -70,7 +99,7 @@ export function useP2PConnection() {
   }
 
   function onconnectionstatechange(this: RTCPeerConnection, e: Event) {
-    console.error(
+    console.info(
       "[useP2PConnection] Connection state change:",
       this.connectionState,
     );
@@ -84,19 +113,59 @@ export function useP2PConnection() {
   }
 
   function createChannel(connection: RTCPeerConnection) {
-    const channel: RTCDataChannel = connection.createDataChannel("chat", {
+    const draw = Math.random() * 10000;
+    const channel: RTCDataChannel = connection.createDataChannel("game", {
       negotiated: true,
       id: 0,
     });
     channel.onopen = () => {
-      console.info("[useP2PConnection] Data channel is open");
-      setReady(true);
+      console.info(`[useP2PConnection] channel is open`);
+      sendChatEvent({
+        chatType: "introduction",
+        displayName: `Player ${Math.round(draw)}`,
+      });
+      sendGameEvent({ eventType: "negotiation", draw });
     };
-    channel.onmessage = (message) => {
-      console.info("[useP2PConnection] message:", message);
+    channel.onmessage = (message: MessageEvent<string>) => {
+      console.info(`[useP2PConnection] channel message:`, message);
+      const data = JSON.parse(message.data) as ChannelMessage;
+      switch (data.channel) {
+        case "game":
+          switch (data.event.eventType) {
+            case "moveMade":
+              // Handle move made event
+              break;
+            case "negotiation": {
+              const drawnPlayer = draw > data.event.draw ? "red" : "blue";
+              batch(() => {
+                setPlayer(drawnPlayer);
+                setReady(true);
+              });
+              break;
+            }
+          }
+          break;
+        case "chat":
+          switch (data.event.chatType) {
+            case "introduction":
+              // TODO: save display name
+              break;
+            case "message":
+              // TODO: push to chat log
+              break;
+          }
+          break;
+      }
     };
     channel.onerror = (error) => {
-      console.error("[useP2PConnection] Data channel error:", error);
+      console.error(`[useP2PConnection] channel error:`, error);
+    };
+    channel.onclosing = () => {
+      console.info(`[useP2PConnection] channel is closing`);
+      batch(() => {
+        setReady(false);
+        setPlayer(undefined);
+      });
     };
     return channel;
   }
@@ -126,8 +195,13 @@ export function useP2PConnection() {
     }
   }
 
-  function sendMessage(message: string) {
-    channel().send(message);
+  function sendGameEvent(event: GameEvent) {
+    channel().send(JSON.stringify({ event, channel: "game" }));
+  }
+
+  function sendChatEvent(event: ChatEvent) {
+    // TODO: push to chat log
+    channel().send(JSON.stringify({ event, channel: "chat" }));
   }
 
   function resetConnection() {
@@ -138,5 +212,13 @@ export function useP2PConnection() {
     });
   }
 
-  return { ready, getOffer, acceptPeer, sendMessage, resetConnection };
+  return {
+    player,
+    ready,
+    getOffer,
+    acceptPeer,
+    sendGameEvent,
+    sendChatEvent,
+    resetConnection,
+  };
 }
