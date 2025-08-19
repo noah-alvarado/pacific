@@ -32,7 +32,7 @@ import {
 } from "../types/GameState.js";
 import { INITIAL_PIECES, INITIAL_STATE } from "../constants/game.js";
 import { SetStoreFunction, createStore } from "solid-js/store";
-import { createNanoEvents, Emitter } from "nanoevents";
+import { createNanoEvents } from "nanoevents";
 import { useEvent } from "../primitives/useEvent.js";
 import {
   saveIdToLocalStorageKey,
@@ -41,18 +41,17 @@ import {
   mapPieceToDestinations,
   PieceToDestinationsMap,
 } from "./Game.util.js";
-import { useLocalGame } from "../primitives/useLocalGame.js";
+import { useLocalGameLogic } from "../primitives/useLocalGameLogic.js";
 import { useModalContext } from "./Modal.jsx";
 import GameOverModal from "../components/GameOverModal.jsx";
-import { useP2PGame } from "../primitives/useP2PGame.js";
 
 const GameContext = createContext<{
-  emitter: Emitter<GameEvents>;
   gameConfig: GameConfig;
   game: IGameState;
   setGame: SetStoreFunction<IGameState>;
   pieceToDestinations: Accessor<PieceToDestinationsMap>;
   initialPieces: Record<PieceId, IGamePiece>;
+  makeMove: (e: MoveMadeEvent) => void;
 }>();
 
 export function useGameContext() {
@@ -72,9 +71,16 @@ export interface P2PGameConfig {
   gameType: "p2p";
   player: PlayerColor;
   turn: PlayerColor;
+  sendMessage: (msg: string) => void;
 }
 
-type GameConfig = LocalGameConfig | P2PGameConfig;
+export interface RankedGameConfig {
+  gameType: "ranked";
+  player: PlayerColor;
+  turn: PlayerColor;
+}
+
+type GameConfig = LocalGameConfig | P2PGameConfig | RankedGameConfig;
 
 interface GameProviderProps extends ParentProps {
   gameConfig: GameConfig;
@@ -174,22 +180,18 @@ export const GameProvider: Component<GameProviderProps> = (props) => {
   );
 
   /* Event Handlers */
-
   const emitter = createNanoEvents<GameEvents>();
-  if (props.gameConfig.gameType === "local")
-    useLocalGame({
+  if (
+    props.gameConfig.gameType === "local" ||
+    props.gameConfig.gameType === "p2p"
+  ) {
+    useLocalGameLogic({
       emitter,
       gameConfig: props.gameConfig,
       game,
       pieceToDestinations,
     });
-  if (props.gameConfig.gameType === "p2p")
-    useP2PGame({
-      emitter,
-      gameConfig: props.gameConfig,
-      game,
-      pieceToDestinations,
-    });
+  }
 
   /**
    * Handles the `moveMade` event.
@@ -256,15 +258,22 @@ export const GameProvider: Component<GameProviderProps> = (props) => {
     });
   });
 
+  function makeMove(e: MoveMadeEvent): void {
+    emitter.emit("moveMade", e);
+    if (props.gameConfig.gameType === "p2p") {
+      // Forward the moveMade event to the peer
+    }
+  }
+
   return (
     <GameContext.Provider
       value={{
-        emitter,
         gameConfig: props.gameConfig,
         game,
         setGame,
         pieceToDestinations,
         initialPieces,
+        makeMove,
       }}
     >
       {props.children}

@@ -13,7 +13,7 @@ import {
   TurnChangeEvent,
 } from "../types/GameEvents.js";
 import { PieceToDestinationsMap } from "../providers/Game.util.js";
-import { LocalGameConfig } from "../providers/Game.jsx";
+import { LocalGameConfig, P2PGameConfig } from "../providers/Game.jsx";
 
 /**
  * A SolidJS hook that encapsulates game logic for local (hot-seat) games.
@@ -25,9 +25,9 @@ import { LocalGameConfig } from "../providers/Game.jsx";
  * @param params.game - The reactive game state.
  * @param params.pieceToDestinations - An accessor that provides a map of pieces to their possible destinations.
  */
-export function useLocalGame(params: {
+export function useLocalGameLogic(params: {
   emitter: Emitter<GameEvents>;
-  gameConfig: LocalGameConfig;
+  gameConfig: LocalGameConfig | P2PGameConfig;
   game: IGameState;
   pieceToDestinations: Accessor<PieceToDestinationsMap>;
 }) {

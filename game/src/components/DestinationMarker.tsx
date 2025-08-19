@@ -8,7 +8,7 @@ interface IDestinationMarkerProps {
   index: number;
 }
 const DestinationMarker: Component<IDestinationMarkerProps> = (props) => {
-  const { game, pieceToDestinations, emitter } = useGameContext();
+  const { game, pieceToDestinations, makeMove } = useGameContext();
 
   const onClick: JSX.EventHandler<HTMLButtonElement, MouseEvent> = (e) => {
     e.preventDefault();
@@ -25,8 +25,7 @@ const DestinationMarker: Component<IDestinationMarkerProps> = (props) => {
     }
 
     const piece = game.pieces[game.selectedPieceId];
-    emitter.emit(
-      "moveMade",
+    makeMove(
       JSON.parse(
         JSON.stringify({
           piece,
