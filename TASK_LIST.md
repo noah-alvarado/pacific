@@ -13,8 +13,9 @@
 - [x] Detect victory
 
 ### Service
-- [ ] Interface player commands with WebRTC peer commands
+- [ ] P2P games
 - [ ] Central server for secure matches
+- [ ] Ranked
 
 ## Polish
 - [x] Add numbers to game pieces
@@ -25,6 +26,7 @@
 - [ ] Rotate game board
 - [ ] Custom player names
 - [ ] Custom colors
+- [ ] Live chat
 - [ ] Improve overall appearance of game pieces
 - [ ] Option to drag and drop pieces
 
