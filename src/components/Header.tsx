@@ -100,7 +100,11 @@ const Header: Component = () => {
             </A>
           </li>
           <li>
-            <A href={Page.Online} class={styles.clickable} onclick={onClickNavA}>
+            <A
+              href={Page.Online}
+              class={styles.clickable}
+              onclick={onClickNavA}
+            >
               online
             </A>
           </li>

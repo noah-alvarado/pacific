@@ -175,11 +175,11 @@ export const GameProvider: Component<GameProviderProps> = (props) => {
 
   /* Event Handlers */
   useGameLogic({
-      emitter: props.emitter,
-      gameConfig: props.gameConfig,
-      game,
-      pieceToDestinations,
-    });
+    emitter: props.emitter,
+    gameConfig: props.gameConfig,
+    game,
+    pieceToDestinations,
+  });
 
   /**
    * Handles the `moveMade` event.

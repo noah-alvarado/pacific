@@ -33,9 +33,7 @@ export default function AppRouter() {
   return (
     <HashRouter root={App}>
       <For each={routes}>
-        {(route) => (
-          <Route path={route.path} component={route.component} />
-        )}
+        {(route) => <Route path={route.path} component={route.component} />}
       </For>
     </HashRouter>
   );

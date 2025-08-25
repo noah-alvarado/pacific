@@ -42,4 +42,4 @@ export interface GameEventsHandlers {
   turnChange: (e: TurnChangeEvent) => void;
   gameEnd: (e: GameEndEvent) => void;
   negotiation: (e: NegotiationEvent) => void;
-};
+}

@@ -3,6 +3,7 @@
 ## New Feature
 
 ### Game
+
 - [x] Make board
 - [x] Make game pieces
 - [x] Click-on-piece
@@ -14,6 +15,7 @@
 - [ ] Play online
 
 ## Polish
+
 - [x] Add numbers to game pieces
 - [x] Make GamePiece reactive, no props other than a piece id
 - [x] ~~Option to have non-moveable game pieces~~ Only moveable pieces are highlighted
@@ -25,4 +27,3 @@
 - [ ] Live chat
 - [ ] Improve overall appearance of game pieces
 - [ ] Option to drag and drop pieces
-

@@ -28,4 +28,3 @@ For detailed rules, see [GAME_RULES.md](GAME_RULES.md).
 ## License
 
 This project is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. See the `LICENSE` file for details.
-
