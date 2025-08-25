@@ -30,17 +30,15 @@ jobs:
         with:
           node-version-file: '.nvmrc'
           cache: 'yarn'
-          cache-dependency-path: game/yarn.lock
+          cache-dependency-path: yarn.lock
       - name: Install dependencies
         run: yarn install --immutable
-        working-directory: game
       - name: Build
         run: VITE_GITHUB_PAGES=true yarn build
-        working-directory: game
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: 'game/dist'
+          path: 'dist'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

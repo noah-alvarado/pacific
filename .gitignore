@@ -4,7 +4,7 @@ node_modules/
 # Ignore build output
 dist/
 build/
-game/coverage/
+coverage/
 
 # Ignore .env files
 .env

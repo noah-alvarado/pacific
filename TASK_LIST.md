@@ -11,11 +11,7 @@
 - [x] Calculate possible movements for just the selected piece
 - [x] Capture a piece
 - [x] Detect victory
-
-### Service
-- [ ] P2P games
-- [ ] Central server for secure matches
-- [ ] Ranked
+- [ ] Play online
 
 ## Polish
 - [x] Add numbers to game pieces

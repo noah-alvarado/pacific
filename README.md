@@ -17,24 +17,15 @@ For detailed rules, see [GAME_RULES.md](GAME_RULES.md).
 ## Authors
 
 - **noah-alvarado**: [https://github.com/noah-alvarado](https://github.com/noah-alvarado)
-- **GitHub Copilot**: Your AI programming assistant.
 
 ## Other Documents
 
 - See `TASK_LIST.md` for current tasks.
 - Important notes are in `IMPORTANT_NOTES.md`.
 - Architecture details are in `ARCHITECTURE.md`.
+- Find development setup in `DEVELOPMENT.md`.
 
 ## License
 
 This project is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. See the `LICENSE` file for details.
 
-## Getting Started
-
-### Game (Frontend - SolidJS)
-
-This project is the frontend client for the Pacific war game, built with SolidJS. It is designed to be a playable experience in any modern web browser. For instructions on how to get the frontend running, please see the [game's README file](game/README.md).
-
-### Service (Backend)
-
-- (Instructions to be added once the service is developed)
