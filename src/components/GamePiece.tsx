@@ -8,7 +8,7 @@ import {
   playerColorToHex,
 } from "./GamePiece.util.js";
 import styles from "./GamePiece.module.css";
-import { useGameContext } from "../providers/Game.js";
+import { useGameContext } from "./Game.jsx";
 
 export interface IGamePieceProps {
   id: PieceId;

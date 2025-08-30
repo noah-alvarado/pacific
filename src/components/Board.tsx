@@ -3,7 +3,7 @@ import styles from "./Board.module.css";
 import { GamePiece } from "./GamePiece.js";
 import { PieceId } from "../types/GameState.js";
 import DestinationMarker from "./DestinationMarker.js";
-import { useGameContext } from "../providers/Game.js";
+import { useGameContext } from "./Game.jsx";
 
 export const Board: Component = () => {
   const { game, pieceToDestinations } = useGameContext();
@@ -11,7 +11,7 @@ export const Board: Component = () => {
   const cells = Array.from({ length: 7 * 7 });
 
   return (
-    <div class={styles.board}>
+    <div id="gameBoard" class={styles.board}>
       {/* Render the grid cells */}
       <Index each={cells}>
         {(_, index) => {

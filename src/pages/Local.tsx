@@ -1,8 +1,5 @@
 import { Component } from "solid-js";
-import { Controls } from "../components/Controls.js";
-import { Board } from "../components/Board.js";
-import { GameProvider, LocalGameConfig } from "../providers/Game.js";
-import styles from "./Game.module.css";
+import { Game, LocalGameConfig } from "../components/Game.jsx";
 import { createNanoEvents } from "nanoevents";
 import { GameEventsHandlers } from "../types/GameEvents.js";
 
@@ -13,14 +10,7 @@ const Local: Component = () => {
     turn: "blue",
   };
 
-  return (
-    <GameProvider gameConfig={gameConfig} emitter={emitter}>
-      <div class={styles.container}>
-        <Controls />
-        <Board />
-      </div>
-    </GameProvider>
-  );
+  return <Game gameConfig={gameConfig} emitter={emitter} />;
 };
 
 export default Local;

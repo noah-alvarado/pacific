@@ -8,7 +8,7 @@ import {
 import {
   getBoardFromPieces,
   mapPieceToDestinations,
-} from "../providers/Game.util.js";
+} from "../components/Game.util.js";
 
 export const INITIAL_STATE: (params: {
   pieces: Record<PieceId, IGamePiece>;

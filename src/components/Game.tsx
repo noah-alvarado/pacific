@@ -1,7 +1,6 @@
 import {
   Accessor,
   Component,
-  ParentProps,
   batch,
   createContext,
   createEffect,
@@ -37,8 +36,11 @@ import {
   PieceToDestinationsMap,
 } from "./Game.util.js";
 import { useGameLogic } from "../primitives/useGameLogic.js";
-import { useModalContext } from "./Modal.js";
-import GameOverModal from "../components/GameOverModal.js";
+import { useModalContext } from "../providers/Modal.jsx";
+import GameOverModal from "./GameOverModal.jsx";
+import styles from "./Game.module.css";
+import { Controls } from "./Controls.jsx";
+import { Board } from "./Board.jsx";
 
 const GameContext = createContext<{
   gameConfig: GameConfig;
@@ -71,7 +73,7 @@ export interface OnlineGameConfig {
 
 type GameConfig = LocalGameConfig | OnlineGameConfig;
 
-interface GameProviderProps extends ParentProps {
+interface GameProps {
   gameConfig: GameConfig;
   emitter: Emitter<GameEventsHandlers>;
 }
@@ -79,7 +81,7 @@ interface GameProviderProps extends ParentProps {
 /**
  * Provides game logic, state management, and event handling for a game instance.
  *
- * This provider is the core of the game's client-side logic. It manages the game state,
+ * This component is the core of the game's client-side logic. It manages the game state,
  * including piece positions, player turn, and game phase. It persists the game state
  * to localStorage, allowing games to be resumed.
  *
@@ -99,7 +101,7 @@ interface GameProviderProps extends ParentProps {
  * - Detects and handles game-over: a player having neither planes nor valid moves.
  * - When playing locally, initializes game state from local storage and automatically saves
  */
-export const GameProvider: Component<GameProviderProps> = (props) => {
+export const Game: Component<GameProps> = (props) => {
   const initialPieces = INITIAL_PIECES;
   const initialState = untrack(
     () =>
@@ -264,7 +266,10 @@ export const GameProvider: Component<GameProviderProps> = (props) => {
         makeMove,
       }}
     >
-      {props.children}
+      <div class={styles.container}>
+        <Controls />
+        <Board />
+      </div>
     </GameContext.Provider>
   );
 };

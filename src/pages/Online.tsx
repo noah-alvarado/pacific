@@ -2,31 +2,65 @@ import {
   batch,
   Component,
   createEffect,
-  createSignal,
+  createMemo,
+  For,
   onCleanup,
+  Show,
 } from "solid-js";
-import { Room, joinRoom as _joinRoom } from "trystero";
+import { createStore } from "solid-js/store";
+import {
+  ActionSender,
+  DataPayload,
+  Room,
+  joinRoom as _joinRoom,
+} from "trystero";
+import { GameEvent, GameEventsHandlers } from "../types/GameEvents.js";
+import { Game, OnlineGameConfig } from "../components/Game.jsx";
+import { createNanoEvents } from "nanoevents";
 
 const APP_ID = "pacific.alvarado.dev";
+const DEFAULT_PASSWORD = "temp";
+
+interface ChatMessage {
+  content: string;
+  senderId: string;
+}
 
 const Online: Component = () => {
   let roomIdRef!: HTMLInputElement;
   let passwordRef!: HTMLInputElement;
   let messageRef!: HTMLInputElement;
 
-  const [roomId, setRoomId] = createSignal<string>();
-  const [password, setPassword] = createSignal<string>();
-  const [room, setRoom] = createSignal<Room>();
-  const [sendMsg, setSendMsg] = createSignal<(msg: string) => void>();
+  const [store, setStore] = createStore({
+    roomId: null as string | null,
+    password: null as string | null,
+    room: null as Room | null,
+    peers: [] as string[],
+    sendGameEvent: null as ActionSender<GameEvent> | null,
+    sendChat: null as ActionSender<string> | null,
+    chatMessages: [] as ChatMessage[],
+    gameConfig: null as OnlineGameConfig | null,
+  });
+
+  const connectionReady = createMemo(
+    () => !!store.room && store.peers.length > 0,
+  );
+  const gameReady = createMemo(() => connectionReady() && !!store.gameConfig);
+
+  const emitter = createNanoEvents<GameEventsHandlers>();
 
   createEffect(() => {
-    setRoom(
-      roomId()
-        ? joinRoom({ roomId: roomId()!, password: password() })
-        : undefined,
+    setStore(
+      "room",
+      store.roomId
+        ? joinRoom({
+            roomId: store.roomId,
+            password: store.password ?? DEFAULT_PASSWORD,
+          })
+        : null,
     );
 
-    onCleanup(() => room()?.leave());
+    onCleanup(() => store.room?.leave());
   });
 
   function joinRoom({
@@ -54,82 +88,142 @@ const Online: Component = () => {
   function addHandlers(room: Room) {
     room.onPeerJoin(onPeerJoin);
     room.onPeerLeave(onPeerLeave);
-    const [_sendMsg, _getMsg] = room.makeAction<string>("msg");
-    setSendMsg(() => _sendMsg);
-    _getMsg(onMsg);
+
+    const [_sendGameEvent, _getGameEvent] = room.makeAction("gameEvent");
+    setStore("sendGameEvent", () => _sendGameEvent);
+    _getGameEvent(onGameEvent);
+
+    const [_sendChat, _getChat] = room.makeAction("chatMessage");
+    setStore("sendChat", () => _sendChat);
+    _getChat(onChatMessage);
   }
 
   function onPeerJoin(peerId: string) {
-    console.log("[useRoom] Peer joined:", peerId);
+    setStore("peers", store.peers.length, peerId);
   }
 
   function onPeerLeave(peerId: string) {
-    console.log("[useRoom] Peer left:", peerId);
+    setStore("peers", (peers) => peers.filter((id) => id !== peerId));
   }
 
-  function onMsg(message: string, peerId: string) {
-    console.log({ message, peerId });
+  function onGameEvent(
+    data: DataPayload,
+    peerId: string,
+    // metadata?: JsonValue,
+  ) {
+    console.log("[onGameEvent]", { data, peerId });
+  }
+
+  function onChatMessage(
+    data: DataPayload,
+    peerId: string,
+    // metadata?: JsonValue,
+  ) {
+    setStore("chatMessages", store.chatMessages.length, {
+      content: data as string,
+      senderId: peerId,
+    });
   }
 
   function handleJoin() {
-    const roomId = roomIdRef.value || undefined;
-    const password = passwordRef.value || undefined;
-    console.log({ roomId, password });
-    console.log(room()?.getPeers());
+    const roomId = roomIdRef.value || null;
+    const password = passwordRef.value || null;
     batch(() => {
-      setRoomId(roomId);
-      setPassword(password);
+      setStore("roomId", roomId);
+      setStore("password", password);
     });
   }
 
   function handleSendMessage() {
     const message = messageRef.value;
-    console.log({ message });
-    if (message && sendMsg()) sendMsg()!(message);
+    if (!message || !store.sendChat) return;
+
+    setStore("chatMessages", store.chatMessages.length, {
+      content: message,
+      senderId: "self",
+    });
+
+    store.sendChat(message).catch((e: unknown) => {
+      console.error("[handleSendMessage]", e);
+    });
   }
+
+  function handleLeaveRoom() {
+    setStore("roomId", null);
+  }
+
+  createEffect(() => {
+    if (store.peers.length > 0) {
+      console.log("[useEvent] Connected peers:", store.peers);
+    }
+  });
 
   return (
     <>
       <h1>Online</h1>
 
-      <div>
-        <input type="text" ref={roomIdRef} placeholder="Enter room ID" />
+      <Show
+        when={!store.room}
+        fallback={
+          <>
+            <div>
+              Connected to room {store.roomId}{" "}
+              <button onClick={handleLeaveRoom}>Leave Room</button>
+            </div>
 
-        <input
-          type="text"
-          ref={passwordRef}
-          placeholder="Enter room password (optional)"
-        />
+            <div>
+              <For each={store.peers} fallback={<div>Waiting for peer...</div>}>
+                {(peerId) => <div>Peer: {peerId}</div>}
+              </For>
+            </div>
+          </>
+        }
+      >
+        <h2>Join a Room</h2>
+        <div class="join-room-container">
+          <input type="text" ref={roomIdRef} placeholder="Enter room ID" />
 
-        <button onClick={handleJoin}>Join Room</button>
-      </div>
+          <input
+            type="text"
+            ref={passwordRef}
+            placeholder="Enter room password (optional)"
+          />
 
-      <div>
+          <button onClick={handleJoin}>Join Room</button>
+        </div>
+      </Show>
+
+      <Show when={connectionReady()}>
         <h2>Chat</h2>
-        <div>
+        <div class="send-message-container">
           <input type="text" ref={messageRef} placeholder="Type a message..." />
           <button onClick={handleSendMessage}>Send</button>
         </div>
-      </div>
+        <div class="chat-container">
+          <For each={store.chatMessages} fallback={<div>No messages yet</div>}>
+            {(message) => {
+              const isSelf = message.senderId === "self";
+              return (
+                <div
+                  classList={{
+                    "chat-message": true,
+                    self: isSelf,
+                    peer: !isSelf,
+                  }}
+                >
+                  [{message.senderId}] {message.content}
+                </div>
+              );
+            }}
+          </For>
+        </div>
+
+        <Show when={gameReady()} fallback={<div>Loading game...</div>}>
+          <Game gameConfig={store.gameConfig!} emitter={emitter} />
+        </Show>
+      </Show>
     </>
   );
 };
-
-// const Local: Component = () => {
-//   const emitter = createNanoEvents<GameEventsHandlers>();
-//   const gameConfig: LocalGameConfig = {
-//     gameType: "local",
-//     turn: "blue",
-//   };
-
-//   return (
-//     <GameProvider gameConfig={gameConfig} emitter={emitter}>
-//       <div class={styles.container}>
-//         <Controls />
-//         <Board />
-//       </div>
-//     </GameProvider>
-//   );
-// };
 
 export default Online;
