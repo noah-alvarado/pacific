@@ -14,7 +14,12 @@ import {
   Room,
   joinRoom as _joinRoom,
 } from "trystero";
-import { GameEvent, GameEventsHandlers } from "../types/GameEvents.js";
+import {
+  GameEvent,
+  GameEventsHandlers,
+  MoveMadeEvent,
+  NegotiationEvent,
+} from "../types/GameEvents.js";
 import { Game, OnlineGameConfig } from "../components/Game.jsx";
 import { createNanoEvents } from "nanoevents";
 
@@ -40,6 +45,7 @@ const Online: Component = () => {
     sendChat: null as ActionSender<string> | null,
     chatMessages: [] as ChatMessage[],
     gameConfig: null as OnlineGameConfig | null,
+    randomDraw: Math.random(),
   });
 
   const connectionReady = createMemo(
@@ -100,6 +106,13 @@ const Online: Component = () => {
 
   function onPeerJoin(peerId: string) {
     setStore("peers", store.peers.length, peerId);
+    const negotiation: NegotiationEvent = {
+      eventType: "negotiation",
+      draw: store.randomDraw,
+    };
+    store.sendGameEvent?.(negotiation).catch((e: unknown) => {
+      console.error("[onPeerJoin]", e);
+    });
   }
 
   function onPeerLeave(peerId: string) {
@@ -112,6 +125,35 @@ const Online: Component = () => {
     // metadata?: JsonValue,
   ) {
     console.log("[onGameEvent]", { data, peerId });
+    const gameEvent = data as unknown as GameEvent;
+    switch (gameEvent.eventType) {
+      case "negotiation":
+        handleNegotiation(gameEvent as unknown as NegotiationEvent);
+        break;
+      case "moveMade":
+        handleMoveMade(gameEvent as unknown as MoveMadeEvent);
+        break;
+    }
+  }
+
+  function handleNegotiation(negotiation: NegotiationEvent) {
+    if (store.gameConfig) {
+      setStore("gameConfig", null);
+    }
+
+    // TODO: sync clients to start after game board is rendered.
+    //       hide the board visually then render it then reveal it.
+    // TODO: begin the game simultaneously using another event
+    setTimeout(() => {
+      setStore("gameConfig", {
+        player: negotiation.draw < store.randomDraw ? "blue" : "red",
+        turn: "blue",
+      });
+    }, 500);
+  }
+
+  function handleMoveMade(move: MoveMadeEvent) {
+    emitter.emit("moveMade", move);
   }
 
   function onChatMessage(

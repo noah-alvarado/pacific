@@ -1,4 +1,4 @@
-import { batch, Component, JSX, Show } from "solid-js";
+import { batch, Component, createMemo, JSX, Show } from "solid-js";
 import { reconcile } from "solid-js/store";
 import {
   BLUE_STALEMATE_OR_DECISIVE,
@@ -10,9 +10,19 @@ import { useModalContext } from "../providers/Modal.js";
 
 import styles from "./Controls.module.css";
 
+const turnIndicator = `★`;
+
 export const Controls: Component = () => {
   const { gameConfig, game, setGame, initialPieces } = useGameContext();
   const { closeModal } = useModalContext();
+  const playerNames = createMemo(() => {
+    if (gameConfig.gameType === "local") {
+      return { red: "Player 1", blue: "Player 2" };
+    }
+    return gameConfig.player === "red"
+      ? { red: "me", blue: "peer" }
+      : { red: "peer", blue: "me" };
+  });
 
   function resetGame(
     pieces = "normal",
@@ -53,7 +63,7 @@ export const Controls: Component = () => {
           Reset Game
         </button>
 
-        {/* {import.meta.env.DEV && (
+        {import.meta.env.DEV && (
           <>
             <button
               type="button"
@@ -70,10 +80,14 @@ export const Controls: Component = () => {
               BLUE_STALEMATE_OR_DECISIVE
             </button>
           </>
-        )} */}
+        )}
       </Show>
-      <div class={styles.turnIndicator}>
+
+      <div class={styles.players}>
         <div class={styles.player}>
+          <div class={styles.turnIndicator}>
+            <Show when={game.turn === "red"}>{turnIndicator}</Show>
+          </div>
           <div
             classList={{
               [styles.icon]: true,
@@ -81,10 +95,13 @@ export const Controls: Component = () => {
               [styles.isTurn]: game.turn === "red",
             }}
           />
-          <p>My Player 1</p>
+          <p>{playerNames().red}</p>
         </div>
 
         <div class={styles.player}>
+          <div>
+            <Show when={game.turn === "blue"}>{turnIndicator}</Show>
+          </div>
           <div
             classList={{
               [styles.icon]: true,
@@ -92,7 +109,7 @@ export const Controls: Component = () => {
               [styles.isTurn]: game.turn === "blue",
             }}
           />
-          <p>My Player 2</p>
+          <p>{playerNames().blue}</p>
         </div>
       </div>
     </div>

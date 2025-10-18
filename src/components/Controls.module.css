@@ -23,7 +23,7 @@
   outline: none;
 }
 
-.turnIndicator {
+.players {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -31,15 +31,21 @@
 }
 
 .player {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
   align-items: center;
-  gap: 0.5rem;
+  column-gap: 0.5rem;
 
   p {
     margin: 0;
     font-size: 1rem;
     font-weight: 500;
   }
+}
+
+.turnIndicator {
+  display: inline-block;
+  text-align: right;
 }
 
 .icon {
