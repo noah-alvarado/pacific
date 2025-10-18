@@ -26,6 +26,6 @@ html {
 }
 
 main {
-  overflow: scroll;
+  overflow: auto;
   height: 100%;
 }

@@ -1,4 +1,5 @@
-import { batch, Component, createMemo, JSX, Show } from "solid-js";
+import { batch, Component, createMemo, Show } from "solid-js";
+import type { JSX } from "solid-js";
 import { reconcile } from "solid-js/store";
 import {
   BLUE_STALEMATE_OR_DECISIVE,
@@ -99,7 +100,7 @@ export const Controls: Component = () => {
         </div>
 
         <div class={styles.player}>
-          <div>
+          <div class={styles.turnIndicator}>
             <Show when={game.turn === "blue"}>{turnIndicator}</Show>
           </div>
           <div
