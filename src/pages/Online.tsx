@@ -1,3 +1,4 @@
+import { createNanoEvents } from "nanoevents";
 import {
   batch,
   Component,
@@ -11,18 +12,18 @@ import { createStore } from "solid-js/store";
 import {
   ActionSender,
   DataPayload,
-  Room,
   joinRoom as _joinRoom,
+  Room,
 } from "trystero";
+
+import { Game } from "../components/Game.jsx";
+import { OnlineGameConfig } from "../types/GameConfig.js";
 import {
   GameEvent,
   GameEventsHandlers,
   MoveMadeEvent,
   NegotiationEvent,
 } from "../types/GameEvents.js";
-import { Game } from "../components/Game.jsx";
-import { createNanoEvents } from "nanoevents";
-import { OnlineGameConfig } from "../types/GameConfig.js";
 
 const APP_ID = "pacific.alvarado.dev";
 const DEFAULT_PASSWORD = "temp";

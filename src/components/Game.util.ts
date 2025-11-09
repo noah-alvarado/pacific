@@ -4,18 +4,17 @@
  * mapping all pieces to their possible moves, and deriving the board state from the pieces.
  * These functions are pure and do not have side effects.
  */
+import type { MoveMadeEvent } from "../types/GameEvents.js";
 import {
   GameBoard,
+  getShipIdFromPlaneId,
   IDestinationMarker,
   IGamePiece,
   IGameState,
+  pieceCanAttack,
   PieceId,
   PlayerColor,
-  getShipIdFromPlaneId,
-  pieceCanAttack,
 } from "../types/GameState.js";
-
-import type { MoveMadeEvent } from "../types/GameEvents.js";
 
 interface GetDestinationsForPieceParams {
   piece: IGamePiece;

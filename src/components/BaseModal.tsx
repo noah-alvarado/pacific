@@ -1,10 +1,11 @@
-import { useModalContext } from "../providers/Modal.js";
-import { Show, type Component } from "solid-js";
-import styles from "./BaseModal.module.css";
+import { type Component,Show } from "solid-js";
 
 // this is needed to have the directive available in-scope
 /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 import clickOutside from "../primitives/clickOutside.js";
+import { useModalContext } from "../providers/Modal.js";
+
+import styles from "./BaseModal.module.css";
 
 const BaseModal: Component = () => {
   const { modal, closeModal } = useModalContext();

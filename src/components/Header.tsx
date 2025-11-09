@@ -1,17 +1,19 @@
-import {
-  Show,
-  type Component,
-  createSignal,
-  createMemo,
-  createEffect,
-  JSX,
-} from "solid-js";
-import { Page } from "../AppRouter.js";
-import styles from "./Header.module.css";
 import { useLocation } from "@solidjs/router";
 import { A } from "@solidjs/router";
+import {
+  type Component,
+  createEffect,
+  createMemo,
+  createSignal,
+  JSX,
+  Show,
+} from "solid-js";
+
+import { Page } from "../AppRouter.js";
 import { useWindowWidth } from "../primitives/useWindowWidth.js";
 import { useThemeContext } from "../providers/Theme.js";
+
+import styles from "./Header.module.css";
 
 const Header: Component = () => {
   const location = useLocation();

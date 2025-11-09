@@ -6,6 +6,8 @@ import solid from "eslint-plugin-solid/configs/typescript";
 import tsParser from "@typescript-eslint/parser";
 import tseslint from "typescript-eslint";
 import jsxA11y from "eslint-plugin-jsx-a11y";
+import simpleImportSort from "eslint-plugin-simple-import-sort";
+import importPlugin from "eslint-plugin-import";
 
 export default defineConfig([
   {
@@ -49,6 +51,10 @@ export default defineConfig([
         },
       },
     },
+    // extends: [importPlugin.flatConfigs.recommended],
+    plugins: {
+      "simple-import-sort": simpleImportSort,
+    },
     rules: {
       "@typescript-eslint/restrict-template-expressions": [
         "error",
@@ -61,6 +67,24 @@ export default defineConfig([
       "@typescript-eslint/no-non-null-assertion": "off",
       "@typescript-eslint/ban-ts-comment": "off",
       "@typescript-eslint/no-unused-vars": "warn",
+      "simple-import-sort/imports": [
+        "error",
+        {
+          groups: [
+            ["^\\u0000"],
+            ["^node:"],
+            ["^(react|solid-js|@?\\w)"],
+            ["^src/", "^components/", "^constants/"],
+            ["^\\.\\./"],
+            ["^\\./"],
+            ["^\\./?$"],
+          ],
+        },
+      ],
+      "simple-import-sort/exports": "error",
+      // "import/first": "error",
+      // "import/newline-after-import": ["error", { count: 1 }],
+      // "import/no-duplicates": "error",
     },
     ignores: ["**/*.css"],
   },

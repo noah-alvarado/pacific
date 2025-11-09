@@ -1,13 +1,14 @@
 import {
   Accessor,
+  type Component,
   createContext,
   createSignal,
   JSX,
   ParentProps,
   Setter,
   useContext,
-  type Component,
 } from "solid-js";
+
 import BaseModal from "../components/BaseModal.js";
 
 const ModalContext = createContext<{

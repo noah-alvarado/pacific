@@ -1,11 +1,19 @@
+import { Emitter } from "nanoevents";
 import {
-  Component,
   batch,
+  Component,
   createEffect,
   createMemo,
   on,
   untrack,
 } from "solid-js";
+import { createStore } from "solid-js/store";
+
+import { INITIAL_PIECES, INITIAL_STATE } from "../constants/game.js";
+import { useEvent } from "../primitives/useEvent.js";
+import { useGameLogic } from "../primitives/useGameLogic.js";
+import { useModalContext } from "../providers/Modal.jsx";
+import { GameConfig } from "../types/GameConfig.js";
 import type {
   GameEndEvent,
   GameEventsHandlers,
@@ -14,27 +22,21 @@ import type {
 } from "../types/GameEvents.js";
 import {
   GamePhase,
-  IGameState,
   getPlaneIdsFromShipId,
+  IGameState,
 } from "../types/GameState.js";
-import { INITIAL_PIECES, INITIAL_STATE } from "../constants/game.js";
-import { createStore } from "solid-js/store";
-import { Emitter } from "nanoevents";
-import { useEvent } from "../primitives/useEvent.js";
+
+import { Board } from "./Board.jsx";
+import { Controls } from "./Controls.jsx";
+import { GameContext } from "./Game.context.js";
+import styles from "./Game.module.css";
 import {
-  saveIdToLocalStorageKey,
   getBoardFromPieces,
   getGameSave,
   mapPieceToDestinations,
+  saveIdToLocalStorageKey,
 } from "./Game.util.js";
-import { useGameLogic } from "../primitives/useGameLogic.js";
-import { useModalContext } from "../providers/Modal.jsx";
 import GameOverModal from "./GameOverModal.jsx";
-import styles from "./Game.module.css";
-import { Controls } from "./Controls.jsx";
-import { Board } from "./Board.jsx";
-import { GameContext } from "./Game.context.js";
-import { GameConfig } from "../types/GameConfig.js";
 
 interface GameProps {
   gameConfig: GameConfig; // loosen validation for HMR stability

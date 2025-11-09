@@ -1,13 +1,14 @@
-import { Accessor, createEffect, on } from "solid-js";
 import { Emitter } from "nanoevents";
-import { GamePhase, IGameState, pieceCanAttack } from "../types/GameState.js";
+import { Accessor, createEffect, on } from "solid-js";
+
+import { PieceToDestinationsMap } from "../components/Game.util.js";
+import { LocalGameConfig, OnlineGameConfig } from "../types/GameConfig.js";
 import {
   GameEndEvent,
   GameEventsHandlers,
   TurnChangeEvent,
 } from "../types/GameEvents.js";
-import { PieceToDestinationsMap } from "../components/Game.util.js";
-import { LocalGameConfig, OnlineGameConfig } from "../types/GameConfig.js";
+import { GamePhase, IGameState, pieceCanAttack } from "../types/GameState.js";
 
 /**
  * A SolidJS hook that encapsulates game logic for games.

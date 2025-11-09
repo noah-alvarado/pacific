@@ -1,7 +1,7 @@
 import { HashRouter, Route } from "@solidjs/router";
+import { For, lazy } from "solid-js";
 
 import App from "./App.js";
-import { For, lazy } from "solid-js";
 
 export enum Page {
   Landing = "/",

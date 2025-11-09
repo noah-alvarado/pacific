@@ -1,8 +1,9 @@
-import { Component } from "solid-js";
-import { Game } from "../components/Game.jsx";
 import { createNanoEvents } from "nanoevents";
-import { GameEventsHandlers } from "../types/GameEvents.js";
+import { Component } from "solid-js";
+
+import { Game } from "../components/Game.jsx";
 import { LocalGameConfig } from "../types/GameConfig.js";
+import { GameEventsHandlers } from "../types/GameEvents.js";
 
 const Local: Component = () => {
   const emitter = createNanoEvents<GameEventsHandlers>();

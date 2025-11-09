@@ -1,7 +1,3 @@
-/*
- * Fix color-function-alias-notation, color-function-notation, alpha-value-notation, font-family-name-quotes, and rule-empty-line-before issues.
- * Use rgb() and percentage alpha, and remove unnecessary quotes from font-family.
- */
 .landingRoot {
   min-height: 100%;
   display: flex;

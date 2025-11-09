@@ -1,7 +1,8 @@
 import "./index.css";
 
-import AppRouter from "./AppRouter.jsx";
 import { render } from "solid-js/web";
+
+import AppRouter from "./AppRouter.jsx";
 
 const root = document.getElementById("root");
 if (!(root instanceof HTMLElement)) {

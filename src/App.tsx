@@ -1,5 +1,5 @@
-import { type Component, type ParentProps } from "solid-js";
 import { MultiProvider } from "@solid-primitives/context";
+import { type Component, type ParentProps } from "solid-js";
 
 import styles from "./App.module.css";
 import Header from "./components/Header.js";

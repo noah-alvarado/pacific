@@ -1,10 +1,12 @@
-import { describe, expect, test } from "vitest";
-
-import { Game, LocalGameConfig } from "./Game.jsx";
 import { render } from "@solidjs/testing-library";
 import { createNanoEvents } from "nanoevents";
-import { GameEventsHandlers } from "../types/GameEvents.js";
+import { describe, expect, test } from "vitest";
+
 import ModalProvider from "../providers/Modal.jsx";
+import { LocalGameConfig } from "../types/GameConfig.js";
+import { GameEventsHandlers } from "../types/GameEvents.js";
+
+import { Game } from "./Game.jsx";
 
 describe("<Game />", () => {
   test("renders children", () => {

@@ -1,9 +1,11 @@
 import { Accessor, createContext, useContext } from "solid-js";
-import type { IGamePiece, IGameState, PieceId } from "../types/GameState.js";
-import type { MoveMadeEvent } from "../types/GameEvents.js";
-import type { PieceToDestinationsMap } from "./Game.util.js";
 import { SetStoreFunction } from "solid-js/store";
+
 import { GameConfig } from "../types/GameConfig.js";
+import type { MoveMadeEvent } from "../types/GameEvents.js";
+import type { IGamePiece, IGameState, PieceId } from "../types/GameState.js";
+
+import type { PieceToDestinationsMap } from "./Game.util.js";
 
 export interface GameContextValue {
   gameConfig: GameConfig;

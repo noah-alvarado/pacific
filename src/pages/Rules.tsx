@@ -1,10 +1,12 @@
 import { Component } from "solid-js";
+
 import figure1 from "../assets/figure-1.png";
 import figure2 from "../assets/figure-2.png";
 import figure3 from "../assets/figure-3.png";
 import figure4 from "../assets/figure-4.png";
 import originalBoard from "../assets/original-board.jpeg";
 import originalInstructions from "../assets/original-instructions.jpeg";
+
 import styles from "./Rules.module.css";
 
 const Rules: Component = () => {

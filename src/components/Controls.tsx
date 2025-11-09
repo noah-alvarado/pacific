@@ -1,15 +1,16 @@
-import { batch, Component, createMemo, Show } from "solid-js";
 import type { JSX } from "solid-js";
+import { batch, Component, createMemo, Show } from "solid-js";
 import { reconcile } from "solid-js/store";
+
 import {
   BLUE_STALEMATE_OR_DECISIVE,
   INITIAL_STATE,
   ONE_MOVE_TO_WIN,
 } from "../constants/game.js";
-import { useGameContext } from "./Game.context.js";
 import { useModalContext } from "../providers/Modal.js";
 
 import styles from "./Controls.module.css";
+import { useGameContext } from "./Game.context.js";
 
 const turnIndicator = `★`;
 

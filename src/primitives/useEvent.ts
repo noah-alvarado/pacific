@@ -1,5 +1,6 @@
 import { Emitter } from "nanoevents";
 import { createEffect, onCleanup } from "solid-js";
+
 import { GameEventsHandlers } from "../types/GameEvents.js";
 
 /**

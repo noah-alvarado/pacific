@@ -1,14 +1,14 @@
 import {
+  getBoardFromPieces,
+  mapPieceToDestinations,
+} from "../components/Game.util.js";
+import {
   GamePhase,
   IGamePiece,
   IGameState,
   PieceId,
   PlayerColor,
 } from "../types/GameState.js";
-import {
-  getBoardFromPieces,
-  mapPieceToDestinations,
-} from "../components/Game.util.js";
 
 export const INITIAL_STATE: (params: {
   pieces: Record<PieceId, IGamePiece>;

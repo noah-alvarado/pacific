@@ -1,8 +1,10 @@
-import { type JSX, type Component } from "solid-js";
-import styles from "./DestinationMarker.module.css";
-import { positionStyle } from "./GamePiece.util.js";
-import { useGameContext } from "./Game.context.js";
+import { type Component,type JSX } from "solid-js";
+
 import { IDestinationMarker } from "../types/GameState.js";
+
+import styles from "./DestinationMarker.module.css";
+import { useGameContext } from "./Game.context.js";
+import { positionStyle } from "./GamePiece.util.js";
 
 interface IDestinationMarkerProps {
   destination: IDestinationMarker;
