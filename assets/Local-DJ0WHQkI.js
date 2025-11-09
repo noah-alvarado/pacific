@@ -1,0 +1,1 @@
+import{c as o,G as t}from"./index-DhyUAv2L.js";import{c as a}from"./index-QHdL-lmg.js";const c=()=>{const e=o();return a(t,{gameConfig:{gameType:"local",turn:"blue"},emitter:e})};export{c as default};
