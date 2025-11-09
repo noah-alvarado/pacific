@@ -20,8 +20,9 @@ import {
   MoveMadeEvent,
   NegotiationEvent,
 } from "../types/GameEvents.js";
-import { Game, OnlineGameConfig } from "../components/Game.jsx";
+import { Game } from "../components/Game.jsx";
 import { createNanoEvents } from "nanoevents";
+import { OnlineGameConfig } from "../types/GameConfig.js";
 
 const APP_ID = "pacific.alvarado.dev";
 const DEFAULT_PASSWORD = "temp";

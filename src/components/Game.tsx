@@ -1,31 +1,24 @@
 import {
-  Accessor,
   Component,
   batch,
-  createContext,
   createEffect,
   createMemo,
   on,
   untrack,
-  useContext,
 } from "solid-js";
 import type {
   GameEndEvent,
-  GameEvent,
   GameEventsHandlers,
   MoveMadeEvent,
   TurnChangeEvent,
 } from "../types/GameEvents.js";
 import {
   GamePhase,
-  IGamePiece,
   IGameState,
-  PieceId,
-  PlayerColor,
   getPlaneIdsFromShipId,
 } from "../types/GameState.js";
 import { INITIAL_PIECES, INITIAL_STATE } from "../constants/game.js";
-import { SetStoreFunction, createStore } from "solid-js/store";
+import { createStore } from "solid-js/store";
 import { Emitter } from "nanoevents";
 import { useEvent } from "../primitives/useEvent.js";
 import {
@@ -33,7 +26,6 @@ import {
   getBoardFromPieces,
   getGameSave,
   mapPieceToDestinations,
-  PieceToDestinationsMap,
 } from "./Game.util.js";
 import { useGameLogic } from "../primitives/useGameLogic.js";
 import { useModalContext } from "../providers/Modal.jsx";
@@ -41,40 +33,11 @@ import GameOverModal from "./GameOverModal.jsx";
 import styles from "./Game.module.css";
 import { Controls } from "./Controls.jsx";
 import { Board } from "./Board.jsx";
-
-const GameContext = createContext<{
-  gameConfig: GameConfig;
-  game: IGameState;
-  setGame: SetStoreFunction<IGameState>;
-  pieceToDestinations: Accessor<PieceToDestinationsMap>;
-  initialPieces: Record<PieceId, IGamePiece>;
-  makeMove: (e: MoveMadeEvent) => void;
-}>();
-
-export function useGameContext() {
-  const context = useContext(GameContext);
-  if (!context) {
-    throw new Error(`can't find GameContext`);
-  }
-  return context;
-}
-
-export interface LocalGameConfig {
-  gameType: "local";
-  turn: PlayerColor;
-}
-
-export interface OnlineGameConfig {
-  gameType: "online";
-  player: PlayerColor;
-  turn: PlayerColor;
-  sendGameEvent: (msg: GameEvent) => void;
-}
-
-type GameConfig = LocalGameConfig | OnlineGameConfig;
+import { GameContext } from "./Game.context.js";
+import { GameConfig } from "../types/GameConfig.js";
 
 interface GameProps {
-  gameConfig: GameConfig;
+  gameConfig: GameConfig; // loosen validation for HMR stability
   emitter: Emitter<GameEventsHandlers>;
 }
 
@@ -257,6 +220,7 @@ export const Game: Component<GameProps> = (props) => {
 
   return (
     <GameContext.Provider
+      // cast to avoid pulling store types into context file
       value={{
         gameConfig: props.gameConfig,
         game,

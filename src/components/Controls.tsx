@@ -6,7 +6,7 @@ import {
   INITIAL_STATE,
   ONE_MOVE_TO_WIN,
 } from "../constants/game.js";
-import { useGameContext } from "./Game.jsx";
+import { useGameContext } from "./Game.context.js";
 import { useModalContext } from "../providers/Modal.js";
 
 import styles from "./Controls.module.css";

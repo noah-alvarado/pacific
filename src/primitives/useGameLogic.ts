@@ -7,7 +7,7 @@ import {
   TurnChangeEvent,
 } from "../types/GameEvents.js";
 import { PieceToDestinationsMap } from "../components/Game.util.js";
-import { LocalGameConfig, OnlineGameConfig } from "../components/Game.jsx";
+import { LocalGameConfig, OnlineGameConfig } from "../types/GameConfig.js";
 
 /**
  * A SolidJS hook that encapsulates game logic for games.
