@@ -5,6 +5,7 @@ import {
   createEffect,
   createMemo,
   createSignal,
+  For,
   JSX,
   Show,
 } from "solid-js";
@@ -14,6 +15,25 @@ import { useWindowWidth } from "../primitives/useWindowWidth.js";
 import { useThemeContext } from "../providers/Theme.js";
 
 import styles from "./Header.module.css";
+
+interface NavLinkProps {
+  href: Page;
+  className: string;
+  label: string;
+  onClick: JSX.EventHandler<HTMLAnchorElement, MouseEvent>;
+}
+const NavLink: Component<NavLinkProps> = ({
+  href,
+  className,
+  label,
+  onClick,
+}) => {
+  return (
+    <A href={href} class={className} onclick={onClick}>
+      {label}
+    </A>
+  );
+};
 
 const Header: Component = () => {
   const location = useLocation();
@@ -43,6 +63,33 @@ const Header: Component = () => {
     setNavOpen(false);
     (document.activeElement as HTMLElement | undefined)?.blur();
   };
+
+  const navigationLinks: NavLinkProps[] = [
+    {
+      href: Page.Landing,
+      label: "home",
+      className: styles.clickable,
+      onClick: onClickNavA,
+    },
+    {
+      href: Page.Rules,
+      label: "rules",
+      className: styles.clickable,
+      onClick: onClickNavA,
+    },
+    {
+      href: Page.Local,
+      label: "local",
+      className: styles.clickable,
+      onClick: onClickNavA,
+    },
+    {
+      href: Page.Online,
+      label: "online",
+      className: styles.clickable,
+      onClick: onClickNavA,
+    },
+  ];
 
   return (
     <header class={styles.header}>
@@ -82,34 +129,18 @@ const Header: Component = () => {
         style={{ display: showNav() ? "block" : "none" }}
       >
         <ul>
-          <li>
-            <A
-              href={Page.Landing}
-              class={styles.clickable}
-              onclick={onClickNavA}
-            >
-              home
-            </A>
-          </li>
-          <li>
-            <A href={Page.Rules} class={styles.clickable} onclick={onClickNavA}>
-              rules
-            </A>
-          </li>
-          <li>
-            <A href={Page.Local} class={styles.clickable} onclick={onClickNavA}>
-              local
-            </A>
-          </li>
-          <li>
-            <A
-              href={Page.Online}
-              class={styles.clickable}
-              onclick={onClickNavA}
-            >
-              online
-            </A>
-          </li>
+          <For each={navigationLinks}>
+            {(link) => (
+              <li>
+                <NavLink
+                  href={link.href}
+                  className={link.className}
+                  label={link.label}
+                  onClick={link.onClick}
+                />
+              </li>
+            )}
+          </For>
         </ul>
       </nav>
     </header>
