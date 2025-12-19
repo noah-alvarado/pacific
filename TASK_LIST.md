@@ -1,8 +1,9 @@
 # Task List
 
-## New Feature
+## Bugs
+- [ ] Reset local match after completion is broken
 
-### Game
+## Game
 
 - [x] Make board
 - [x] Make game pieces
@@ -12,7 +13,7 @@
 - [x] Calculate possible movements for just the selected piece
 - [x] Capture a piece
 - [x] Detect victory
-- [ ] Play online
+- [x] Play online
 - [ ] Install as a web app
 - [ ] Spectate match
 
@@ -23,6 +24,7 @@
 - [x] ~~Option to have non-moveable game pieces~~ Only moveable pieces are highlighted
 - [x] Auto-end turn
 - [x] Highlight available positions when moving game piece
+- [ ] Better looking Online matchmaking
 - [ ] Live chat
 - [ ] Custom player names
 - [ ] Custom colors
