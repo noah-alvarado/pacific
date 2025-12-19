@@ -1,0 +1,31 @@
+:root,
+:root[data-theme="light"] {
+  --header-color: #1c1724;
+  --background-color: #cfdef3;
+  --board-color: #89cff0;
+  --text-color: #2d3a4b;
+}
+
+:root[data-theme="dark"] {
+  --background-color: #282c34;
+  --board-color: #282c34;
+  --text-color: #f3f6fa;
+}
+
+html {
+  background: var(--header-color);
+}
+
+.app {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  color: var(--text-color);
+  background: var(--background-color);
+}
+
+main {
+  overflow: auto;
+  height: 100%;
+}
