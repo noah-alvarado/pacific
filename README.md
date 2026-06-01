@@ -20,8 +20,8 @@ For detailed rules, see [GAME_RULES.md](GAME_RULES.md).
 
 ## Other Documents
 
+- See `PROJECT.md` for a high-level project overview and doc index.
 - See `TASK_LIST.md` for current tasks.
-- Important notes are in `IMPORTANT_NOTES.md`.
 - Architecture details are in `ARCHITECTURE.md`.
 - Find development setup in `DEVELOPMENT.md`.
 
