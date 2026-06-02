@@ -1,4 +1,4 @@
-import { type Component, createMemo, type JSX,Show, untrack } from "solid-js";
+import { type Component, createMemo, type JSX, Show, untrack } from "solid-js";
 import { Dynamic } from "solid-js/web";
 
 import { PieceId } from "../types/GameState.js";

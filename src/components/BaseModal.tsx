@@ -1,4 +1,4 @@
-import { type Component,Show } from "solid-js";
+import { type Component, Show } from "solid-js";
 
 // this is needed to have the directive available in-scope
 /* eslint-disable-next-line @typescript-eslint/no-unused-vars */

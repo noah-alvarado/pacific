@@ -32,7 +32,13 @@ jobs:
           cache: "yarn"
           cache-dependency-path: yarn.lock
       - name: Install dependencies
-        run: yarn install --immutable
+        run: yarn install --frozen-lockfile
+      - name: Lint
+        run: yarn lint
+      - name: Prettier check
+        run: yarn prettier:ci
+      - name: Test
+        run: yarn test --run
       - name: Build
         run: VITE_GITHUB_PAGES=true yarn build
       - name: Upload artifact
