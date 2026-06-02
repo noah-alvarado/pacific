@@ -6,7 +6,7 @@ Follow these steps to get the development environment running.
 
 ### 1. Prerequisites
 
-It is recommended to use [nvm](https://github.com/nvm-sh/nvm) to manage your Node.js versions. This project uses Node.js v24. If you have `nvm` installed, you can run `nvm use` in any directory to switch to the correct version.
+It is recommended to use [fnm](https://github.com/Schniz/fnm) to manage your Node.js versions. This project uses Node.js v24.
 
 Make sure you have [Node.js](https://nodejs.org/) and [Yarn](https://yarnpkg.com/) installed on your system.
 
