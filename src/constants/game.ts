@@ -1,14 +1,16 @@
 import {
-  getBoardFromPieces,
-  mapPieceToDestinations,
-} from "../components/Game.util.js";
-import {
   GamePhase,
   IGamePiece,
   IGameState,
   PieceId,
   PlayerColor,
 } from "../types/GameState.js";
+
+// Game board dimensions. The board is a grid of points where pieces sit.
+// Width is the number of columns (x in [0, BOARD_WIDTH - 1]).
+// Height is the number of rows (y in [0, BOARD_HEIGHT - 1]).
+export const BOARD_WIDTH = 4;
+export const BOARD_HEIGHT = 8;
 
 export const INITIAL_STATE: (params: {
   pieces: Record<PieceId, IGamePiece>;
@@ -22,14 +24,6 @@ export const INITIAL_STATE: (params: {
   phase: GamePhase.InProgress,
   winner: undefined,
   pieces,
-  destinations: [],
-  pieceToDestinations: mapPieceToDestinations({
-    pieces,
-    turn,
-    board: getBoardFromPieces(pieces),
-    lastMove: undefined,
-    winner: undefined,
-  }),
 });
 
 export const INITIAL_PIECES: Record<PieceId, IGamePiece> = {

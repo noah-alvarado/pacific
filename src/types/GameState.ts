@@ -36,58 +36,33 @@ export enum PieceId {
   BluePlane4B = "blue-plane-4b",
 }
 
+// Single source of truth for ship -> planes grouping. Each ship owns exactly
+// two planes (A and B); the relationship is invariant for the lifetime of the game.
+const SHIP_TO_PLANES: ReadonlyMap<PieceId, readonly [PieceId, PieceId]> =
+  new Map([
+    [PieceId.RedShip1, [PieceId.RedPlane1A, PieceId.RedPlane1B]],
+    [PieceId.RedShip2, [PieceId.RedPlane2A, PieceId.RedPlane2B]],
+    [PieceId.RedShip3, [PieceId.RedPlane3A, PieceId.RedPlane3B]],
+    [PieceId.RedShip4, [PieceId.RedPlane4A, PieceId.RedPlane4B]],
+    [PieceId.BlueShip1, [PieceId.BluePlane1A, PieceId.BluePlane1B]],
+    [PieceId.BlueShip2, [PieceId.BluePlane2A, PieceId.BluePlane2B]],
+    [PieceId.BlueShip3, [PieceId.BluePlane3A, PieceId.BluePlane3B]],
+    [PieceId.BlueShip4, [PieceId.BluePlane4A, PieceId.BluePlane4B]],
+  ]);
+
+const PLANE_TO_SHIP: ReadonlyMap<PieceId, PieceId> = new Map(
+  Array.from(SHIP_TO_PLANES.entries()).flatMap(([shipId, planeIds]) =>
+    planeIds.map((planeId) => [planeId, shipId] as const),
+  ),
+);
+
 export function getShipIdFromPlaneId(pieceId: PieceId): PieceId | null {
-  switch (pieceId) {
-    case PieceId.RedPlane1A:
-    case PieceId.RedPlane1B:
-      return PieceId.RedShip1;
-    case PieceId.RedPlane2A:
-    case PieceId.RedPlane2B:
-      return PieceId.RedShip2;
-    case PieceId.RedPlane3A:
-    case PieceId.RedPlane3B:
-      return PieceId.RedShip3;
-    case PieceId.RedPlane4A:
-    case PieceId.RedPlane4B:
-      return PieceId.RedShip4;
-    case PieceId.BluePlane1A:
-    case PieceId.BluePlane1B:
-      return PieceId.BlueShip1;
-    case PieceId.BluePlane2A:
-    case PieceId.BluePlane2B:
-      return PieceId.BlueShip2;
-    case PieceId.BluePlane3A:
-    case PieceId.BluePlane3B:
-      return PieceId.BlueShip3;
-    case PieceId.BluePlane4A:
-    case PieceId.BluePlane4B:
-      return PieceId.BlueShip4;
-    default:
-      return null;
-  }
+  return PLANE_TO_SHIP.get(pieceId) ?? null;
 }
 
 export function getPlaneIdsFromShipId(pieceId: PieceId): PieceId[] {
-  switch (pieceId) {
-    case PieceId.RedShip1:
-      return [PieceId.RedPlane1A, PieceId.RedPlane1B];
-    case PieceId.RedShip2:
-      return [PieceId.RedPlane2A, PieceId.RedPlane2B];
-    case PieceId.RedShip3:
-      return [PieceId.RedPlane3A, PieceId.RedPlane3B];
-    case PieceId.RedShip4:
-      return [PieceId.RedPlane4A, PieceId.RedPlane4B];
-    case PieceId.BlueShip1:
-      return [PieceId.BluePlane1A, PieceId.BluePlane1B];
-    case PieceId.BlueShip2:
-      return [PieceId.BluePlane2A, PieceId.BluePlane2B];
-    case PieceId.BlueShip3:
-      return [PieceId.BluePlane3A, PieceId.BluePlane3B];
-    case PieceId.BlueShip4:
-      return [PieceId.BluePlane4A, PieceId.BluePlane4B];
-    default:
-      return [];
-  }
+  const planes = SHIP_TO_PLANES.get(pieceId);
+  return planes ? [...planes] : [];
 }
 
 export function pieceCanAttack(pieceType: PieceType) {
