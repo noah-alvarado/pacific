@@ -236,7 +236,14 @@ export const Game: Component<GameProps> = (props) => {
         makeMove,
       }}
     >
-      <div class={styles.container}>
+      <div
+        class={styles.container}
+        data-testid="game"
+        data-player={game.player}
+        data-turn={game.turn}
+        data-phase={game.phase}
+        data-winner={game.winner ?? ""}
+      >
         <Controls />
         <Board />
       </div>

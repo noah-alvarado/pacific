@@ -42,6 +42,9 @@ export const GamePiece: Component<IGamePieceProps> = (props) => {
         type="button"
         aria-label={`${piece.type} Piece ${id}`}
         aria-pressed={isSelected()}
+        data-testid={`piece-${id}`}
+        data-position={`${piece.position.x},${piece.position.y}`}
+        data-piece-type={piece.type}
         disabled={!isSelectable()}
         onClick={onClick}
         class={[

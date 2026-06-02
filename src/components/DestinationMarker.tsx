@@ -36,6 +36,7 @@ const DestinationMarker: Component<IDestinationMarkerProps> = (props) => {
     <button
       type="button"
       onClick={onClick}
+      data-testid={`dest-${props.destination.position.x}-${props.destination.position.y}-${props.destination.moveType}`}
       class={styles.destinationMarker}
       style={{
         ...positionStyle(props.destination.position, { size: 44 }),

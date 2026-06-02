@@ -15,3 +15,8 @@ Thumbs.db
 
 # editors
 .vscode/
+
+# playwright
+playwright-report/
+test-results/
+/playwright/.cache/

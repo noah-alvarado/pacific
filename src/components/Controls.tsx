@@ -61,7 +61,12 @@ export const Controls: Component = () => {
   return (
     <div class={styles.container}>
       <Show when={gameConfig.gameType === "local"}>
-        <button type="button" class={styles.button} onClick={resetGame()}>
+        <button
+          type="button"
+          data-testid="reset-game"
+          class={styles.button}
+          onClick={resetGame()}
+        >
           Reset Game
         </button>
 
@@ -69,6 +74,7 @@ export const Controls: Component = () => {
           <>
             <button
               type="button"
+              data-testid="seed-one-move-to-win"
               class={styles.button}
               onClick={resetGame("ONE_MOVE_TO_WIN")}
             >
@@ -76,6 +82,7 @@ export const Controls: Component = () => {
             </button>
             <button
               type="button"
+              data-testid="seed-blue-stalemate-or-decisive"
               class={styles.button}
               onClick={resetGame("BLUE_STALEMATE_OR_DECISIVE")}
             >

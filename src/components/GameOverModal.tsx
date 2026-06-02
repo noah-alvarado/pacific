@@ -24,14 +24,14 @@ const GameOverModal: Component<GameOverModalProps> = (props) => {
   );
 
   return (
-    <>
+    <div data-testid="game-over" data-winner={props.winner ?? "draw"}>
       <h2 style={{ "margin-top": 0 }}>Game Over</h2>
       {props.winner ? (
         <p>The winner is {styledWinner}!</p>
       ) : (
         <p>The game has ended in a draw.</p>
       )}
-    </>
+    </div>
   );
 };
 

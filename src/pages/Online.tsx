@@ -190,10 +190,17 @@ const Online: Component = () => {
     room.onPeerJoin(onPeerJoin);
     room.onPeerLeave(onPeerLeave);
 
-    const [_sendGameEvent, _getGameEvent] =
-      room.makeAction<GameEvent>("gameEvent");
+    // Trystero's `makeAction<T>` constrains T to its `DataPayload` shape, which
+    // requires JSON values to carry an implicit string index signature.
+    // `GameEvent` is a discriminated union with known keys, so TypeScript
+    // (correctly per its rules) won't accept it directly. The runtime payload
+    // is plain JSON either way, and `validateGameEvent` is the source of truth
+    // on the receive side, so we cast at this boundary.
+    const [_sendGameEventRaw, _getGameEventRaw] = room.makeAction("gameEvent");
+    const _sendGameEvent =
+      _sendGameEventRaw as unknown as ActionSender<GameEvent>;
     setStore("sendGameEvent", () => _sendGameEvent);
-    _getGameEvent(onGameEvent);
+    _getGameEventRaw(onGameEvent);
 
     const [_sendChat, _getChat] = room.makeAction<string>("chatMessage");
     setStore("sendChat", () => _sendChat);
@@ -368,18 +375,22 @@ const Online: Component = () => {
         when={!store.room}
         fallback={
           <>
-            <div>
-              Connected to room <strong>{store.roomId}</strong>{" "}
+            <div data-testid="room-status">
+              Connected to room{" "}
+              <strong data-testid="room-id">{store.roomId}</strong>{" "}
               <Show when={store.isHost && store.password}>
                 <span>
-                  — share code: <code>{store.password}</code>{" "}
+                  — share code:{" "}
+                  <code data-testid="room-password">{store.password}</code>{" "}
                   <button onClick={handleCopyCode}>Copy</button>
                 </span>
               </Show>{" "}
-              <button onClick={handleLeaveRoom}>Leave Room</button>
+              <button data-testid="leave-room" onClick={handleLeaveRoom}>
+                Leave Room
+              </button>
             </div>
 
-            <div>
+            <div data-testid="peers" data-peer-count={store.peers.length}>
               <For each={store.peers} fallback={<div>Waiting for peer...</div>}>
                 {(peerId) => <div>Peer: {peerId}</div>}
               </For>
@@ -393,19 +404,31 @@ const Online: Component = () => {
       >
         <h2>Join a Room</h2>
         <div class="join-room-container">
-          <input type="text" ref={roomIdRef} placeholder="Room ID" />
+          <input
+            type="text"
+            data-testid="room-id-input"
+            ref={roomIdRef}
+            placeholder="Room ID"
+          />
 
           <input
             type="text"
+            data-testid="room-password-input"
             ref={passwordRef}
             placeholder="Room code (from host)"
           />
 
-          <button onClick={handleJoin}>Join Room</button>
-          <button onClick={handleHost}>Host New Room</button>
+          <button data-testid="join-room" onClick={handleJoin}>
+            Join Room
+          </button>
+          <button data-testid="host-room" onClick={handleHost}>
+            Host New Room
+          </button>
         </div>
         <Show when={store.joinError}>
-          <div class="join-error">{store.joinError}</div>
+          <div class="join-error" data-testid="join-error">
+            {store.joinError}
+          </div>
         </Show>
       </Show>
 
