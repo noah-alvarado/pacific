@@ -37,6 +37,7 @@ export default defineConfig(({ mode }) => {
       globals: false,
       setupFiles: ["node_modules/@testing-library/jest-dom/vitest"],
       isolate: false,
+      include: ["src/**/*.test.{ts,tsx}"],
       coverage: {
         enabled: true,
         include: ["src/**/*.{ts,tsx}"],
