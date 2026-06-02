@@ -8,6 +8,7 @@ import { BOARD_HEIGHT, BOARD_WIDTH } from "../constants/game.js";
 import type { MoveMadeEvent } from "../types/GameEvents.js";
 import {
   GameBoard,
+  GamePhase,
   getShipIdFromPlaneId,
   IDestinationMarker,
   IGamePiece,
@@ -244,7 +245,114 @@ export function saveIdToLocalStorageKey(saveId: string) {
   return `savedGame-${saveId}`;
 }
 
+const PLAYER_COLORS: ReadonlySet<string> = new Set(["red", "blue"]);
+const PIECE_TYPES: ReadonlySet<string> = new Set(["ship", "plane", "kamikaze"]);
+const PIECE_STATUSES: ReadonlySet<string> = new Set(["in-play", "destroyed"]);
+const GAME_PHASES: ReadonlySet<string> = new Set(
+  Object.values(GamePhase) as string[],
+);
+const PIECE_IDS: ReadonlySet<string> = new Set(
+  Object.values(PieceId) as string[],
+);
+const MOVE_TYPES: ReadonlySet<string> = new Set(["move", "attack"]);
+
+function isObject(v: unknown): v is Record<string, unknown> {
+  return typeof v === "object" && v !== null && !Array.isArray(v);
+}
+
+function isPosition(v: unknown): v is { x: number; y: number } {
+  return (
+    isObject(v) &&
+    typeof v.x === "number" &&
+    Number.isFinite(v.x) &&
+    typeof v.y === "number" &&
+    Number.isFinite(v.y)
+  );
+}
+
+function isGamePiece(v: unknown): v is IGamePiece {
+  if (!isObject(v)) return false;
+  if (typeof v.id !== "string" || !PIECE_IDS.has(v.id)) return false;
+  if (typeof v.type !== "string" || !PIECE_TYPES.has(v.type)) return false;
+  if (typeof v.owner !== "string" || !PLAYER_COLORS.has(v.owner)) return false;
+  if (typeof v.status !== "string" || !PIECE_STATUSES.has(v.status))
+    return false;
+  if (!isPosition(v.position)) return false;
+  if (
+    v.number !== undefined &&
+    !(typeof v.number === "number" && Number.isFinite(v.number))
+  ) {
+    return false;
+  }
+  return true;
+}
+
+function isMoveMadeEvent(v: unknown): v is MoveMadeEvent {
+  if (!isObject(v)) return false;
+  if (v.eventType !== "moveMade") return false;
+  if (typeof v.moveType !== "string" || !MOVE_TYPES.has(v.moveType))
+    return false;
+  if (!isPosition(v.from) || !isPosition(v.to)) return false;
+  if (!isGamePiece(v.piece)) return false;
+  return true;
+}
+
+/**
+ * Validates that an unknown value (typically parsed from localStorage) matches
+ * the IGameState shape closely enough that the app can resume from it without
+ * crashing. Optional/`undefined` fields are accepted as missing keys because
+ * `JSON.stringify` drops them.
+ */
+export function isValidGameState(v: unknown): v is IGameState {
+  if (!isObject(v)) return false;
+  if (typeof v.player !== "string" || !PLAYER_COLORS.has(v.player))
+    return false;
+  if (typeof v.turn !== "string" || !PLAYER_COLORS.has(v.turn)) return false;
+  if (typeof v.phase !== "string" || !GAME_PHASES.has(v.phase)) return false;
+  if (
+    v.winner !== undefined &&
+    !(typeof v.winner === "string" && PLAYER_COLORS.has(v.winner))
+  ) {
+    return false;
+  }
+  if (
+    v.selectedPieceId !== undefined &&
+    !(typeof v.selectedPieceId === "string" && PIECE_IDS.has(v.selectedPieceId))
+  ) {
+    return false;
+  }
+  if (v.lastMove !== undefined && !isMoveMadeEvent(v.lastMove)) return false;
+  if (!isObject(v.pieces)) return false;
+  for (const id of Object.values(PieceId)) {
+    const piece = v.pieces[id];
+    if (!isGamePiece(piece) || piece.id !== id) return false;
+  }
+  return true;
+}
+
 export function getGameSave(saveId: string): IGameState | undefined {
-  const savedGame = localStorage.getItem(saveIdToLocalStorageKey(saveId));
-  return savedGame ? (JSON.parse(savedGame) as IGameState) : undefined;
+  const key = saveIdToLocalStorageKey(saveId);
+  const savedGame = localStorage.getItem(key);
+  if (!savedGame) return undefined;
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(savedGame);
+  } catch {
+    console.warn(
+      `Discarding saved game "${saveId}": stored value is not valid JSON.`,
+    );
+    localStorage.removeItem(key);
+    return undefined;
+  }
+
+  if (!isValidGameState(parsed)) {
+    console.warn(
+      `Discarding saved game "${saveId}": stored value does not match the expected game state shape.`,
+    );
+    localStorage.removeItem(key);
+    return undefined;
+  }
+
+  return parsed;
 }
