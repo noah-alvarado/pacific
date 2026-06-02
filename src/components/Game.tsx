@@ -9,7 +9,11 @@ import {
 } from "solid-js";
 import { createStore } from "solid-js/store";
 
-import { INITIAL_PIECES, INITIAL_STATE } from "../constants/game.js";
+import {
+  BOARD_HEIGHT,
+  INITIAL_PIECES,
+  INITIAL_STATE,
+} from "../constants/game.js";
 import { useEvent } from "../primitives/useEvent.js";
 import { useGameLogic } from "../primitives/useGameLogic.js";
 import { useModalContext } from "../providers/Modal.jsx";
@@ -182,7 +186,7 @@ export const Game: Component<GameProps> = (props) => {
       // execute the move
       setGame("lastMove", e);
       setGame("pieces", e.piece.id, "position", e.to);
-      const opposingBackRow = e.piece.owner === "red" ? 7 : 0;
+      const opposingBackRow = e.piece.owner === "red" ? BOARD_HEIGHT - 1 : 0;
       if (e.to.y === opposingBackRow && e.piece.type === "plane") {
         setGame("pieces", e.piece.id, "type", "kamikaze");
       }

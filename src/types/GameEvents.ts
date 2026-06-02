@@ -31,15 +31,21 @@ export interface NegotiationEvent extends BaseGameEvent {
   draw: number;
 }
 
+export interface ReadyEvent extends BaseGameEvent {
+  eventType: "ready";
+}
+
 export type GameEvent =
   | MoveMadeEvent
   | TurnChangeEvent
   | GameEndEvent
-  | NegotiationEvent;
+  | NegotiationEvent
+  | ReadyEvent;
 
 export interface GameEventsHandlers {
   moveMade: (e: MoveMadeEvent) => void;
   turnChange: (e: TurnChangeEvent) => void;
   gameEnd: (e: GameEndEvent) => void;
   negotiation: (e: NegotiationEvent) => void;
+  ready: (e: ReadyEvent) => void;
 }
