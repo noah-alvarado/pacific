@@ -75,6 +75,8 @@ Checks if all files are formatted correctly with Prettier (used in CI/CD).
 
 ## Deployment
 
+Automatic deployment to GitHub pages via Actions.
+
 ### `yarn deploy:gh-pages`
 
 This command builds the app and deploys it to the `gh-pages` branch on GitHub.
