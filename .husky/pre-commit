@@ -1,2 +1,3 @@
 yarn lint
-yarn test
+yarn prettier:ci
+yarn test --run

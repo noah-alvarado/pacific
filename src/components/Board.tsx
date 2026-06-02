@@ -1,4 +1,4 @@
-import { type Component, For,Index } from "solid-js";
+import { type Component, For, Index } from "solid-js";
 
 import { PieceId } from "../types/GameState.js";
 
