@@ -4,6 +4,7 @@
  * mapping all pieces to their possible moves, and deriving the board state from the pieces.
  * These functions are pure and do not have side effects.
  */
+import { BOARD_HEIGHT, BOARD_WIDTH } from "../constants/game.js";
 import type { MoveMadeEvent } from "../types/GameEvents.js";
 import {
   GameBoard,
@@ -63,14 +64,16 @@ export function getDestinationsForPiece({
   const xIncrement = isEvenRow ? 1 : -1;
   const curX = piece.position.x;
   const otherX =
-    (isEvenRow || curX > 0) && (!isEvenRow || curX < 3) && curX + xIncrement;
+    (isEvenRow || curX > 0) &&
+    (!isEvenRow || curX < BOARD_WIDTH - 1) &&
+    curX + xIncrement;
   const yIncrement = piece.owner === "red" ? 1 : -1;
 
   function posIsEmpty(x: number, y: number) {
     return board[x][y] === null;
   }
   function posInBounds(x: number, y: number) {
-    return x >= 0 && x <= 3 && y >= 0 && y <= 7;
+    return x >= 0 && x <= BOARD_WIDTH - 1 && y >= 0 && y <= BOARD_HEIGHT - 1;
   }
   function posIsOpponent(x: number, y: number) {
     const pos = board[x][y];
@@ -224,8 +227,8 @@ export function mapPieceToDestinations({
 export function getBoardFromPieces(
   pieces: Record<PieceId, IGamePiece>,
 ): GameBoard {
-  const board: GameBoard = Array.from({ length: 4 }, () =>
-    Array.from({ length: 8 }, () => null),
+  const board: GameBoard = Array.from({ length: BOARD_WIDTH }, () =>
+    Array.from({ length: BOARD_HEIGHT }, () => null),
   );
   Object.values(pieces).forEach((piece) => {
     if (piece.status === "in-play") {
