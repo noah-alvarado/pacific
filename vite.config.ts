@@ -35,12 +35,30 @@ export default defineConfig(({ mode }) => {
     test: {
       environment: "jsdom",
       globals: false,
-      setupFiles: ["node_modules/@testing-library/jest-dom/vitest"],
-      isolate: false,
+      setupFiles: [
+        "node_modules/@testing-library/jest-dom/vitest",
+        "src/test/setup.ts",
+      ],
       include: ["src/**/*.test.{ts,tsx}"],
       coverage: {
         enabled: true,
         include: ["src/**/*.{ts,tsx}"],
+        exclude: [
+          "src/**/*.test.{ts,tsx}",
+          "src/test/**",
+          "src/types/GameEvents.ts",
+          "src/types/GameConfig.ts",
+          "src/index.tsx",
+          "src/AppRouter.tsx",
+        ],
+        reporter: ["text", "html", "json-summary"],
+        thresholds: {
+          perFile: true,
+          lines: 90,
+          functions: 90,
+          branches: 85,
+          statements: 90,
+        },
       },
     },
   };

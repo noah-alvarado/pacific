@@ -96,6 +96,239 @@ describe("validateGameEvent", () => {
     });
   });
 
+  test("rejects moveMade whose piece has invalid type", () => {
+    expect(
+      validateGameEvent({
+        eventType: "moveMade",
+        moveType: "move",
+        from: { x: 0, y: 0 },
+        to: { x: 1, y: 1 },
+        piece: {
+          id: PieceId.BlueShip1,
+          type: "submarine",
+          number: 1,
+          owner: "blue",
+          status: "in-play",
+          position: { x: 0, y: 0 },
+        },
+      }),
+    ).toBeNull();
+  });
+
+  test("rejects moveMade whose piece has non-string type", () => {
+    expect(
+      validateGameEvent({
+        eventType: "moveMade",
+        moveType: "move",
+        from: { x: 0, y: 0 },
+        to: { x: 1, y: 1 },
+        piece: {
+          id: PieceId.BlueShip1,
+          type: 123,
+          number: 1,
+          owner: "blue",
+          status: "in-play",
+          position: { x: 0, y: 0 },
+        },
+      }),
+    ).toBeNull();
+  });
+
+  test("rejects moveMade whose piece has invalid status", () => {
+    expect(
+      validateGameEvent({
+        eventType: "moveMade",
+        moveType: "move",
+        from: { x: 0, y: 0 },
+        to: { x: 1, y: 1 },
+        piece: {
+          id: PieceId.BlueShip1,
+          type: "ship",
+          number: 1,
+          owner: "blue",
+          status: "exploded",
+          position: { x: 0, y: 0 },
+        },
+      }),
+    ).toBeNull();
+  });
+
+  test("rejects moveMade whose piece has non-string status", () => {
+    expect(
+      validateGameEvent({
+        eventType: "moveMade",
+        moveType: "move",
+        from: { x: 0, y: 0 },
+        to: { x: 1, y: 1 },
+        piece: {
+          id: PieceId.BlueShip1,
+          type: "ship",
+          number: 1,
+          owner: "blue",
+          status: 5,
+          position: { x: 0, y: 0 },
+        },
+      }),
+    ).toBeNull();
+  });
+
+  test("rejects moveMade whose piece has invalid id", () => {
+    expect(
+      validateGameEvent({
+        eventType: "moveMade",
+        moveType: "move",
+        from: { x: 0, y: 0 },
+        to: { x: 1, y: 1 },
+        piece: {
+          id: "not-a-piece",
+          type: "ship",
+          number: 1,
+          owner: "blue",
+          status: "in-play",
+          position: { x: 0, y: 0 },
+        },
+      }),
+    ).toBeNull();
+  });
+
+  test("rejects moveMade whose piece has invalid number", () => {
+    expect(
+      validateGameEvent({
+        eventType: "moveMade",
+        moveType: "move",
+        from: { x: 0, y: 0 },
+        to: { x: 1, y: 1 },
+        piece: {
+          id: PieceId.BlueShip1,
+          type: "ship",
+          number: "one",
+          owner: "blue",
+          status: "in-play",
+          position: { x: 0, y: 0 },
+        },
+      }),
+    ).toBeNull();
+  });
+
+  test("rejects moveMade whose piece has invalid owner", () => {
+    expect(
+      validateGameEvent({
+        eventType: "moveMade",
+        moveType: "move",
+        from: { x: 0, y: 0 },
+        to: { x: 1, y: 1 },
+        piece: {
+          id: PieceId.BlueShip1,
+          type: "ship",
+          number: 1,
+          owner: "purple",
+          status: "in-play",
+          position: { x: 0, y: 0 },
+        },
+      }),
+    ).toBeNull();
+  });
+
+  test("rejects moveMade whose piece has invalid position", () => {
+    expect(
+      validateGameEvent({
+        eventType: "moveMade",
+        moveType: "move",
+        from: { x: 0, y: 0 },
+        to: { x: 1, y: 1 },
+        piece: {
+          id: PieceId.BlueShip1,
+          type: "ship",
+          number: 1,
+          owner: "blue",
+          status: "in-play",
+          position: { x: "nope", y: 0 },
+        },
+      }),
+    ).toBeNull();
+  });
+
+  test("rejects moveMade with non-object from/to", () => {
+    expect(
+      validateGameEvent({
+        eventType: "moveMade",
+        moveType: "move",
+        from: null,
+        to: { x: 1, y: 1 },
+        piece: {
+          id: PieceId.BlueShip1,
+          type: "ship",
+          number: 1,
+          owner: "blue",
+          status: "in-play",
+          position: { x: 0, y: 0 },
+        },
+      }),
+    ).toBeNull();
+  });
+
+  test("rejects moveMade with non-string moveType", () => {
+    expect(
+      validateGameEvent({
+        eventType: "moveMade",
+        moveType: 99,
+        from: { x: 0, y: 0 },
+        to: { x: 1, y: 1 },
+        piece: {
+          id: PieceId.BlueShip1,
+          type: "ship",
+          number: 1,
+          owner: "blue",
+          status: "in-play",
+          position: { x: 0, y: 0 },
+        },
+      }),
+    ).toBeNull();
+  });
+
+  test("rejects turnChange with bad colors", () => {
+    expect(
+      validateGameEvent({ eventType: "turnChange", from: "red", to: "green" }),
+    ).toBeNull();
+  });
+
+  test("rejects gameEnd with non-string reason", () => {
+    expect(
+      validateGameEvent({
+        eventType: "gameEnd",
+        winner: "blue",
+        loser: "red",
+        reason: 12,
+      }),
+    ).toBeNull();
+  });
+
+  test("rejects gameEnd with bad winner color", () => {
+    expect(
+      validateGameEvent({
+        eventType: "gameEnd",
+        winner: "green",
+        loser: "red",
+        reason: "no-planes",
+      }),
+    ).toBeNull();
+  });
+
+  test("rejects negotiation with non-finite or non-number draw", () => {
+    expect(
+      validateGameEvent({ eventType: "negotiation", draw: "1" }),
+    ).toBeNull();
+    expect(
+      validateGameEvent({ eventType: "negotiation", draw: Number.NaN }),
+    ).toBeNull();
+    expect(
+      validateGameEvent({
+        eventType: "negotiation",
+        draw: Number.POSITIVE_INFINITY,
+      }),
+    ).toBeNull();
+  });
+
   test("rejects gameEnd with bad reason", () => {
     expect(
       validateGameEvent({
