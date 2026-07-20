@@ -27,7 +27,7 @@ import { WebSocketServer } from "ws";
 
 const PORT = Number(process.env.RELAY_PORT) || 4444;
 const STUN_PORT = Number(process.env.STUN_PORT) || 3478;
-const HOST = process.env.RELAY_HOST || "127.0.0.1";
+const HOST = process.env.RELAY_HOST ?? "127.0.0.1";
 
 /**
  * Returns true when a Nostr `event` satisfies a subscription `filter`.
@@ -52,7 +52,7 @@ function matchesFilter(event, filter) {
   }
   const tags = Array.isArray(event.tags) ? event.tags : [];
   for (const key of Object.keys(filter)) {
-    if (key[0] !== "#") continue;
+    if (!key.startsWith("#")) continue;
     const tagName = key.slice(1);
     const allowed = filter[key];
     if (!Array.isArray(allowed)) continue;
@@ -121,9 +121,17 @@ wss.on("connection", (socket) => {
   subscriptionsBySocket.set(socket, new Map());
 
   socket.on("message", (raw) => {
+    // ws delivers a Buffer for text frames, but the type also permits an
+    // ArrayBuffer or a fragmented Buffer[]; normalize to a Buffer so
+    // toString() always decodes to the original text.
+    const bytes = Buffer.isBuffer(raw)
+      ? raw
+      : Array.isArray(raw)
+        ? Buffer.concat(raw)
+        : Buffer.from(raw);
     let message;
     try {
-      message = JSON.parse(raw.toString());
+      message = JSON.parse(bytes.toString());
     } catch {
       return;
     }

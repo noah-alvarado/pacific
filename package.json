@@ -17,8 +17,8 @@
     "prettier:ci": "prettier --check .",
     "lint": "yarn lint:ts && yarn lint:css",
     "lint:fix": "yarn lint:ts --fix && yarn lint:css --fix",
-    "lint:ts": "eslint src",
-    "lint:css": "stylelint 'src/**/*.css' --allow-empty-input",
+    "lint:ts": "eslint .",
+    "lint:css": "stylelint 'src/**/*.css'",
     "deploy:gh-pages": "yarn build && gh-pages -d dist",
     "prepare": "husky"
   },

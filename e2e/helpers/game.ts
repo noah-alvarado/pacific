@@ -1,4 +1,4 @@
-import type { Page, Locator } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 import { expect } from "@playwright/test";
 
 // Mirror of src/types/GameState.ts PieceId enum values. Kept as plain strings

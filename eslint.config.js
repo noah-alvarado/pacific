@@ -1,15 +1,23 @@
-import { defineConfig } from "eslint/config";
 import eslint from "@eslint/js";
-import eslintConfigPrettier from "eslint-config-prettier/flat";
-import globals from "globals";
-import solid from "eslint-plugin-solid/configs/typescript";
 import tsParser from "@typescript-eslint/parser";
-import tseslint from "typescript-eslint";
+import { defineConfig } from "eslint/config";
+import eslintConfigPrettier from "eslint-config-prettier/flat";
 import jsxA11y from "eslint-plugin-jsx-a11y";
 import simpleImportSort from "eslint-plugin-simple-import-sort";
-import importPlugin from "eslint-plugin-import";
+import solid from "eslint-plugin-solid/configs/typescript";
+import globals from "globals";
+import tseslint from "typescript-eslint";
 
 export default defineConfig([
+  {
+    ignores: [
+      "dist/**",
+      "build/**",
+      "coverage/**",
+      "playwright-report/**",
+      "test-results/**",
+    ],
+  },
   {
     ...eslint.configs.recommended,
     files: ["**/*.{js,mjs,cjs,jsx,mjsx,ts,tsx,mtsx}"],
@@ -39,19 +47,18 @@ export default defineConfig([
         ...globals.serviceworker,
         ...globals.browser,
       },
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       parser: tsParser,
       parserOptions: {
         projectService: {
-          allowDefaultProject: ["*.js"],
+          allowDefaultProject: ["*.js", "e2e/relay/*.js"],
         },
         project: ["./tsconfig.json"],
+        tsconfigRootDir: import.meta.dirname,
         ecmaFeatures: {
           jsx: true,
         },
       },
     },
-    // extends: [importPlugin.flatConfigs.recommended],
     plugins: {
       "simple-import-sort": simpleImportSort,
     },
@@ -82,9 +89,6 @@ export default defineConfig([
         },
       ],
       "simple-import-sort/exports": "error",
-      // "import/first": "error",
-      // "import/newline-after-import": ["error", { count: 1 }],
-      // "import/no-duplicates": "error",
     },
     ignores: ["**/*.css"],
   },
@@ -92,7 +96,7 @@ export default defineConfig([
     files: [
       "**/*.test.{ts,tsx}",
       "src/test/**/*.{ts,tsx}",
-      "e2e/**/*.{ts,tsx}",
+      "e2e/**/*.{js,ts,tsx}",
     ],
     rules: {
       "@typescript-eslint/unbound-method": "off",

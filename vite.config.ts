@@ -4,10 +4,9 @@
 /// <reference types="@types/node" />
 
 import { defineConfig, loadEnv } from "vite";
-
+import mkcert from "vite-plugin-mkcert";
 import solidPlugin from "vite-plugin-solid";
 import solidSvg from "vite-plugin-solid-svg";
-import mkcert from "vite-plugin-mkcert";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd());
