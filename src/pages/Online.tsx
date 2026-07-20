@@ -12,8 +12,10 @@ import {
 import { createStore } from "solid-js/store";
 import {
   ActionSender,
+  BaseRoomConfig,
   DataPayload,
   joinRoom as _joinRoom,
+  RelayConfig,
   Room,
 } from "trystero";
 
@@ -31,6 +33,22 @@ import {
 import { validateGameEvent } from "../types/GameEvents.validate.js";
 
 const APP_ID = "pacific.alvarado.dev";
+// Optional signaling relay override (comma-separated). Injected via the
+// VITE_TRYSTERO_RELAY_URLS env var by the e2e harness so the WebRTC handshake
+// runs against a local Nostr relay instead of the public relay network. Unset
+// in normal builds, leaving trystero's default relays in place.
+const TRYSTERO_RELAY_URLS = import.meta.env.VITE_TRYSTERO_RELAY_URLS
+  ? String(import.meta.env.VITE_TRYSTERO_RELAY_URLS)
+      .split(",")
+      .map((url) => url.trim())
+      .filter(Boolean)
+  : undefined;
+// Optional STUN server paired with the relay override above. The e2e harness
+// runs a local STUN server so browsers (Firefox in particular) gather ICE
+// candidates without reaching any public server.
+const TRYSTERO_STUN_URL = import.meta.env.VITE_TRYSTERO_STUN_URL
+  ? String(import.meta.env.VITE_TRYSTERO_STUN_URL)
+  : undefined;
 const ROOM_CODE_LENGTH = 6;
 // RFC 4648 base32 alphabet, minus visually ambiguous chars (0/O, 1/I/L, U)
 const ROOM_CODE_ALPHABET = "ABCDEFGHJKMNPQRSTVWXYZ23456789";
@@ -170,7 +188,16 @@ const Online: Component = () => {
     roomId: string;
     password: string;
   }): Room {
-    const config = { appId: APP_ID, password };
+    const config: BaseRoomConfig & RelayConfig = { appId: APP_ID, password };
+    // When a local relay is injected for tests, pin signaling to it and use the
+    // paired local STUN server so ICE gathering stays fully offline. Both peers
+    // run on the same host, so no TURN/relay candidates are needed.
+    if (TRYSTERO_RELAY_URLS?.length) {
+      config.relayUrls = TRYSTERO_RELAY_URLS;
+      config.rtcConfig = {
+        iceServers: TRYSTERO_STUN_URL ? [{ urls: TRYSTERO_STUN_URL }] : [],
+      };
+    }
     const newRoom = _joinRoom(config, roomId, onJoinError);
     addHandlers(newRoom);
     return newRoom;
