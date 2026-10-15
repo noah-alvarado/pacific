@@ -11,7 +11,6 @@ import {
 } from "solid-js";
 
 import { Page } from "../AppRouter.js";
-import { useWindowDimensions } from "../primitives/useWindowDimensions.js";
 import { useThemeContext } from "../providers/Theme.js";
 
 import styles from "./Header.module.css";
@@ -37,7 +36,6 @@ const NavLink: Component<NavLinkProps> = ({
 
 const Header: Component = () => {
   const location = useLocation();
-  const dimensions = useWindowDimensions();
   const { theme, toggleDarkMode } = useThemeContext();
   const [navOpen, setNavOpen] = createSignal(false);
 
@@ -51,7 +49,7 @@ const Header: Component = () => {
     document.documentElement.dataset.theme = theme();
   });
 
-  const compact = createMemo(() => dimensions().width < 720);
+  const compact = createMemo(() => true);
 
   const showBurger = compact;
 
