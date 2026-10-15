@@ -34,3 +34,5 @@
 - [ ] Game piece animations (remember to respect reduce-motion settings)
 - [ ] Auto-rotate board when turn changes?? only when aligned vertically?? disabled when reduce-motion is on??
 - [ ] Option to drag and drop pieces
+- [ ] Confirm before leaving an active game
+- [ ] User setting for compact header layout

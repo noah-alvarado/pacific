@@ -16,6 +16,7 @@ import {
 } from "../constants/game.js";
 import { useEvent } from "../primitives/useEvent.js";
 import { useGameLogic } from "../primitives/useGameLogic.js";
+import { useWindowDimensions } from "../primitives/useWindowDimensions.js";
 import { useModalContext } from "../providers/Modal.jsx";
 import { GameConfig } from "../types/GameConfig.js";
 import type {
@@ -64,6 +65,8 @@ interface GameProps {
  *
  * @remarks
  * - Listens for and handles game events to update the state.
+ *      Game event handlers are wrapped by the batch() SolidJS utility so that any store updates
+ *      calculated are performed as one operation, the full result of processing the move.
  * - Derives the board layout and possible piece destinations from the game state.
  * - Manages turn progression based on move types. A turn ends after a non-attack
  *      move or when an attacking piece has no more moves.
@@ -72,23 +75,36 @@ interface GameProps {
  */
 export const Game: Component<GameProps> = (props) => {
   const initialPieces = INITIAL_PIECES;
-  const initialState = untrack(
-    () =>
-      (props.gameConfig.gameType === "local"
-        ? getGameSave("local")
-        : undefined) ??
-      INITIAL_STATE({
-        pieces: initialPieces,
-        player:
-          props.gameConfig.gameType !== "local"
-            ? props.gameConfig.player
-            : "blue",
-        turn: props.gameConfig.turn,
-      }),
-  );
+  const initialState = untrack(() => {
+    // if a gameSave exists, return that
+    let gameSave;
+    switch (props.gameConfig.gameType) {
+      case "local":
+        gameSave = getGameSave("local");
+    }
+    if (gameSave) return gameSave;
+
+    // build initial state based on config
+    return INITIAL_STATE({
+      pieces: initialPieces,
+      player:
+        props.gameConfig.gameType !== "local"
+          ? props.gameConfig.player
+          : "blue",
+      turn: props.gameConfig.turn,
+    });
+  });
   const [game, setGame] = createStore<IGameState>(initialState);
 
   const { setModal } = useModalContext();
+
+  const windowDimensions = useWindowDimensions();
+  const wide = createMemo(
+    () =>
+      // TODO: read from persistent user preferences
+      windowDimensions().width >= windowDimensions().height ||
+      windowDimensions().width >= 1280,
+  );
 
   // board is derived from game.pieces
   const board = createMemo(() => getBoardFromPieces(game.pieces));
@@ -172,12 +188,19 @@ export const Game: Component<GameProps> = (props) => {
         const takenPiece = board()[takenPieceX][takenPieceY];
         if (takenPiece) {
           setGame("pieces", takenPiece.id, "status", "destroyed");
-          const planeIds = getPlaneIdsFromShipId(takenPiece.id);
+
           // when a ship is destroyed, all its planes are also destroyed
-          for (const planeId of planeIds) {
-            // planes become kamikazes, which are not destroyed when the ship is destroyed
-            if (game.pieces[planeId].type === "plane") {
-              setGame("pieces", planeId, "status", "destroyed");
+          // planes can become kamikazes, which are not destroyed when the ship is destroyed
+          if (takenPiece.type === "ship") {
+            const planeIds = getPlaneIdsFromShipId(takenPiece.id);
+            for (const planeId of planeIds) {
+              switch (game.pieces[planeId].type) {
+                case "plane":
+                  setGame("pieces", planeId, "status", "destroyed");
+                  break;
+                case "kamikaze":
+                  break;
+              }
             }
           }
         }
@@ -186,9 +209,13 @@ export const Game: Component<GameProps> = (props) => {
       // execute the move
       setGame("lastMove", e);
       setGame("pieces", e.piece.id, "position", e.to);
-      const opposingBackRow = e.piece.owner === "red" ? BOARD_HEIGHT - 1 : 0;
-      if (e.to.y === opposingBackRow && e.piece.type === "plane") {
-        setGame("pieces", e.piece.id, "type", "kamikaze");
+
+      // planes can become kamikazes by reaching the opponent's back row
+      if (e.piece.type === "plane") {
+        const opposingBackRow = e.piece.owner === "red" ? BOARD_HEIGHT - 1 : 0;
+        if (e.to.y === opposingBackRow) {
+          setGame("pieces", e.piece.id, "type", "kamikaze");
+        }
       }
     });
   });
@@ -238,6 +265,7 @@ export const Game: Component<GameProps> = (props) => {
     >
       <div
         class={styles.container}
+        classList={{ [styles.wide]: wide() }}
         data-testid="game"
         data-player={game.player}
         data-turn={game.turn}

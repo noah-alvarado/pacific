@@ -11,7 +11,7 @@ import {
 } from "solid-js";
 
 import { Page } from "../AppRouter.js";
-import { useWindowWidth } from "../primitives/useWindowWidth.js";
+import { useWindowDimensions } from "../primitives/useWindowDimensions.js";
 import { useThemeContext } from "../providers/Theme.js";
 
 import styles from "./Header.module.css";
@@ -37,7 +37,7 @@ const NavLink: Component<NavLinkProps> = ({
 
 const Header: Component = () => {
   const location = useLocation();
-  const windowWidth = useWindowWidth();
+  const dimensions = useWindowDimensions();
   const { theme, toggleDarkMode } = useThemeContext();
   const [navOpen, setNavOpen] = createSignal(false);
 
@@ -51,9 +51,9 @@ const Header: Component = () => {
     document.documentElement.dataset.theme = theme();
   });
 
-  const showBurger = createMemo(() => {
-    return windowWidth() < 720;
-  });
+  const compact = createMemo(() => dimensions().width < 720);
+
+  const showBurger = compact;
 
   const showNav = createMemo(() => {
     return showBurger() ? navOpen() : true;
@@ -92,7 +92,7 @@ const Header: Component = () => {
   ];
 
   return (
-    <header class={styles.header}>
+    <header class={styles.header} classList={{ [styles.compact]: compact() }}>
       <button
         type="button"
         aria-label={
@@ -100,11 +100,18 @@ const Header: Component = () => {
         }
         onClick={toggleDarkMode}
         class={`${styles.themeToggle} ${styles.clickable}`}
+        classList={{ [styles.compact]: compact() }}
       >
         {theme() === "dark" ? "🌙" : "☀️"}
       </button>
 
-      <p class={styles.title}>PACIFIC</p>
+      <A
+        href={Page.Landing}
+        class={styles.title}
+        classList={{ [styles.compact]: compact() }}
+      >
+        PACIFIC
+      </A>
 
       <Show when={showBurger()}>
         <button

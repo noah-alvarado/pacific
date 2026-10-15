@@ -14,6 +14,33 @@ import { useGameContext } from "./Game.context.js";
 
 const turnIndicator = `★`;
 
+type ResetGame = (
+  pieces?: string,
+) => JSX.EventHandler<HTMLButtonElement, MouseEvent>;
+
+const DevControls: Component<{ resetGame: ResetGame }> = (props) => {
+  return (
+    <>
+      <button
+        type="button"
+        data-testid="seed-one-move-to-win"
+        class={styles.button}
+        onClick={props.resetGame("ONE_MOVE_TO_WIN")}
+      >
+        ONE_MOVE_TO_WIN
+      </button>
+      <button
+        type="button"
+        data-testid="seed-blue-stalemate-or-decisive"
+        class={styles.button}
+        onClick={props.resetGame("BLUE_STALEMATE_OR_DECISIVE")}
+      >
+        BLUE_STALEMATE_OR_DECISIVE
+      </button>
+    </>
+  );
+};
+
 export const Controls: Component = () => {
   const { gameConfig, game, setGame, initialPieces } = useGameContext();
   const { closeModal } = useModalContext();
@@ -26,9 +53,7 @@ export const Controls: Component = () => {
       : { red: "peer", blue: "me" };
   });
 
-  function resetGame(
-    pieces = "normal",
-  ): JSX.EventHandler<HTMLButtonElement, MouseEvent> {
+  function resetGame(pieces = "normal"): ReturnType<ResetGame> {
     return (e) => {
       e.preventDefault();
 
@@ -70,26 +95,7 @@ export const Controls: Component = () => {
           Reset Game
         </button>
 
-        {import.meta.env.DEV && (
-          <>
-            <button
-              type="button"
-              data-testid="seed-one-move-to-win"
-              class={styles.button}
-              onClick={resetGame("ONE_MOVE_TO_WIN")}
-            >
-              ONE_MOVE_TO_WIN
-            </button>
-            <button
-              type="button"
-              data-testid="seed-blue-stalemate-or-decisive"
-              class={styles.button}
-              onClick={resetGame("BLUE_STALEMATE_OR_DECISIVE")}
-            >
-              BLUE_STALEMATE_OR_DECISIVE
-            </button>
-          </>
-        )}
+        {import.meta.env.DEV && <DevControls resetGame={resetGame} />}
       </Show>
 
       <div class={styles.players}>

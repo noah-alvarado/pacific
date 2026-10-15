@@ -5,6 +5,7 @@
   --dot-radius: 3.5px;
   --grid-color: var(--text-color);
 
+  grid-area: board;
   position: relative;
   background-color: var(--board-color);
   display: grid;
