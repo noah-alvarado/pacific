@@ -1,5 +1,5 @@
 .destinationMarker {
-  --marker-size: 44px;
+  --marker-size: calc(var(--cell) * 0.56);
   --marker-color: rgb(255 215 0 / 40%);
   --marker-pick-color: rgb(255 215 0 / 80%);
 

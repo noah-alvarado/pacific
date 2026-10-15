@@ -10,7 +10,7 @@ interface IDestinationMarkerProps {
   destination: IDestinationMarker;
 }
 const DestinationMarker: Component<IDestinationMarkerProps> = (props) => {
-  const { game, makeMove } = useGameContext();
+  const { game, makeMove, flipped } = useGameContext();
 
   const onClick: JSX.EventHandler<HTMLButtonElement, MouseEvent> = (e) => {
     e.preventDefault();
@@ -39,7 +39,7 @@ const DestinationMarker: Component<IDestinationMarkerProps> = (props) => {
       data-testid={`dest-${props.destination.position.x}-${props.destination.position.y}-${props.destination.moveType}`}
       class={styles.destinationMarker}
       style={{
-        ...positionStyle(props.destination.position, { size: 44 }),
+        ...positionStyle(props.destination.position, flipped()),
       }}
     />
   );

@@ -1,0 +1,33 @@
+.title {
+  margin-top: 0;
+  padding-right: 2rem;
+  font-size: 1.35rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.primary,
+.secondary {
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.primary {
+  background: #b3261e;
+  color: #fff;
+  border: 2px solid #b3261e;
+}
+
+.secondary {
+  background: transparent;
+  color: var(--text-color);
+  border: 2px solid currentcolor;
+}

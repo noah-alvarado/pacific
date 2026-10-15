@@ -32,6 +32,8 @@ export function useGameLogic(params: {
       () => JSON.stringify(params.game.lastMove),
       () => {
         if (!params.game.lastMove) return;
+        // already processed (e.g. restored by undo): its turn has passed
+        if (params.game.lastMove.piece.owner !== params.game.turn) return;
 
         const lastMoveWasNotAttack = params.game.lastMove.moveType !== "attack";
         const attackingPieceHasNoMoves =

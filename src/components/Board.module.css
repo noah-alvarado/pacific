@@ -1,116 +1,48 @@
+/* 7 cells of grid plus half a cell of padding on each side = 8 cells */
 .board {
-  --cell-width: 75px;
-  --grid-width: calc(((var(--cell-width) + 4px) * 7) + 4px);
-  --grid-height: calc(var(--grid-width) + 2px);
-  --dot-radius: 3.5px;
   --grid-color: var(--text-color);
+  --cell: calc(100cqi / 8);
 
-  grid-area: board;
   position: relative;
+  container-type: inline-size;
+  box-sizing: border-box;
+  width: var(--board-size, 640px);
+  aspect-ratio: 1;
   background-color: var(--board-color);
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  grid-template-rows: repeat(7, 1fr);
-  width: var(--grid-width);
-  height: var(--grid-height);
-  padding: 40px;
 }
 
-.board[style*="--grid-size: 7"] {
-  grid-template-columns: repeat(7, 1fr);
-  grid-template-rows: repeat(7, 1fr);
-}
-
-.cell {
-  position: relative;
-  width: var(--cell-width);
-  height: var(--cell-width);
-  padding: 2px;
-}
-
-/*
- * Target cells in the first column
- * Add a border on the left of these cells
- */
-.board > .cell:nth-child(7n + 1) {
-  border-left: 2px solid var(--grid-color);
-}
-
-/*
- * Target cells in the seventh column
- * Add a border on the right of these cells
- */
-.board > .cell:nth-child(7n + 7) {
-  border-right: 2px solid var(--grid-color);
-}
-
-/*
- * Target cells in the first row (children 1 through 7 for a 7-column grid)
- * Add a border on top of these cells
- */
-.board > .cell:nth-child(n + 1):nth-child(-n + 7) {
-  border-top: 2px solid var(--grid-color);
-}
-
-/*
- * Target cells in the seventh row (children 43 through 49 for a 7-column grid)
- * Add a border on the bottom of these cells
- */
-.board > .cell:nth-child(n + 43):nth-child(-n + 49) {
-  border-bottom: 2px solid var(--grid-color);
-}
-
-/*
- * Target cells in the fourth row (children 22 through 28 for a 7-column grid)
- * Add a thin horizontal line on the top and bottom of these cells
- */
-.board > .cell:nth-child(n + 22):nth-child(-n + 28) {
-  border-top: 1px solid var(--grid-color);
-  border-bottom: 1px solid var(--grid-color);
-}
-
-.line1,
-.line2 {
+.grid,
+.layer {
   position: absolute;
-  background-color: var(--grid-color); /* Line color */
-  height: 2px; /* Line thickness */
-  width: 141.42%; /* sqrt(2) * 100% to span the diagonal */
-  top: 50%;
-  left: -20.71%; /* (100% - 141.42%) / 2 */
+  inset: 6.25%;
 }
 
-.line1 {
-  transform: translateY(-50%) rotate(45deg);
+.grid {
+  overflow: visible;
+  fill: none;
+  stroke: var(--grid-color);
+  stroke-linecap: round;
 }
 
-.line2 {
-  transform: translateY(-50%) rotate(-45deg);
+.line {
+  stroke-width: 2px;
+  vector-effect: non-scaling-stroke;
+}
+
+.thinLine {
+  stroke-width: 1px;
+  vector-effect: non-scaling-stroke;
+}
+
+/* pieces and markers set --gx/--gy (0..7) */
+.layer > * {
+  position: absolute;
+  left: calc(var(--gx) * 100% / 7);
+  top: calc(var(--gy) * 100% / 7);
+  translate: -50% -50%;
 }
 
 .dot {
-  height: calc(var(--dot-radius) * 2);
-  width: calc(var(--dot-radius) * 2);
-  border-radius: 100%;
-  background: var(--grid-color);
-  position: absolute;
-}
-
-.dot.topLeft {
-  top: calc(-1 * var(--dot-radius));
-  left: calc(-1 * var(--dot-radius));
-}
-
-.dot.bottomLeft {
-  bottom: calc(-1 * var(--dot-radius));
-  left: calc(-1 * var(--dot-radius));
-}
-
-.dot.topRight {
-  right: calc(-1 * var(--dot-radius));
-  top: calc(-1 * var(--dot-radius));
-}
-
-.dot.bottomRight {
-  right: calc(-1 * var(--dot-radius));
-  bottom: calc(-1 * var(--dot-radius));
+  fill: var(--grid-color);
+  stroke: none;
 }

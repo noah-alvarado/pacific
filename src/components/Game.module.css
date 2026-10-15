@@ -1,15 +1,82 @@
 .container {
-  min-height: 100%;
-  min-width: 100%;
-  overflow: auto;
-  background-color: var(--board-color);
-  display: grid;
-  grid-template: "controls" auto "board" auto;
-  place-items: center center;
-  padding: 8px;
+  --board-min: 320px;
 
-  &.wide {
-    grid-template: ". board controls" auto / 1fr auto 1fr;
-    padding: 20px;
+  box-sizing: border-box;
+  height: 100%;
+  display: grid;
+  grid-template:
+    "top" auto
+    "board" minmax(0, 1fr)
+    "bottom" auto / minmax(0, 1fr);
+  gap: 0.5rem;
+  background-color: var(--board-color);
+
+  @media (orientation: landscape) {
+    grid-template:
+      "top board bottom" minmax(0, 1fr)
+      / minmax(7rem, 1fr) minmax(0, 3fr) minmax(7rem, 1fr);
+  }
+}
+
+/* margin: auto (not place-items) keeps an oversized board scrollable from its top-left */
+.boardArea {
+  grid-area: board;
+  container-type: size;
+  display: flex;
+  overflow: auto;
+
+  > * {
+    --board-size: max(var(--board-min), min(100cqw, 100cqh));
+
+    margin: auto;
+    flex-shrink: 0;
+  }
+}
+
+.top,
+.bottom {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+
+  > :first-child {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.top {
+  grid-area: top;
+  padding: 0.5rem 0.5rem 0;
+}
+
+.bottom {
+  grid-area: bottom;
+  padding: 0 0.5rem 0.5rem;
+}
+
+@media (orientation: landscape) {
+  .top,
+  .bottom {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0.5rem;
+
+    > :first-child {
+      flex: none;
+    }
+  }
+
+  .top {
+    align-self: start;
+  }
+
+  .bottom {
+    align-self: end;
+
+    > :last-child {
+      align-self: flex-end;
+    }
   }
 }

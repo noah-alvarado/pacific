@@ -23,7 +23,8 @@ export const INITIAL_STATE: (params: {
   turn,
   phase: GamePhase.InProgress,
   winner: undefined,
-  pieces,
+  // stores mutate in place; copy so the shared seed constants stay pristine
+  pieces: structuredClone(pieces),
 });
 
 export const INITIAL_PIECES: Record<PieceId, IGamePiece> = {

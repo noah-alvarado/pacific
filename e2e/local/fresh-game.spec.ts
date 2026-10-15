@@ -1,6 +1,11 @@
 import { expect, test } from "@playwright/test";
 
-import { destinationCount, expectTurn, gotoLocal } from "../helpers/game.js";
+import {
+  destinationCount,
+  expectTurn,
+  gotoLocal,
+  resetGame,
+} from "../helpers/game.js";
 
 test.beforeEach(async ({ context }) => {
   await context.clearCookies();
@@ -17,7 +22,7 @@ test("fresh local game starts with blue's turn and shows destinations on selecti
     }
   });
   await gotoLocal(page);
-  await page.getByTestId("reset-game").click();
+  await resetGame(page);
 
   await expectTurn(page, "blue");
 
@@ -38,7 +43,7 @@ test("making a move flips the turn from blue to red", async ({ page }) => {
     }
   });
   await gotoLocal(page);
-  await page.getByTestId("reset-game").click();
+  await resetGame(page);
   await expectTurn(page, "blue");
 
   await page

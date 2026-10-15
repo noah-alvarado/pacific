@@ -177,6 +177,90 @@ describe("<Game /> gameEnd handling", () => {
   });
 });
 
+describe("<Game /> undo", () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  const gameEl = (container: HTMLElement) =>
+    container.querySelector('[data-testid="game"]')!;
+  const undoButton = (container: HTMLElement) =>
+    container.querySelector<HTMLButtonElement>('[data-testid="undo-move"]')!;
+  const blue1b = (container: HTMLElement) =>
+    container.querySelector(`[data-testid="piece-${PieceId.BluePlane1B}"]`);
+
+  function moveBlue1B(emitter: ReturnType<typeof setupGame>["emitter"]) {
+    const piece = INITIAL_PIECES[PieceId.BluePlane1B];
+    emitter.emit("moveMade", {
+      eventType: "moveMade",
+      moveType: "move",
+      from: piece.position,
+      to: { x: 0, y: 4 },
+      piece: { ...piece },
+    } satisfies MoveMadeEvent);
+  }
+
+  test("restores the previous position and turn without re-flipping the turn", async () => {
+    const { emitter, result } = setupGame({ gameType: "local", turn: "blue" });
+    const { container } = result;
+    expect(undoButton(container).disabled).toBe(true);
+
+    moveBlue1B(emitter);
+    await waitFor(() =>
+      expect(gameEl(container).getAttribute("data-turn")).toBe("red"),
+    );
+    expect(blue1b(container)?.getAttribute("data-position")).toBe("0,4");
+    expect(undoButton(container).disabled).toBe(false);
+
+    undoButton(container).click();
+    await waitFor(() =>
+      expect(blue1b(container)?.getAttribute("data-position")).toBe("0,5"),
+    );
+    for (let i = 0; i < 8; i++) await Promise.resolve();
+    expect(gameEl(container).getAttribute("data-turn")).toBe("blue");
+    expect(undoButton(container).disabled).toBe(true);
+  });
+
+  test("undoing the winning move closes the game over modal", async () => {
+    const { emitter, result } = setupGame({ gameType: "local", turn: "blue" });
+    moveBlue1B(emitter);
+    emitter.emit("gameEnd", {
+      eventType: "gameEnd",
+      winner: "blue",
+      loser: "red",
+      reason: "no-planes",
+    } satisfies GameEndEvent);
+    await waitFor(() =>
+      expect(
+        document.querySelector('[data-testid="game-over"]'),
+      ).not.toBeNull(),
+    );
+
+    undoButton(result.container).click();
+    await waitFor(() =>
+      expect(document.querySelector('[data-testid="game-over"]')).toBeNull(),
+    );
+    expect(gameEl(result.container).getAttribute("data-phase")).toBe(
+      GamePhase.InProgress,
+    );
+  });
+
+  test("reset clears the undo history", async () => {
+    const { emitter, result } = setupGame({ gameType: "local", turn: "blue" });
+    const { container } = result;
+    moveBlue1B(emitter);
+    await waitFor(() => expect(undoButton(container).disabled).toBe(false));
+
+    container.querySelector<HTMLElement>('[data-testid="game-menu"]')!.click();
+    container.querySelector<HTMLElement>('[data-testid="reset-game"]')!.click();
+    document
+      .querySelector<HTMLElement>('[data-testid="confirm-accept"]')!
+      .click();
+
+    await waitFor(() => expect(undoButton(container).disabled).toBe(true));
+  });
+});
+
 describe("<Game /> save effect", () => {
   beforeEach(() => {
     localStorage.clear();

@@ -4,10 +4,11 @@ import {
   Component,
   createEffect,
   createMemo,
+  createSignal,
   on,
   untrack,
 } from "solid-js";
-import { createStore } from "solid-js/store";
+import { createStore, reconcile, unwrap } from "solid-js/store";
 
 import {
   BOARD_HEIGHT,
@@ -16,7 +17,6 @@ import {
 } from "../constants/game.js";
 import { useEvent } from "../primitives/useEvent.js";
 import { useGameLogic } from "../primitives/useGameLogic.js";
-import { useWindowDimensions } from "../primitives/useWindowDimensions.js";
 import { useModalContext } from "../providers/Modal.jsx";
 import { GameConfig } from "../types/GameConfig.js";
 import type {
@@ -42,6 +42,7 @@ import {
   saveIdToLocalStorageKey,
 } from "./Game.util.js";
 import GameOverModal from "./GameOverModal.jsx";
+import { PlayerCard } from "./PlayerCard.jsx";
 
 interface GameProps {
   gameConfig: GameConfig; // loosen validation for HMR stability
@@ -96,15 +97,41 @@ export const Game: Component<GameProps> = (props) => {
   });
   const [game, setGame] = createStore<IGameState>(initialState);
 
-  const { setModal } = useModalContext();
+  const { setModal, closeModal } = useModalContext();
 
-  const windowDimensions = useWindowDimensions();
-  const wide = createMemo(
-    () =>
-      // TODO: read from persistent user preferences
-      windowDimensions().width >= windowDimensions().height ||
-      windowDimensions().width >= 1280,
+  const [flipped, setFlipped] = createSignal(
+    untrack(
+      () =>
+        props.gameConfig.gameType === "online" &&
+        props.gameConfig.player === "red",
+    ),
   );
+
+  // snapshots taken before each local move; not persisted across reloads
+  const [history, setHistory] = createSignal<IGameState[]>([]);
+  const canUndo = () => history().length > 0;
+
+  // a reset clears lastMove, which invalidates earlier snapshots
+  createEffect(
+    on(
+      () => game.lastMove === undefined,
+      (cleared) => {
+        if (cleared) setHistory([]);
+      },
+      { defer: true },
+    ),
+  );
+
+  function undo() {
+    const snapshots = history();
+    if (snapshots.length === 0) return;
+    const previous = snapshots[snapshots.length - 1];
+    batch(() => {
+      setHistory((h) => h.slice(0, -1));
+      closeModal();
+      setGame(reconcile(previous));
+    });
+  }
 
   // board is derived from game.pieces
   const board = createMemo(() => getBoardFromPieces(game.pieces));
@@ -175,6 +202,11 @@ export const Game: Component<GameProps> = (props) => {
    * @param e - The move made event.
    */
   useEvent(props.emitter, "moveMade", (e: MoveMadeEvent) => {
+    if (props.gameConfig.gameType === "local") {
+      const snapshot = structuredClone(unwrap(game));
+      setHistory((h) => [...h, snapshot]);
+    }
+
     batch(() => {
       // remove jumped pieces
       if (e.moveType === "attack") {
@@ -261,19 +293,31 @@ export const Game: Component<GameProps> = (props) => {
         pieceToDestinations,
         initialPieces,
         makeMove,
+        flipped,
+        setFlipped,
+        undo,
+        canUndo,
       }}
     >
       <div
         class={styles.container}
-        classList={{ [styles.wide]: wide() }}
         data-testid="game"
         data-player={game.player}
         data-turn={game.turn}
         data-phase={game.phase}
         data-winner={game.winner ?? ""}
+        data-flipped={flipped()}
       >
-        <Controls />
-        <Board />
+        <div class={styles.top}>
+          <PlayerCard color={flipped() ? "blue" : "red"} />
+        </div>
+        <div class={styles.boardArea}>
+          <Board />
+        </div>
+        <div class={styles.bottom}>
+          <PlayerCard color={flipped() ? "red" : "blue"} />
+          <Controls />
+        </div>
       </div>
     </GameContext.Provider>
   );

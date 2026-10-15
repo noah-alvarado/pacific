@@ -1,13 +1,13 @@
 import { expect, test } from "@playwright/test";
 
-import { expectTurn, gotoLocal } from "../helpers/game.js";
+import { expectTurn, gotoLocal, resetGame } from "../helpers/game.js";
 
 const SAVE_KEY = "savedGame-local";
 
 test("local game state persists across reload", async ({ page }) => {
   await gotoLocal(page);
   await page.evaluate((key) => localStorage.removeItem(key), SAVE_KEY);
-  await page.getByTestId("reset-game").click();
+  await resetGame(page);
   await expectTurn(page, "blue");
 
   await page

@@ -49,6 +49,22 @@ export async function selectPiece(page: Page, id: PieceIdValue): Promise<void> {
   await page.getByTestId(`piece-${id}`).click();
 }
 
+export async function resetGame(page: Page): Promise<void> {
+  await page.getByTestId("game-menu").click();
+  await page.getByTestId("reset-game").click();
+  await page.getByTestId("confirm-accept").click();
+  await expect(page.getByTestId("confirm-modal")).toBeHidden();
+}
+
+export async function seedGame(
+  page: Page,
+  seed: "one-move-to-win" | "blue-stalemate-or-decisive",
+): Promise<void> {
+  await page.getByTestId("game-menu").click();
+  await page.locator('[data-testid="dev-panel"] summary').click();
+  await page.getByTestId(`seed-${seed}`).click();
+}
+
 export async function moveTo(
   page: Page,
   x: number,

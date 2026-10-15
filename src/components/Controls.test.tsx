@@ -32,6 +32,10 @@ function makeCtx(cfg: GameConfig): {
       pieceToDestinations: destinations,
       initialPieces: INITIAL_PIECES,
       makeMove: vi.fn(),
+      flipped: () => false,
+      setFlipped: vi.fn(),
+      undo: vi.fn(),
+      canUndo: () => true,
     },
   };
 }
@@ -49,60 +53,89 @@ function renderControls(cfg: GameConfig) {
 }
 
 describe("<Controls />", () => {
-  test("local mode shows Player 1 / Player 2 labels", () => {
-    const { getByText } = renderControls({ gameType: "local", turn: "blue" });
-    expect(getByText("Player 1")).toBeInTheDocument();
-    expect(getByText("Player 2")).toBeInTheDocument();
-  });
-
-  test("online mode (player=red) shows me / peer", () => {
-    const cfg: OnlineGameConfig = {
-      gameType: "online",
-      player: "red",
-      turn: "blue",
-      sendGameEvent: vi.fn(),
-    };
-    const { getAllByText } = renderControls(cfg);
-    expect(getAllByText("me")).not.toHaveLength(0);
-    expect(getAllByText("peer")).not.toHaveLength(0);
-  });
-
-  test("online mode (player=blue) labels are inverted", () => {
-    const cfg: OnlineGameConfig = {
-      gameType: "online",
-      player: "blue",
-      turn: "blue",
-      sendGameEvent: vi.fn(),
-    };
-    const { container } = renderControls(cfg);
-    expect(container.textContent).toContain("me");
-    expect(container.textContent).toContain("peer");
-  });
-
-  test("turn indicator (★) appears on the active player", () => {
-    const { getByText } = renderControls({ gameType: "local", turn: "red" });
-    expect(getByText("★")).toBeInTheDocument();
-  });
-
-  test("Reset Game button resets pieces/phase and is only shown in local mode", () => {
+  test("undo button calls undo", () => {
     const { getByTestId, ctx } = renderControls({
       gameType: "local",
       turn: "blue",
     });
+    fireEvent.click(getByTestId("undo-move"));
+    expect(ctx.undo).toHaveBeenCalledTimes(1);
+  });
+  test("rotate button toggles the board orientation", () => {
+    const { getByTestId, ctx } = renderControls({
+      gameType: "local",
+      turn: "blue",
+    });
+    fireEvent.click(getByTestId("rotate-board"));
+    expect(ctx.setFlipped).toHaveBeenCalledTimes(1);
+    const toggle = vi.mocked(ctx.setFlipped).mock.calls[0][0] as (
+      f: boolean,
+    ) => boolean;
+    expect(toggle(false)).toBe(true);
+  });
+
+  test("menu opens and closes on outside click", () => {
+    const { getByTestId, queryByTestId } = renderControls({
+      gameType: "local",
+      turn: "blue",
+    });
+    expect(queryByTestId("reset-game")).toBeNull();
+    fireEvent.click(getByTestId("game-menu"));
+    expect(getByTestId("game-menu")).toHaveAttribute("aria-expanded", "true");
+    expect(getByTestId("reset-game")).toBeInTheDocument();
+    fireEvent.click(document.body);
+    expect(queryByTestId("reset-game")).toBeNull();
+  });
+
+  test("Escape closes the menu", () => {
+    const { getByTestId, getByRole, queryByTestId } = renderControls({
+      gameType: "local",
+      turn: "blue",
+    });
+    fireEvent.click(getByTestId("game-menu"));
+    fireEvent.keyDown(getByRole("menu"), { key: "Escape" });
+    expect(queryByTestId("reset-game")).toBeNull();
+  });
+
+  test("Reset asks for confirmation; cancel keeps the game", () => {
+    const { getByTestId, queryByTestId, ctx } = renderControls({
+      gameType: "local",
+      turn: "blue",
+    });
     ctx.setGame("phase", "finished" as never);
+    fireEvent.click(getByTestId("game-menu"));
     fireEvent.click(getByTestId("reset-game"));
+    expect(getByTestId("confirm-modal")).toBeInTheDocument();
+
+    fireEvent.click(getByTestId("confirm-cancel"));
+    expect(queryByTestId("confirm-modal")).toBeNull();
+    expect(ctx.game.phase).toBe("finished");
+  });
+
+  test("confirming Reset resets pieces/phase", () => {
+    const { getByTestId, queryByTestId, ctx } = renderControls({
+      gameType: "local",
+      turn: "blue",
+    });
+    ctx.setGame("phase", "finished" as never);
+    fireEvent.click(getByTestId("game-menu"));
+    fireEvent.click(getByTestId("reset-game"));
+    fireEvent.click(getByTestId("confirm-accept"));
+    expect(queryByTestId("confirm-modal")).toBeNull();
     expect(ctx.game.phase).toBe("in-progress");
   });
 
-  test("online mode hides Reset Game button", () => {
+  test("online mode hides the menu and undo but keeps rotate", () => {
     const cfg: OnlineGameConfig = {
       gameType: "online",
       player: "red",
       turn: "blue",
       sendGameEvent: vi.fn(),
     };
-    const { queryByTestId } = renderControls(cfg);
-    expect(queryByTestId("reset-game")).toBeNull();
+    const { queryByTestId, getByTestId } = renderControls(cfg);
+    expect(queryByTestId("game-menu")).toBeNull();
+    expect(queryByTestId("undo-move")).toBeNull();
+    expect(getByTestId("rotate-board")).toBeInTheDocument();
   });
 
   test("DEV seed buttons reset to ONE_MOVE_TO_WIN and BLUE_STALEMATE_OR_DECISIVE pieces", async () => {
@@ -110,14 +143,16 @@ describe("<Controls />", () => {
       gameType: "local",
       turn: "blue",
     });
+    fireEvent.click(getByTestId("game-menu"));
     fireEvent.click(getByTestId("seed-one-move-to-win"));
-    // expect store mutated to a different layout — at minimum, pieces ref changed
     const { ONE_MOVE_TO_WIN, BLUE_STALEMATE_OR_DECISIVE } = await import(
       "../constants/game.js"
     );
-    const oneMoveSnapshot = JSON.stringify(ONE_MOVE_TO_WIN);
-    expect(JSON.stringify(ctx.game.pieces)).toBe(oneMoveSnapshot);
+    expect(JSON.stringify(ctx.game.pieces)).toBe(
+      JSON.stringify(ONE_MOVE_TO_WIN),
+    );
 
+    fireEvent.click(getByTestId("game-menu"));
     fireEvent.click(getByTestId("seed-blue-stalemate-or-decisive"));
     expect(JSON.stringify(ctx.game.pieces)).toBe(
       JSON.stringify(BLUE_STALEMATE_OR_DECISIVE),

@@ -4,6 +4,7 @@ import {
   expectWinner,
   gotoLocal,
   PieceId,
+  seedGame,
   selectPiece,
 } from "../helpers/game.js";
 
@@ -18,7 +19,7 @@ test("blue wins in one move from ONE_MOVE_TO_WIN seed", async ({ page }) => {
     }
   });
   await gotoLocal(page);
-  await page.getByTestId("seed-one-move-to-win").click();
+  await seedGame(page, "one-move-to-win");
 
   // Default fresh-state turn is blue, and ONE_MOVE_TO_WIN preserves that.
   await selectPiece(page, PieceId.BluePlane1A);

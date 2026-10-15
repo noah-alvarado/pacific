@@ -28,6 +28,10 @@ function makeCtx(overrides: Partial<GameContextValue> = {}): GameContextValue {
     pieceToDestinations: destinations,
     initialPieces: INITIAL_PIECES,
     makeMove: vi.fn(),
+    flipped: () => false,
+    setFlipped: vi.fn(),
+    undo: vi.fn(),
+    canUndo: () => false,
     ...overrides,
   };
 }

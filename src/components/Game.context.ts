@@ -1,4 +1,4 @@
-import { Accessor, createContext, useContext } from "solid-js";
+import { Accessor, createContext, Setter, useContext } from "solid-js";
 import { SetStoreFunction } from "solid-js/store";
 
 import { GameConfig } from "../types/GameConfig.js";
@@ -14,6 +14,11 @@ export interface GameContextValue {
   pieceToDestinations: Accessor<PieceToDestinationsMap>;
   initialPieces: Record<PieceId, IGamePiece>;
   makeMove: (e: MoveMadeEvent) => void;
+  // board rotated 180deg so red sits at the bottom
+  flipped: Accessor<boolean>;
+  setFlipped: Setter<boolean>;
+  undo: () => void;
+  canUndo: Accessor<boolean>;
 }
 
 export const GameContext = createContext<GameContextValue>();

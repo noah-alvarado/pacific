@@ -16,7 +16,8 @@ export interface IGamePieceProps {
 }
 export const GamePiece: Component<IGamePieceProps> = (props) => {
   const id = untrack(() => props.id);
-  const { gameConfig, game, setGame, pieceToDestinations } = useGameContext();
+  const { gameConfig, game, setGame, pieceToDestinations, flipped } =
+    useGameContext();
 
   const piece = game.pieces[id];
   const owner = untrack(() => piece.owner);
@@ -55,7 +56,7 @@ export const GamePiece: Component<IGamePieceProps> = (props) => {
           .filter(Boolean)
           .join(" ")}
         style={{
-          ...positionStyle(piece.position, { size: 50 }),
+          ...positionStyle(piece.position, flipped()),
           color: playerColorToHex(owner),
           "border-color": playerColorToHex(owner),
         }}
