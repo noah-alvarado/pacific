@@ -7,10 +7,14 @@ import {
   createSignal,
   For,
   JSX,
+  onCleanup,
   Show,
 } from "solid-js";
 
 import { Page } from "../AppRouter.js";
+// this is needed to have the directive available in-scope
+/* eslint-disable-next-line @typescript-eslint/no-unused-vars */
+import clickOutside from "../primitives/clickOutside.js";
 import { useThemeContext } from "../providers/Theme.js";
 
 import styles from "./Header.module.css";
@@ -38,6 +42,18 @@ const Header: Component = () => {
   const location = useLocation();
   const { theme, toggleDarkMode } = useThemeContext();
   const [navOpen, setNavOpen] = createSignal(false);
+  let burgerRef: HTMLButtonElement | undefined;
+
+  const onKeyDown = (e: KeyboardEvent) => {
+    if (e.key === "Escape" && navOpen()) {
+      setNavOpen(false);
+      burgerRef?.focus();
+    }
+  };
+  document.addEventListener("keydown", onKeyDown);
+  onCleanup(() => {
+    document.removeEventListener("keydown", onKeyDown);
+  });
 
   createEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
@@ -90,7 +106,11 @@ const Header: Component = () => {
   ];
 
   return (
-    <header class={styles.header} classList={{ [styles.compact]: compact() }}>
+    <header
+      class={styles.header}
+      classList={{ [styles.compact]: compact() }}
+      use:clickOutside={() => setNavOpen(false)}
+    >
       <button
         type="button"
         aria-label={
@@ -113,6 +133,7 @@ const Header: Component = () => {
 
       <Show when={showBurger()}>
         <button
+          ref={burgerRef}
           type="button"
           class={styles.burger}
           aria-label={
@@ -131,6 +152,7 @@ const Header: Component = () => {
       <nav
         id="main-navigation"
         class={styles.nav}
+        classList={{ [styles.compact]: compact() }}
         style={{ display: showNav() ? "block" : "none" }}
       >
         <ul>

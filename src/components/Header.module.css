@@ -9,6 +9,7 @@
   padding: 20px;
 
   &.compact {
+    position: relative;
     grid-template:
       ". title burger" auto
       "nav nav nav" auto / 1fr auto 1fr;
@@ -57,6 +58,67 @@
   font-weight: 600;
   padding: 0.3rem 0.5rem;
   cursor: pointer;
+}
+
+.nav.compact {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 8px;
+  z-index: 20;
+  width: auto;
+  min-width: 11rem;
+  padding: 0.35rem;
+  border: 1px solid rgb(255 255 255 / 8%);
+  border-radius: 12px;
+  background: var(--header-color);
+  box-shadow: 0 10px 30px rgb(0 0 0 / 35%);
+  transform-origin: top right;
+  animation: menu-in 0.16s ease-out;
+
+  ul {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  a {
+    display: flex;
+    align-items: center;
+    padding: 0.6rem 0.85rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    text-transform: capitalize;
+    transition: background-color 0.12s;
+  }
+
+  a:hover,
+  a:focus-visible {
+    transform: none;
+    background: rgb(255 255 255 / 8%);
+  }
+
+  a:focus-visible {
+    outline: 2px solid #ffd700;
+    outline-offset: -2px;
+  }
+
+  a[aria-current="page"] {
+    font-weight: 600;
+    background: rgb(255 255 255 / 12%);
+  }
+}
+
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.97);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav.compact {
+    animation: none;
+  }
 }
 
 .burger {

@@ -52,6 +52,27 @@
   height: auto;
 }
 
+.figure img:not(.referenceImg) {
+  --feather: 6%;
+
+  mask-image:
+    linear-gradient(
+      to right,
+      transparent,
+      #000 var(--feather),
+      #000 calc(100% - var(--feather)),
+      transparent
+    ),
+    linear-gradient(
+      to bottom,
+      transparent,
+      #000 var(--feather),
+      #000 calc(100% - var(--feather)),
+      transparent
+    );
+  mask-composite: intersect;
+}
+
 .figure figcaption {
   margin-top: 0.4rem;
   font-size: 0.9rem;

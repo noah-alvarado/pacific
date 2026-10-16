@@ -9,6 +9,9 @@
 }
 
 .heroSection {
+  --logo-w: calc((min(960px, 100cqi - 2rem) - 3rem) * 100 / 197);
+
+  container-type: inline-size;
   align-self: stretch;
   display: flex;
   flex-direction: column;
@@ -23,7 +26,6 @@
   align-items: center;
   gap: 1.5rem;
   width: min(960px, 100% - 2rem);
-  margin-bottom: 1rem;
 }
 
 /* The PNGs share a 1024x1024 canvas; --x/--y/--w/--h is each one's content box */
@@ -81,6 +83,10 @@
 }
 
 @media (width < 768px) {
+  .heroSection {
+    --logo-w: min(480px, 100cqi - 2rem);
+  }
+
   .logoRow {
     grid-template-columns: min(480px, 100%);
     justify-content: center;
@@ -92,13 +98,14 @@
   }
 }
 
+/* On the original sheet the subtitle is ~1.3x the logo's width */
 .subtitle {
-  font-size: 1.25rem;
+  font-size: min(var(--logo-w) * 0.061, (100cqi - 2rem) * 0.044);
+  line-height: 1;
   color: var(--text-color);
   margin: 0 1rem 0.5rem;
   text-align: center;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
 .buttonGroup {
@@ -109,28 +116,28 @@
 }
 
 .primaryButton {
-  background: #3b82f6;
-  color: #fff;
+  background: #89cff0;
+  color: #1c1724;
   border-radius: 8px;
   font-size: 1.15rem;
   font-weight: 700;
   padding: 0.9rem 2.5rem;
   text-decoration: none;
-  box-shadow: 0 2px 8px rgb(59 130 246 / 10%);
+  box-shadow: 0 2px 8px rgb(137 207 240 / 25%);
   transition:
     background 0.2s,
     box-shadow 0.2s;
 }
 
 .primaryButton:hover {
-  background: #2563eb;
-  box-shadow: 0 4px 16px rgb(59 130 246 / 18%);
+  background: #5fb8e6;
+  box-shadow: 0 4px 16px rgb(137 207 240 / 40%);
 }
 
 .secondaryButton {
-  background: #fff;
-  color: #3b82f6;
-  border: 2px solid #3b82f6;
+  background: transparent;
+  color: #000;
+  border: 2px solid currentcolor;
   border-radius: 8px;
   font-size: 1.08rem;
   font-weight: 600;
@@ -142,10 +149,12 @@
     border 0.2s;
 }
 
+:global(:root[data-theme="dark"]) .secondaryButton {
+  color: #fff;
+}
+
 .secondaryButton:hover {
-  background: #e0eafc;
-  color: #2563eb;
-  border-color: #2563eb;
+  background: rgb(127 127 127 / 15%);
 }
 
 .container {
