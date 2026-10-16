@@ -1,11 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import {
-  gridPoint,
-  iconForPiece,
-  playerColorToHex,
-  positionStyle,
-} from "./GamePiece.util.js";
+import { gridPoint, playerColorVar, positionStyle } from "./GamePiece.util.js";
 
 describe("gridPoint", () => {
   test("even rows sit on odd grid columns", () => {
@@ -34,31 +29,12 @@ describe("positionStyle", () => {
   });
 });
 
-describe("iconForPiece", () => {
-  test("returns a component for ship", () => {
-    expect(iconForPiece("ship")).toBeTypeOf("function");
+describe("playerColorVar", () => {
+  test("returns red var for red", () => {
+    expect(playerColorVar("red")).toBe("var(--player-red)");
   });
 
-  test("returns a component for plane", () => {
-    expect(iconForPiece("plane")).toBeTypeOf("function");
-  });
-
-  test("returns a component for kamikaze", () => {
-    expect(iconForPiece("kamikaze")).toBeTypeOf("function");
-  });
-
-  test("returns undefined for an unknown type", () => {
-    expect(iconForPiece("dragon")).toBeUndefined();
-    expect(iconForPiece(undefined)).toBeUndefined();
-  });
-});
-
-describe("playerColorToHex", () => {
-  test("returns red hex for red", () => {
-    expect(playerColorToHex("red")).toBe("#FF0000");
-  });
-
-  test("returns blue hex for blue", () => {
-    expect(playerColorToHex("blue")).toBe("#0000FF");
+  test("returns blue var for blue", () => {
+    expect(playerColorVar("blue")).toBe("var(--player-blue)");
   });
 });

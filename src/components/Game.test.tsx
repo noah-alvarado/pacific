@@ -259,6 +259,42 @@ describe("<Game /> undo", () => {
 
     await waitFor(() => expect(undoButton(container).disabled).toBe(true));
   });
+
+  const redoButton = (container: HTMLElement) =>
+    container.querySelector<HTMLButtonElement>('[data-testid="redo-move"]')!;
+
+  test("redo reapplies an undone move", async () => {
+    const { emitter, result } = setupGame({ gameType: "local", turn: "blue" });
+    const { container } = result;
+    expect(redoButton(container).disabled).toBe(true);
+
+    moveBlue1B(emitter);
+    await waitFor(() =>
+      expect(gameEl(container).getAttribute("data-turn")).toBe("red"),
+    );
+    undoButton(container).click();
+    await waitFor(() => expect(redoButton(container).disabled).toBe(false));
+
+    redoButton(container).click();
+    await waitFor(() =>
+      expect(blue1b(container)?.getAttribute("data-position")).toBe("0,4"),
+    );
+    for (let i = 0; i < 8; i++) await Promise.resolve();
+    expect(gameEl(container).getAttribute("data-turn")).toBe("red");
+    expect(redoButton(container).disabled).toBe(true);
+    expect(undoButton(container).disabled).toBe(false);
+  });
+
+  test("a new move clears the redo history", async () => {
+    const { emitter, result } = setupGame({ gameType: "local", turn: "blue" });
+    const { container } = result;
+    moveBlue1B(emitter);
+    undoButton(container).click();
+    await waitFor(() => expect(redoButton(container).disabled).toBe(false));
+
+    moveBlue1B(emitter);
+    await waitFor(() => expect(redoButton(container).disabled).toBe(true));
+  });
 });
 
 describe("<Game /> save effect", () => {

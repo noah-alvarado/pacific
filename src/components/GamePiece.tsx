@@ -1,15 +1,11 @@
 import { type Component, createMemo, type JSX, Show, untrack } from "solid-js";
-import { Dynamic } from "solid-js/web";
 
 import { PieceId } from "../types/GameState.js";
 
 import { useGameContext } from "./Game.context.js";
 import styles from "./GamePiece.module.css";
-import {
-  iconForPiece,
-  playerColorToHex,
-  positionStyle,
-} from "./GamePiece.util.js";
+import { playerColorVar, positionStyle } from "./GamePiece.util.js";
+import { PieceIcon } from "./PieceIcon.js";
 
 export interface IGamePieceProps {
   id: PieceId;
@@ -57,14 +53,14 @@ export const GamePiece: Component<IGamePieceProps> = (props) => {
           .join(" ")}
         style={{
           ...positionStyle(piece.position, flipped()),
-          color: playerColorToHex(owner),
-          "border-color": playerColorToHex(owner),
+          color: playerColorVar(owner),
+          "border-color": playerColorVar(owner),
         }}
       >
         <Show when={piece.type !== "kamikaze"}>
           <div class={styles.number}>{untrack(() => piece.number)}</div>
         </Show>
-        <Dynamic component={iconForPiece(piece.type)} class={styles.icon} />
+        <PieceIcon type={piece.type} class={styles.icon} />
       </button>
     </Show>
   );

@@ -62,7 +62,10 @@ test("undo reverts the last move and its turn change", async ({ page }) => {
 
   const plane = page.getByTestId(`piece-${PieceId.BluePlane1B}`);
   await plane.click();
-  await page.locator('[data-testid$="-move"]').first().click();
+  await page
+    .locator('[data-testid^="dest-"][data-testid$="-move"]')
+    .first()
+    .click();
   await expect(page.getByTestId("game")).toHaveAttribute("data-turn", "red");
   await expect(plane).not.toHaveAttribute("data-position", "0,5");
 
@@ -80,7 +83,10 @@ test("reset asks for confirmation and cancel keeps the game", async ({
     .locator('[data-testid^="piece-blue-plane-"]:not([disabled])')
     .first()
     .click();
-  await page.locator('[data-testid$="-move"]').first().click();
+  await page
+    .locator('[data-testid^="dest-"][data-testid$="-move"]')
+    .first()
+    .click();
   await expect(page.getByTestId("game")).toHaveAttribute("data-turn", "red");
 
   await page.getByTestId("game-menu").click();

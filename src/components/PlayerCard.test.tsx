@@ -31,6 +31,8 @@ function renderCard(color: PlayerColor, cfg: GameConfig) {
     setFlipped: vi.fn(),
     undo: vi.fn(),
     canUndo: () => false,
+    redo: vi.fn(),
+    canRedo: () => false,
   };
   const result = render(() => (
     <GameContext.Provider value={ctx}>
@@ -44,8 +46,8 @@ const local: GameConfig = { gameType: "local", turn: "blue" };
 
 describe("<PlayerCard />", () => {
   test("local mode names players 1 and 2", () => {
-    expect(renderCard("red", local).getByText("Player 1")).toBeInTheDocument();
-    expect(renderCard("blue", local).getByText("Player 2")).toBeInTheDocument();
+    expect(renderCard("red", local).getByText("Red")).toBeInTheDocument();
+    expect(renderCard("blue", local).getByText("Blue")).toBeInTheDocument();
   });
 
   test("online mode labels me / peer", () => {

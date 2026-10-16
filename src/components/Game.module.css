@@ -1,82 +1,137 @@
 .container {
   --board-min: 320px;
 
+  /* cq units here resolve against <main>; 11rem fits the controls, both cards, gaps and padding */
+  --board-size: max(var(--board-min), min(100cqw - 1rem, 100cqh - 11rem));
+
   box-sizing: border-box;
-  height: 100%;
+  min-height: 100%;
   display: grid;
+
+  /* the upper row grows until the board is centered in the viewport, then the bottom takes the rest;
+     min-content (not auto) so the fixed max can't clamp it below its content */
   grid-template:
-    "top" auto
-    "board" minmax(0, 1fr)
-    "bottom" auto / minmax(0, 1fr);
+    "upper" minmax(
+      min-content,
+      calc(100cqh - (100dvh + var(--board-size)) / 2 - 1rem)
+    )
+    "board" max-content
+    "bottom" minmax(auto, 1fr) / minmax(0, 1fr);
   gap: 0.5rem;
+  padding: 0.5rem 0;
   background-color: var(--board-color);
 
-  @media (orientation: landscape) {
+  /* side layout needs 2 * --side-min + --board-min + gaps (~624px); near-square screens fit a bigger board stacked */
+  @media (width >= 640px) and (aspect-ratio >= 7/5) {
+    --side-min: 9rem;
+
+    /* the board gives up width until the cards get this much, but never below --board-min */
+    --side-pref: 16rem;
+
+    /* 3.5rem is the controls row; 2 side columns + 2 gaps */
+    --board-size: max(
+      var(--board-min),
+      min(100cqh - 3.5rem, 100cqw - 2 * var(--side-pref) - 1rem)
+    );
+
     grid-template:
-      "top board bottom" minmax(0, 1fr)
-      / minmax(7rem, 1fr) minmax(0, 3fr) minmax(7rem, 1fr);
+      "top controls bottom" auto
+      "top board bottom" minmax(max-content, 1fr)
+      / minmax(var(--side-min), 1fr) var(--board-size) minmax(
+        var(--side-min),
+        1fr
+      );
+    padding: 0;
   }
 }
 
 /* margin: auto (not place-items) keeps an oversized board scrollable from its top-left */
 .boardArea {
   grid-area: board;
-  container-type: size;
   display: flex;
   overflow: auto;
 
   > * {
-    --board-size: max(var(--board-min), min(100cqw, 100cqh));
-
     margin: auto;
     flex-shrink: 0;
   }
 }
 
-.top,
-.bottom {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-width: 0;
-
-  > :first-child {
-    flex: 1;
-    min-width: 0;
-  }
-}
-
 .top {
   grid-area: top;
-  padding: 0.5rem 0.5rem 0;
 }
 
 .bottom {
   grid-area: bottom;
-  padding: 0 0.5rem 0.5rem;
 }
 
-@media (orientation: landscape) {
-  .top,
-  .bottom {
-    flex-direction: column;
-    align-items: stretch;
-    padding: 0.5rem;
+.controls {
+  grid-area: controls;
+  display: flex;
+  justify-content: flex-end;
+}
 
-    > :first-child {
-      flex: none;
-    }
+@media (width < 640px), (aspect-ratio < 7/5) {
+  .upper,
+  .bottom {
+    justify-self: center;
+
+    /* the board can exceed the screen at --board-min; the cards shouldn't */
+    width: min(var(--board-size), 100cqw - 1rem);
   }
 
-  .top {
+  .upper {
+    grid-area: upper;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .bottom {
     align-self: start;
   }
+}
 
+@media (width >= 640px) and (aspect-ratio >= 7/5) {
+  .upper {
+    display: contents;
+  }
+
+  .top,
   .bottom {
-    align-self: end;
+    align-self: start;
+    padding: 0.5rem;
+  }
 
-    > :last-child {
-      align-self: flex-end;
-    }
+  .controls {
+    align-self: start;
+    justify-content: center;
+    padding-top: 0.5rem;
+  }
+}
+
+/* landscape phones can't spare a row above the board, so tuck the controls under the right card */
+@media (width >= 640px) and (aspect-ratio >= 7/5) and (height <= 500px) {
+  .container {
+    --board-size: max(
+      var(--board-min),
+      min(100cqh, 100cqw - 2 * var(--side-pref) - 1rem)
+    );
+
+    grid-template:
+      "top board bottom" auto
+      "top board controls" minmax(0, 1fr)
+      / minmax(var(--side-min), 1fr) var(--board-size) minmax(
+        var(--side-min),
+        1fr
+      );
+  }
+
+  /* two buttons per row */
+  .controls {
+    justify-self: center;
+    width: 5.5rem;
+    padding-top: 0;
   }
 }

@@ -1,0 +1,7 @@
+.icon {
+  display: block;
+  background-color: currentcolor;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+}

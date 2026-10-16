@@ -19,6 +19,8 @@ export interface GameContextValue {
   setFlipped: Setter<boolean>;
   undo: () => void;
   canUndo: Accessor<boolean>;
+  redo: () => void;
+  canRedo: Accessor<boolean>;
 }
 
 export const GameContext = createContext<GameContextValue>();

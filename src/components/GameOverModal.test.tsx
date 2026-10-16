@@ -56,7 +56,7 @@ describe("<GameOverModal />", () => {
     expect(getByText("The game has ended in a draw.")).toBeInTheDocument();
   });
 
-  test("light theme applies player color hex", () => {
+  test("light theme applies player color", () => {
     stubMatchMedia(false);
     localStorage.setItem("theme", "light");
     const { getByText } = renderWithProviders(
@@ -64,10 +64,7 @@ describe("<GameOverModal />", () => {
       { withRouter: false },
     );
     const span = getByText("RED");
-    // Browsers normalize hex to rgb; accept either form.
-    expect(span.getAttribute("style") ?? "").toMatch(
-      /#FF0000|rgb\(255,\s*0,\s*0\)/i,
-    );
+    expect(span.getAttribute("style") ?? "").toContain("var(--player-red)");
   });
 
   test("dark theme omits explicit color style", () => {
@@ -78,8 +75,6 @@ describe("<GameOverModal />", () => {
       { withRouter: false },
     );
     const span = getByText("BLUE");
-    expect(span.getAttribute("style") ?? "").not.toMatch(
-      /#0000FF|rgb\(0,\s*0,\s*255\)/i,
-    );
+    expect(span.getAttribute("style") ?? "").not.toContain("--player-blue");
   });
 });

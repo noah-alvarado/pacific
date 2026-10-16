@@ -32,6 +32,8 @@ function makeCtx(overrides: Partial<GameContextValue> = {}): GameContextValue {
     setFlipped: vi.fn(),
     undo: vi.fn(),
     canUndo: () => false,
+    redo: vi.fn(),
+    canRedo: () => false,
     ...overrides,
   };
 }

@@ -1,8 +1,5 @@
-import type { Component, JSX } from "solid-js";
+import type { JSX } from "solid-js";
 
-import CherryBlossomIcon from "../assets/cherry-blossom.svg";
-import PlaneIcon from "../assets/plane.svg";
-import ShipIcon from "../assets/ship.svg";
 import { BOARD_HEIGHT } from "../constants/game.js";
 import { PlayerColor } from "../types/GameState.js";
 
@@ -26,26 +23,12 @@ export function positionStyle(
   return { "--gx": gx, "--gy": gy };
 }
 
-// Returns the correct SVG icon component for a piece type
-export const iconForPiece = (
-  type: string | undefined,
-): Component<JSX.SvgSVGAttributes<SVGSVGElement>> | undefined => {
-  switch (type) {
-    case "ship":
-      return ShipIcon;
-    case "plane":
-      return PlaneIcon;
-    case "kamikaze":
-      return CherryBlossomIcon;
-  }
-};
-
-// Returns the color for a piece owner
-export const playerColorToHex = (player: PlayerColor): string => {
+// Returns the theme-aware CSS color for a piece owner
+export const playerColorVar = (player: PlayerColor): string => {
   switch (player) {
     case "red":
-      return "#FF0000";
+      return "var(--player-red)";
     case "blue":
-      return "#0000FF";
+      return "var(--player-blue)";
   }
 };

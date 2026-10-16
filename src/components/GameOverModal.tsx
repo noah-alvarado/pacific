@@ -3,7 +3,7 @@ import { Component } from "solid-js";
 import { useThemeContext } from "../providers/Theme.js";
 import { PlayerColor } from "../types/GameState.js";
 
-import { playerColorToHex } from "./GamePiece.util.js";
+import { playerColorVar } from "./GamePiece.util.js";
 
 interface GameOverModalProps {
   winner: PlayerColor | undefined;
@@ -15,7 +15,7 @@ const GameOverModal: Component<GameOverModalProps> = (props) => {
   const styledWinner = props.winner && (
     <span
       style={{
-        ...(theme() === "light" && { color: playerColorToHex(props.winner) }),
+        ...(theme() === "light" && { color: playerColorVar(props.winner) }),
         "font-weight": 600,
       }}
     >

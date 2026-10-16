@@ -110,13 +110,20 @@ export const Game: Component<GameProps> = (props) => {
   // snapshots taken before each local move; not persisted across reloads
   const [history, setHistory] = createSignal<IGameState[]>([]);
   const canUndo = () => history().length > 0;
+  // snapshots taken before each undo; cleared by any new move
+  const [future, setFuture] = createSignal<IGameState[]>([]);
+  const canRedo = () => future().length > 0;
 
   // a reset clears lastMove, which invalidates earlier snapshots
   createEffect(
     on(
       () => game.lastMove === undefined,
       (cleared) => {
-        if (cleared) setHistory([]);
+        // undoing back to the start also clears lastMove, but empties history first
+        if (cleared && history().length > 0) {
+          setHistory([]);
+          setFuture([]);
+        }
       },
       { defer: true },
     ),
@@ -126,10 +133,24 @@ export const Game: Component<GameProps> = (props) => {
     const snapshots = history();
     if (snapshots.length === 0) return;
     const previous = snapshots[snapshots.length - 1];
+    const current = structuredClone(unwrap(game));
     batch(() => {
       setHistory((h) => h.slice(0, -1));
+      setFuture((f) => [...f, current]);
       closeModal();
       setGame(reconcile(previous));
+    });
+  }
+
+  function redo() {
+    const snapshots = future();
+    if (snapshots.length === 0) return;
+    const next = snapshots[snapshots.length - 1];
+    const current = structuredClone(unwrap(game));
+    batch(() => {
+      setFuture((f) => f.slice(0, -1));
+      setHistory((h) => [...h, current]);
+      setGame(reconcile(next));
     });
   }
 
@@ -205,6 +226,7 @@ export const Game: Component<GameProps> = (props) => {
     if (props.gameConfig.gameType === "local") {
       const snapshot = structuredClone(unwrap(game));
       setHistory((h) => [...h, snapshot]);
+      setFuture([]);
     }
 
     batch(() => {
@@ -297,6 +319,8 @@ export const Game: Component<GameProps> = (props) => {
         setFlipped,
         undo,
         canUndo,
+        redo,
+        canRedo,
       }}
     >
       <div
@@ -308,15 +332,19 @@ export const Game: Component<GameProps> = (props) => {
         data-winner={game.winner ?? ""}
         data-flipped={flipped()}
       >
-        <div class={styles.top}>
-          <PlayerCard color={flipped() ? "blue" : "red"} />
+        <div class={styles.upper}>
+          <div class={styles.controls}>
+            <Controls />
+          </div>
+          <div class={styles.top}>
+            <PlayerCard color={flipped() ? "blue" : "red"} />
+          </div>
         </div>
         <div class={styles.boardArea}>
           <Board />
         </div>
         <div class={styles.bottom}>
           <PlayerCard color={flipped() ? "red" : "blue"} />
-          <Controls />
         </div>
       </div>
     </GameContext.Provider>

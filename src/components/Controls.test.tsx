@@ -36,6 +36,8 @@ function makeCtx(cfg: GameConfig): {
       setFlipped: vi.fn(),
       undo: vi.fn(),
       canUndo: () => true,
+      redo: vi.fn(),
+      canRedo: () => true,
     },
   };
 }
@@ -61,6 +63,16 @@ describe("<Controls />", () => {
     fireEvent.click(getByTestId("undo-move"));
     expect(ctx.undo).toHaveBeenCalledTimes(1);
   });
+
+  test("redo button calls redo", () => {
+    const { getByTestId, ctx } = renderControls({
+      gameType: "local",
+      turn: "blue",
+    });
+    fireEvent.click(getByTestId("redo-move"));
+    expect(ctx.redo).toHaveBeenCalledTimes(1);
+  });
+
   test("rotate button toggles the board orientation", () => {
     const { getByTestId, ctx } = renderControls({
       gameType: "local",
@@ -125,7 +137,7 @@ describe("<Controls />", () => {
     expect(ctx.game.phase).toBe("in-progress");
   });
 
-  test("online mode hides the menu and undo but keeps rotate", () => {
+  test("online mode hides the menu, undo and redo but keeps rotate", () => {
     const cfg: OnlineGameConfig = {
       gameType: "online",
       player: "red",
@@ -135,6 +147,7 @@ describe("<Controls />", () => {
     const { queryByTestId, getByTestId } = renderControls(cfg);
     expect(queryByTestId("game-menu")).toBeNull();
     expect(queryByTestId("undo-move")).toBeNull();
+    expect(queryByTestId("redo-move")).toBeNull();
     expect(getByTestId("rotate-board")).toBeInTheDocument();
   });
 
