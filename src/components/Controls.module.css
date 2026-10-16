@@ -13,7 +13,7 @@
   padding: 0;
   border: none;
   border-radius: 10px;
-  background: #235390;
+  background: var(--header-color);
   color: #fff;
   font-size: 1.4rem;
   line-height: 1;
