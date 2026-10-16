@@ -17,7 +17,9 @@ describe("<Landing />", () => {
 
   test("renders the title and subtitle", () => {
     const result = renderLanding();
-    expect(result.getByText("PACIFIC")).toBeInTheDocument();
+    expect(
+      result.getByRole("heading", { name: "PACIFIC" }),
+    ).toBeInTheDocument();
     expect(
       result.getByText("Type A & B - Board Wargame for 2 Players"),
     ).toBeInTheDocument();
