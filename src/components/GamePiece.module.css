@@ -4,7 +4,7 @@
     calc(var(--cell) * 0.63),
     min(40px, calc(var(--cell) * 0.9))
   );
-  --icon-size: 76%;
+  --icon-size: 98%;
 
   /* Pieces keep bold colors in every theme */
   --player-red: #f00;
@@ -22,6 +22,10 @@
   box-shadow:
     inset 0 0 0 1px rgb(0 0 0 / 15%),
     0 2px 4px rgb(0 0 0 / 20%);
+
+  &.ship {
+    border-radius: 8%;
+  }
 }
 
 .piece.selected {
@@ -46,18 +50,25 @@
 .icon {
   width: var(--icon-size);
   height: var(--icon-size);
-  translate: -10% 6%;
 }
 
 /* tucked into the upper-right rim beside the icon, like the printed counters */
 .number {
   position: absolute;
-  top: 11%;
-  right: 13%;
-  font-size: max(11px, calc(var(--cell) * 0.21));
-  font-weight: 800;
-  line-height: 1;
+  font-size: max(10px, calc(var(--cell) * 0.175));
+  font-weight: 700;
+  line-height: 0.75;
   text-shadow:
     0 0 2px var(--piece-color),
     0 0 2px var(--piece-color);
+
+  &.plane {
+    top: 12%;
+    right: 22%;
+  }
+
+  &.ship {
+    top: 10%;
+    right: 10%;
+  }
 }

@@ -46,6 +46,7 @@ export const GamePiece: Component<IGamePieceProps> = (props) => {
         onClick={onClick}
         class={[
           styles.piece,
+          styles[piece.type],
           isSelected() && isUsersPiece() && styles.selected,
           !isSelectable() && isUsersPiece() && styles.disabled,
         ]
@@ -57,10 +58,15 @@ export const GamePiece: Component<IGamePieceProps> = (props) => {
           "border-color": playerColorVar(owner),
         }}
       >
+        <PieceIcon
+          type={piece.type}
+          class={`${styles.icon} ${styles[piece.type]}`}
+        />
         <Show when={piece.type !== "kamikaze"}>
-          <div class={styles.number}>{untrack(() => piece.number)}</div>
+          <div class={`${styles.number} ${styles[piece.type]}`}>
+            {untrack(() => piece.number)}
+          </div>
         </Show>
-        <PieceIcon type={piece.type} class={styles.icon} />
       </button>
     </Show>
   );

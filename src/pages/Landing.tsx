@@ -10,9 +10,7 @@ const Landing: Component = () => {
     <div class={styles.landingRoot}>
       <div class={styles.heroSection}>
         <h1 class={styles.title}>PACIFIC</h1>
-        <p class={styles.subtitle}>
-          A strategic game about WW2 in the Pacific.
-        </p>
+        <p class={styles.subtitle}>Type A & B - Board Wargame for 2 Players</p>
       </div>
       <div class={styles.buttonGroup}>
         <A href={Page.Local} class={styles.primaryButton}>
