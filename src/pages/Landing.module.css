@@ -48,6 +48,19 @@
   --h: 208;
 }
 
+/* The black © is the only content at x >= 993 of logo.PNG */
+.logoArt {
+  clip-path: inset(0 calc(31 / 1024 * 100%) 0 0);
+}
+
+.copyright {
+  clip-path: inset(0 0 0 calc(993 / 1024 * 100%));
+}
+
+:global(:root[data-theme="dark"]) .copyright {
+  filter: invert(1);
+}
+
 .ship {
   --x: 234;
   --y: 526;

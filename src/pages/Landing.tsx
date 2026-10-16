@@ -17,7 +17,8 @@ const Landing: Component = () => {
             <img src={ship} alt="" />
           </div>
           <h1 class={`${styles.crop} ${styles.logo}`}>
-            <img src={logo} alt="PACIFIC" />
+            <img src={logo} alt="PACIFIC" class={styles.logoArt} />
+            <img src={logo} alt="" class={styles.copyright} />
           </h1>
           <div class={`${styles.crop} ${styles.plane}`}>
             <img src={plane} alt="" />
