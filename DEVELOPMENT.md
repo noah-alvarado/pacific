@@ -79,11 +79,75 @@ Checks if all files are formatted correctly with Prettier (used in CI/CD).
 
 ## Pull Requests & Releases
 
-`main` is protected: changes land through a squash-merged pull request once CI (lint, unit, e2e, infra synth) passes.
+`main` is protected: changes land through a squash-merged pull request once CI passes. Every merge to `main` is a release.
 
-- **PR titles** must follow [Conventional Commits](https://www.conventionalcommits.org/) (`feat: …`, `fix: …`, `feat!: …`). The title decides the release: `!` → major, `feat` → minor, anything else → patch. A PR comment shows the version it will release.
-- **Previews**: every push to a PR deploys to `https://<sha7>.pacific.alvarado.dev` (linked in a PR comment). The previous preview is removed, and the last one is deleted when the PR closes.
-- **Releases**: every merge to `main` tags `vX.Y.Z`, publishes a GitHub release with Copilot-written notes (falls back to GitHub's generated notes without the `COPILOT_PAT` secret), and deploys to https://pacific.alvarado.dev. To redeploy an older release, run the **Release** workflow manually with its tag.
+### How it works
+
+| When                     | What happens                                                                                                                                                                | Workflow         |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
+| PR opened / title edited | Title is checked against [Conventional Commits](https://www.conventionalcommits.org/); a comment shows the version merging will release.                                    | `pr-title.yml`   |
+| Push to a PR             | CI runs (lint, Prettier, unit, e2e, infra synth). The build is deployed to `https://<sha7>.pacific.alvarado.dev` (linked in a comment) and the previous preview is removed. | `pr.yml`         |
+| PR closed                | The preview is deleted.                                                                                                                                                     | `pr-cleanup.yml` |
+| Merge to `main`          | CI runs again, then: next version from the PR title → tag + GitHub release with Copilot-written notes → deploy to https://pacific.alvarado.dev.                             | `release.yml`    |
+
+The PR title decides the version bump (the squash commit takes the title):
+
+| Title                                  | Bump  | Example       |
+| -------------------------------------- | ----- | ------------- |
+| `feat!: …`, `fix!: …` (any type + `!`) | major | 1.4.1 → 2.0.0 |
+| `feat: …`, `feat(ui): …`               | minor | 1.4.1 → 1.5.0 |
+| anything else (`fix:`, `chore:`, …)    | patch | 1.4.1 → 1.4.2 |
+
+Release notes are written by GitHub Copilot (`actions/ai-inference`, authenticated with the `COPILOT_PAT` secret, a fine-grained token with the **Copilot Requests** account permission). If Copilot fails, the release still goes out with GitHub's generated notes.
+
+### Shipping a change
+
+1. Branch from `main` and push your work.
+2. Open a PR with a conventional title, e.g. `feat: add spectate mode`. Check the release comment shows the version you expect; edit the title if not.
+3. Try the preview link from the PR comment.
+4. When all checks pass, **Squash and merge**. Don't edit the commit title in the merge dialog; it's what the release reads.
+5. Watch the **Release** run in the Actions tab. When it's green, the new version is live and listed under Releases.
+
+`package.json`'s `version` is not used; tags are the source of truth.
+
+### Doing it by hand
+
+**Fix release notes**: `gh release edit vX.Y.Z --notes-file notes.md` (or edit on GitHub).
+
+**Roll back / redeploy a release**: run **Release** manually with the tag. This only deploys; no new tag or release.
+
+```bash
+gh workflow run release.yml -f tag=v1.4.0
+```
+
+**A release run failed**: open it and use **Re-run failed jobs**, not "Re-run all jobs". If the tag was already created, a full re-run fails because the tag exists.
+
+- `release` failed before creating the tag: re-running it is safe.
+- `deploy` failed: re-running it deploys the existing tag.
+
+**Urgent fix without a PR** (admins only, bypasses the branch rules): commit with a conventional subject, since it stands in for the PR title, and push to `main`. The Release workflow still runs.
+
+**Cut a release with Actions unavailable** (needs AWS credentials for the account, e.g. `aws login`):
+
+```bash
+git switch main && git pull --tags
+TITLE="fix: describe the change" node scripts/next-version.mjs   # prints e.g. v1.4.1 -> v1.4.2
+gh release create v1.4.2 --target main --generate-notes
+
+git fetch --tags && git switch --detach v1.4.2
+yarn install --frozen-lockfile && yarn build
+
+# Same steps as the deploy job in .github/workflows/release.yml
+aws cloudformation describe-stacks --stack-name PacificStack \
+  --query "Stacks[0].Outputs[?OutputKey=='ProdBucketName' || OutputKey=='ProdDistributionId']" --output table
+PROD_BUCKET=<ProdBucketName> PROD_DISTRIBUTION_ID=<ProdDistributionId>
+aws s3 sync dist "s3://$PROD_BUCKET" --exclude index.html \
+  --cache-control "public,max-age=31536000,immutable"
+aws s3 cp dist/index.html "s3://$PROD_BUCKET/index.html" \
+  --cache-control "no-cache,no-store,must-revalidate" --content-type text/html
+aws cloudfront create-invalidation --distribution-id "$PROD_DISTRIBUTION_ID" --paths "/*"
+git switch main
+```
 
 ## Deployment & Infrastructure
 
