@@ -73,6 +73,8 @@ jobs:
         continue-on-error: true
         uses: actions/ai-inference@v3
         with:
+          # The action's default (gpt-4.1) is no longer offered; empty lets the CLI choose.
+          model: ""
           prompt-file: .github/prompts/release-notes.prompt.yml
           input: |
             tag: ${{ steps.next.outputs.tag }}
