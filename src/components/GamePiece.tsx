@@ -12,8 +12,7 @@ export interface IGamePieceProps {
 }
 export const GamePiece: Component<IGamePieceProps> = (props) => {
   const id = untrack(() => props.id);
-  const { gameConfig, game, setGame, pieceToDestinations, flipped } =
-    useGameContext();
+  const { gameConfig, game, setGame, pieceToDestinations } = useGameContext();
 
   const piece = game.pieces[id];
   const owner = untrack(() => piece.owner);
@@ -53,7 +52,9 @@ export const GamePiece: Component<IGamePieceProps> = (props) => {
           .filter(Boolean)
           .join(" ")}
         style={{
-          ...positionStyle(piece.position, flipped()),
+          ...positionStyle(piece.position),
+          // red starts on top, so its pieces face down the board toward blue
+          "--piece-turns": owner === "red" ? 2 : 0,
           color: playerColorVar(owner),
           "border-color": playerColorVar(owner),
         }}

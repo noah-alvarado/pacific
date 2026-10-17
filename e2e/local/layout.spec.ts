@@ -34,24 +34,49 @@ test("board fits a phone viewport and every piece is clickable", async ({
   await expect(page.locator('[data-testid^="dest-"]').first()).toBeVisible();
 });
 
-test("rotate mirrors piece positions without changing game coordinates", async ({
+test("rotate turns the board in quarter turns without changing game coordinates", async ({
   page,
 }) => {
   await gotoLocal(page);
+  const game = page.getByTestId("game");
+  const board = page.locator("#gameBoard");
   const ship = page.getByTestId(`piece-${PieceId.RedShip1}`);
-  const before = await ship.boundingBox();
   const position = await ship.getAttribute("data-position");
+  const center = async () => {
+    const b = (await board.boundingBox())!;
+    const s = (await ship.boundingBox())!;
+    return {
+      dx: s.x + s.width / 2 - (b.x + b.width / 2),
+      dy: s.y + s.height / 2 - (b.y + b.height / 2),
+    };
+  };
 
-  await page.getByTestId("rotate-board").click();
-  await expect(page.getByTestId("game")).toHaveAttribute(
-    "data-flipped",
-    "true",
-  );
+  // red starts top-left and faces down the board
+  const start = await center();
+  expect(start.dx).toBeLessThan(0);
+  expect(start.dy).toBeLessThan(0);
+  await expect(ship).toHaveCSS("rotate", "180deg");
 
-  const after = await ship.boundingBox();
+  await page.getByTestId("rotate-board-right").click();
+  await expect(game).toHaveAttribute("data-rotation", "90");
+  const right = await center();
+  expect(right.dx).toBeGreaterThan(0);
+  expect(right.dy).toBeLessThan(0);
   expect(await ship.getAttribute("data-position")).toBe(position);
-  expect(after!.y).toBeGreaterThan(before!.y);
-  expect(after!.x).toBeGreaterThan(before!.x);
+
+  // the board's dots rotate with it, so a piece still selects and moves
+  await page
+    .locator('[data-testid^="piece-blue-"]:not([disabled])')
+    .first()
+    .click();
+  await expect(page.locator('[data-testid^="dest-"]').first()).toBeVisible();
+
+  await page.getByTestId("rotate-board-left").click();
+  await page.getByTestId("rotate-board-left").click();
+  await expect(game).toHaveAttribute("data-rotation", "270");
+  const left = await center();
+  expect(left.dx).toBeLessThan(0);
+  expect(left.dy).toBeGreaterThan(0);
   await expect(page.getByTestId("player-card-red")).toBeInViewport();
 });
 
@@ -89,7 +114,6 @@ test("reset asks for confirmation and cancel keeps the game", async ({
     .click();
   await expect(page.getByTestId("game")).toHaveAttribute("data-turn", "red");
 
-  await page.getByTestId("game-menu").click();
   await page.getByTestId("reset-game").click();
   await page.getByTestId("confirm-cancel").click();
   await expect(page.getByTestId("game")).toHaveAttribute("data-turn", "red");

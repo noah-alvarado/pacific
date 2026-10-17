@@ -1,6 +1,7 @@
 .toolbar {
   display: flex;
   flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 0.5rem;
   align-items: center;
 }
@@ -32,6 +33,13 @@
   }
 }
 
+.textButton {
+  width: auto;
+  padding: 0 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
 .menu {
   position: relative;
 }
@@ -43,7 +51,12 @@
   z-index: 10;
   display: flex;
   flex-direction: column;
+  width: max-content;
   min-width: 12rem;
+
+  /* cqw resolves against <main>; items only wrap once the screen is narrower than the menu */
+  max-width: calc(100cqw - 1rem);
+  box-sizing: border-box;
   padding: 0.35rem;
   border-radius: 10px;
   background: var(--background-color);
@@ -52,7 +65,7 @@
 }
 
 .menuItem {
-  padding: 0.55rem 0.75rem;
+  padding: 0.55rem 0.6rem;
   border: none;
   border-radius: 6px;
   background: none;
@@ -62,11 +75,21 @@
   text-align: left;
   cursor: pointer;
 
-  &:hover,
+  &:hover:not(:disabled),
   &:focus-visible {
     background: rgb(127 127 127 / 18%);
     outline: none;
   }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+}
+
+.check {
+  display: inline-block;
+  width: 1.1em;
 }
 
 .devPanel {

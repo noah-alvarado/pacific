@@ -1,17 +1,12 @@
-import { render } from "@solidjs/testing-library";
 import { describe, expect, test } from "vitest";
 
-import ModalProvider from "../providers/Modal.jsx";
+import { renderWithProviders } from "../test/render.jsx";
 
 import Local from "./Local.jsx";
 
 describe("<Local />", () => {
   test("renders a local game board", () => {
-    const { container } = render(() => (
-      <ModalProvider>
-        <Local />
-      </ModalProvider>
-    ));
+    const { container } = renderWithProviders(Local, { withRouter: false });
 
     const gameBoard = container.querySelector("#gameBoard");
     expect(gameBoard).not.toBeNull();

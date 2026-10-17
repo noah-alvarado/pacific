@@ -1,6 +1,7 @@
 import { type Component, For, Index } from "solid-js";
 
 import { BOARD_HEIGHT } from "../constants/game.js";
+import { usePreferences } from "../providers/Preferences.js";
 import { PieceId } from "../types/GameState.js";
 
 import styles from "./Board.module.css";
@@ -26,10 +27,17 @@ const dots = Array.from({ length: (CELLS + 1) ** 2 }, (_, i) => ({
 })).filter(({ x, y }) => (x + y) % 2 === 1);
 
 export const Board: Component = () => {
-  const { game, pieceToDestinations } = useGameContext();
+  const { game, pieceToDestinations, rotation } = useGameContext();
+  const { preferences, uprightNumbers } = usePreferences();
 
   return (
-    <div id="gameBoard" class={styles.board}>
+    <div
+      id="gameBoard"
+      class={styles.board}
+      style={{ "--board-turns": rotation() }}
+      data-upright-numbers={uprightNumbers() || undefined}
+      data-upright-pieces={preferences.uprightPieces || undefined}
+    >
       <svg
         class={styles.grid}
         viewBox={`0 0 ${CELLS} ${CELLS}`}

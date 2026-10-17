@@ -1507,6 +1507,49 @@
   resolved "https://registry.yarnpkg.com/@solid-primitives/context/-/context-0.3.2.tgz#380799d1803ca504ef850a65d16ec2a2579bd9ae"
   integrity sha512-6fvTtpK17PFHnUf/UOc1TzBjd+kLFjtA62aRFEm1kDP9ufTo7FYW2kUzQAWbfbRHi30yjBJtopbR8qd6nShwyg==
 
+"@solid-primitives/event-listener@^2.4.6":
+  version "2.4.6"
+  resolved "https://registry.yarnpkg.com/@solid-primitives/event-listener/-/event-listener-2.4.6.tgz#95704ae633b92551334e48399ad8785aa7f9f426"
+  integrity sha512-5I0YJcTVYIWoMmgBSROBZGcz+ymhew/pGTg2dHW74BUjFKsV8Li4bOZYl0YAGP4mHw5o4UBd9/BEesqBci3wxw==
+  dependencies:
+    "@solid-primitives/utils" "^6.4.1"
+
+"@solid-primitives/media@^2.3.6":
+  version "2.3.6"
+  resolved "https://registry.yarnpkg.com/@solid-primitives/media/-/media-2.3.6.tgz#9c4c64410ab8a066871d6a45ad69529289f57b3e"
+  integrity sha512-pk49gPOq/UMRUJ+pTSrOfBiR8xJjRYHXIf1iR/jSnyQ/KroU+ZXhkZzavC7hvfp2vJeOTW5k2/HN0r3Q1VJ7Pw==
+  dependencies:
+    "@solid-primitives/event-listener" "^2.4.6"
+    "@solid-primitives/rootless" "^1.5.4"
+    "@solid-primitives/static-store" "^0.1.4"
+    "@solid-primitives/utils" "^6.4.1"
+
+"@solid-primitives/rootless@^1.5.4":
+  version "1.5.4"
+  resolved "https://registry.yarnpkg.com/@solid-primitives/rootless/-/rootless-1.5.4.tgz#10ee4112bcadf51a57c67f0bf728e1651a077233"
+  integrity sha512-TOIZa1VUfVJ+9nkCcRajw3U4t9vBOP1HxX1WHNTbXq32mXwlqTvUnC4CRIilohcryBkT9u2ZkhUDSHRTaGp55g==
+  dependencies:
+    "@solid-primitives/utils" "^6.4.1"
+
+"@solid-primitives/static-store@^0.1.4":
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/@solid-primitives/static-store/-/static-store-0.1.4.tgz#fe6792b4268dd9b06374b28b1d9fc6dfb8da364d"
+  integrity sha512-LgtVaVBtB7EbmS4+M0b8xY5Iq6pUWXBsIC4VgtrFKDGDdyCaDt88sHk0fUlx1Enxm/XZnZyLXJABRoa39RjJqA==
+  dependencies:
+    "@solid-primitives/utils" "^6.4.1"
+
+"@solid-primitives/storage@^4.4.0":
+  version "4.4.0"
+  resolved "https://registry.yarnpkg.com/@solid-primitives/storage/-/storage-4.4.0.tgz#ff7ab66a939dd9d8720c73bfaa68bc164b98ead1"
+  integrity sha512-+u0dpTqrUG7h+IMfmGLCx7vx2Q0Eon6paBgzcWhEP/dauElpGU3ElpZZOZgw8YKR1+J4X4ENiAL0na3VH8RWMg==
+  dependencies:
+    "@solid-primitives/utils" "^6.4.1"
+
+"@solid-primitives/utils@^6.4.1":
+  version "6.4.1"
+  resolved "https://registry.yarnpkg.com/@solid-primitives/utils/-/utils-6.4.1.tgz#aaa9006ac9dfa7b99b1060ab78669a8723ab2962"
+  integrity sha512-ISSB5QX1qP2ynrheIpYwc4oKR5Ny4siNuUyf1qZniy+Il+p/PtDB0QK1Dnle8noiHpwRD3gpPdubOC3qI/Zamg==
+
 "@solidjs/router@^0.15.3":
   version "0.15.3"
   resolved "https://registry.yarnpkg.com/@solidjs/router/-/router-0.15.3.tgz#2c5e7aa637980ab7fce956aedc8cd20614163f2a"

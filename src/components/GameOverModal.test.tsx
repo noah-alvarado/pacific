@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
+import { PREFERENCES_KEY } from "../providers/Preferences.jsx";
 import { renderWithProviders } from "../test/render.jsx";
 
 import GameOverModal from "./GameOverModal.jsx";
@@ -58,7 +59,7 @@ describe("<GameOverModal />", () => {
 
   test("light theme applies player color", () => {
     stubMatchMedia(false);
-    localStorage.setItem("theme", "light");
+    localStorage.setItem(PREFERENCES_KEY, JSON.stringify({ theme: "light" }));
     const { getByText } = renderWithProviders(
       () => <GameOverModal winner="red" />,
       { withRouter: false },
@@ -69,7 +70,7 @@ describe("<GameOverModal />", () => {
 
   test("dark theme omits explicit color style", () => {
     stubMatchMedia(true);
-    localStorage.setItem("theme", "dark");
+    localStorage.setItem(PREFERENCES_KEY, JSON.stringify({ theme: "dark" }));
     const { getByText } = renderWithProviders(
       () => <GameOverModal winner="blue" />,
       { withRouter: false },

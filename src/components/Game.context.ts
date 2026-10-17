@@ -1,4 +1,4 @@
-import { Accessor, createContext, Setter, useContext } from "solid-js";
+import { Accessor, createContext, useContext } from "solid-js";
 import { SetStoreFunction } from "solid-js/store";
 
 import { GameConfig } from "../types/GameConfig.js";
@@ -7,6 +7,8 @@ import type { IGamePiece, IGameState, PieceId } from "../types/GameState.js";
 
 import type { PieceToDestinationsMap } from "./Game.util.js";
 
+export type BoardRotation = 0 | 1 | 2 | 3;
+
 export interface GameContextValue {
   gameConfig: GameConfig;
   game: IGameState;
@@ -14,9 +16,9 @@ export interface GameContextValue {
   pieceToDestinations: Accessor<PieceToDestinationsMap>;
   initialPieces: Record<PieceId, IGamePiece>;
   makeMove: (e: MoveMadeEvent) => void;
-  // board rotated 180deg so red sits at the bottom
-  flipped: Accessor<boolean>;
-  setFlipped: Setter<boolean>;
+  // clockwise quarter turns; at 0 red's home row is on top
+  rotation: Accessor<BoardRotation>;
+  rotateBoard: (direction: 1 | -1) => void;
   undo: () => void;
   canUndo: Accessor<boolean>;
   redo: () => void;

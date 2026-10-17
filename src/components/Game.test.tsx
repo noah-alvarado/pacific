@@ -1,9 +1,12 @@
-import { render, waitFor } from "@solidjs/testing-library";
+import { waitFor } from "@solidjs/testing-library";
 import { createNanoEvents } from "nanoevents";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { INITIAL_PIECES, INITIAL_STATE } from "../constants/game.js";
-import ModalProvider from "../providers/Modal.jsx";
+import {
+  type Preferences,
+  PREFERENCES_KEY,
+} from "../providers/Preferences.jsx";
 import { renderWithProviders } from "../test/render.jsx";
 import {
   GameConfig,
@@ -28,11 +31,10 @@ describe("<Game />", () => {
       turn: "blue",
     };
 
-    const results = render(() => (
-      <ModalProvider>
-        <Game gameConfig={gameConfig} emitter={emitter} />
-      </ModalProvider>
-    ));
+    const results = renderWithProviders(
+      () => <Game gameConfig={gameConfig} emitter={emitter} />,
+      { withRouter: false },
+    );
 
     const gameBoard = results.container.querySelector("#gameBoard");
     expect(gameBoard).not.toBeNull();
@@ -251,7 +253,6 @@ describe("<Game /> undo", () => {
     moveBlue1B(emitter);
     await waitFor(() => expect(undoButton(container).disabled).toBe(false));
 
-    container.querySelector<HTMLElement>('[data-testid="game-menu"]')!.click();
     container.querySelector<HTMLElement>('[data-testid="reset-game"]')!.click();
     document
       .querySelector<HTMLElement>('[data-testid="confirm-accept"]')!
@@ -435,6 +436,131 @@ describe("<Game /> save effect", () => {
         '[data-testid="piece-blue-plane-1a"]',
       ) as HTMLElement | null;
       expect(movedPiece).not.toBeNull();
+    });
+  });
+});
+
+describe("<Game /> board rotation", () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  const gameEl = (c: HTMLElement) =>
+    c.querySelector<HTMLElement>('[data-testid="game"]')!;
+  const cardOrder = (c: HTMLElement) =>
+    Array.from(c.querySelectorAll('[data-testid^="player-card-"]'), (el) =>
+      el.getAttribute("data-testid"),
+    );
+  const click = (c: HTMLElement, testId: string) => {
+    c.querySelector<HTMLButtonElement>(`[data-testid="${testId}"]`)!.click();
+  };
+  const storedPrefs = () =>
+    JSON.parse(
+      localStorage.getItem(PREFERENCES_KEY) ?? "{}",
+    ) as Partial<Preferences>;
+  const seedPrefs = (prefs: Partial<Preferences>) =>
+    localStorage.setItem(PREFERENCES_KEY, JSON.stringify(prefs));
+  const online = (player: "red" | "blue"): GameConfig => ({
+    gameType: "online",
+    player,
+    turn: "blue",
+    sendGameEvent: vi.fn(),
+  });
+
+  test("rotates in quarter turns, persists locally, and orders cards top/left first", () => {
+    const { container } = setupGame({ gameType: "local", turn: "blue" }).result;
+    expect(gameEl(container).dataset.rotation).toBe("0");
+    expect(cardOrder(container)).toEqual([
+      "player-card-red",
+      "player-card-blue",
+    ]);
+
+    click(container, "rotate-board-right");
+    expect(gameEl(container).dataset.rotation).toBe("90");
+    expect(storedPrefs().boardRotation).toEqual({ local: 1, online: 0 });
+    expect(cardOrder(container)).toEqual([
+      "player-card-blue",
+      "player-card-red",
+    ]);
+
+    click(container, "rotate-board-left");
+    click(container, "rotate-board-left");
+    expect(gameEl(container).dataset.rotation).toBe("270");
+    expect(cardOrder(container)).toEqual([
+      "player-card-red",
+      "player-card-blue",
+    ]);
+  });
+
+  test("restores a saved local rotation and ignores invalid values", () => {
+    seedPrefs({ boardRotation: { local: 2, online: 0 } });
+    const first = setupGame({ gameType: "local", turn: "blue" }).result;
+    expect(gameEl(first.container).dataset.rotation).toBe("180");
+    first.unmount();
+
+    seedPrefs({ boardRotation: { local: 7 as never, online: 0 } });
+    const second = setupGame({ gameType: "local", turn: "blue" }).result;
+    expect(gameEl(second.container).dataset.rotation).toBe("0");
+  });
+
+  test("online players start with their own pieces at the bottom", () => {
+    seedPrefs({ boardRotation: { local: 1, online: 0 } });
+    const red = setupGame(online("red")).result;
+    expect(gameEl(red.container).dataset.rotation).toBe("180");
+    red.unmount();
+
+    const blue = setupGame(online("blue")).result;
+    expect(gameEl(blue.container).dataset.rotation).toBe("0");
+  });
+
+  test("online rotation is saved relative to the player's view, separate from local", () => {
+    seedPrefs({ boardRotation: { local: 2, online: 0 } });
+    const red = setupGame(online("red")).result;
+    click(red.container, "rotate-board-right");
+    expect(gameEl(red.container).dataset.rotation).toBe("270");
+    expect(storedPrefs().boardRotation).toEqual({ local: 2, online: 1 });
+    red.unmount();
+
+    // the same offset applies from blue's side of the board
+    const blue = setupGame(online("blue")).result;
+    expect(gameEl(blue.container).dataset.rotation).toBe("90");
+    blue.unmount();
+
+    const local = setupGame({ gameType: "local", turn: "blue" }).result;
+    expect(gameEl(local.container).dataset.rotation).toBe("180");
+  });
+
+  test("red pieces face blue; upright numbers toggle persists", () => {
+    const { container } = setupGame({ gameType: "local", turn: "blue" }).result;
+    const piece = (id: PieceId) =>
+      container.querySelector<HTMLElement>(`[data-testid="piece-${id}"]`)!;
+    expect(
+      piece(PieceId.RedShip1).style.getPropertyValue("--piece-turns"),
+    ).toBe("2");
+    expect(
+      piece(PieceId.BlueShip1).style.getPropertyValue("--piece-turns"),
+    ).toBe("0");
+
+    const board = container.querySelector<HTMLElement>("#gameBoard")!;
+    expect(board.hasAttribute("data-upright-numbers")).toBe(false);
+    click(container, "game-menu");
+    click(container, "upright-numbers");
+    expect(board.hasAttribute("data-upright-numbers")).toBe(true);
+    expect(storedPrefs().uprightNumbers).toBe(true);
+  });
+
+  test("upright pieces forces upright numbers and persists", () => {
+    const { container } = setupGame({ gameType: "local", turn: "blue" }).result;
+    const board = container.querySelector<HTMLElement>("#gameBoard")!;
+    expect(board.hasAttribute("data-upright-pieces")).toBe(false);
+    expect(board.hasAttribute("data-upright-numbers")).toBe(false);
+    click(container, "game-menu");
+    click(container, "upright-pieces");
+    expect(board.hasAttribute("data-upright-pieces")).toBe(true);
+    expect(board.hasAttribute("data-upright-numbers")).toBe(true);
+    expect(storedPrefs()).toMatchObject({
+      uprightPieces: true,
+      uprightNumbers: false,
     });
   });
 });

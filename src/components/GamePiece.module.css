@@ -12,6 +12,7 @@
 
   width: var(--piece-size);
   height: var(--piece-size);
+  rotate: calc(var(--piece-turns, 0) * 90deg);
   padding: 0;
   border-radius: 50%;
   border: none;
@@ -70,5 +71,21 @@
   &.ship {
     top: 10%;
     right: 10%;
+  }
+}
+
+/* cancel board and piece rotation so the number reads upright on screen */
+[data-upright-numbers] .number {
+  rotate: calc((var(--board-turns, 0) + var(--piece-turns, 0)) * -90deg);
+}
+
+/* cancel board rotation only; the number then rides along already upright */
+[data-upright-pieces] {
+  .piece {
+    rotate: calc(var(--board-turns, 0) * -90deg);
+  }
+
+  .number {
+    rotate: none;
   }
 }

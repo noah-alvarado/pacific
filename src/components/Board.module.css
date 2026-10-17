@@ -8,6 +8,7 @@
   box-sizing: border-box;
   width: var(--board-size, 640px);
   aspect-ratio: 1;
+  rotate: calc(var(--board-turns, 0) * 90deg);
   background-color: var(--board-color);
 }
 

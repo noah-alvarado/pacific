@@ -15,7 +15,7 @@ import { Page } from "../AppRouter.js";
 // this is needed to have the directive available in-scope
 /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
 import clickOutside from "../primitives/clickOutside.js";
-import { useThemeContext } from "../providers/Theme.js";
+import { usePreferences } from "../providers/Preferences.js";
 
 import styles from "./Header.module.css";
 
@@ -40,7 +40,7 @@ const NavLink: Component<NavLinkProps> = ({
 
 const Header: Component = () => {
   const location = useLocation();
-  const { theme, toggleDarkMode } = useThemeContext();
+  const { theme, toggleDarkMode } = usePreferences();
   const [navOpen, setNavOpen] = createSignal(false);
   let burgerRef: HTMLButtonElement | undefined;
 

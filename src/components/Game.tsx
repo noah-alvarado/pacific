@@ -18,6 +18,7 @@ import {
 import { useEvent } from "../primitives/useEvent.js";
 import { useGameLogic } from "../primitives/useGameLogic.js";
 import { useModalContext } from "../providers/Modal.jsx";
+import { usePreferences } from "../providers/Preferences.jsx";
 import { GameConfig } from "../types/GameConfig.js";
 import type {
   GameEndEvent,
@@ -33,7 +34,7 @@ import {
 
 import { Board } from "./Board.jsx";
 import { Controls } from "./Controls.jsx";
-import { GameContext } from "./Game.context.js";
+import { type BoardRotation, GameContext } from "./Game.context.js";
 import styles from "./Game.module.css";
 import {
   getBoardFromPieces,
@@ -98,14 +99,29 @@ export const Game: Component<GameProps> = (props) => {
   const [game, setGame] = createStore<IGameState>(initialState);
 
   const { setModal, closeModal } = useModalContext();
+  const { preferences, setPreferences } = usePreferences();
 
-  const [flipped, setFlipped] = createSignal(
-    untrack(
-      () =>
-        props.gameConfig.gameType === "online" &&
-        props.gameConfig.player === "red",
-    ),
+  // rotation is a per-client preference; it's never sent to the opponent
+  const rotationMode = untrack(() => props.gameConfig.gameType);
+  // online players start with their own pieces at the bottom
+  const baseRotation = untrack(() =>
+    props.gameConfig.gameType === "online" && props.gameConfig.player === "red"
+      ? 2
+      : 0,
   );
+  const rotation = () =>
+    ((baseRotation + preferences.boardRotation[rotationMode]) %
+      4) as BoardRotation;
+  function rotateBoard(direction: 1 | -1) {
+    setPreferences(
+      "boardRotation",
+      rotationMode,
+      (r) => ((r + direction + 4) % 4) as BoardRotation,
+    );
+  }
+  // the player whose home row ends up on the top or left of the screen
+  const firstCard = () =>
+    rotation() === 0 || rotation() === 3 ? "red" : "blue";
 
   // snapshots taken before each local move; not persisted across reloads
   const [history, setHistory] = createSignal<IGameState[]>([]);
@@ -315,8 +331,8 @@ export const Game: Component<GameProps> = (props) => {
         pieceToDestinations,
         initialPieces,
         makeMove,
-        flipped,
-        setFlipped,
+        rotation,
+        rotateBoard,
         undo,
         canUndo,
         redo,
@@ -330,21 +346,21 @@ export const Game: Component<GameProps> = (props) => {
         data-turn={game.turn}
         data-phase={game.phase}
         data-winner={game.winner ?? ""}
-        data-flipped={flipped()}
+        data-rotation={rotation() * 90}
       >
         <div class={styles.upper}>
           <div class={styles.controls}>
             <Controls />
           </div>
           <div class={styles.top}>
-            <PlayerCard color={flipped() ? "blue" : "red"} />
+            <PlayerCard color={firstCard()} />
           </div>
         </div>
         <div class={styles.boardArea}>
           <Board />
         </div>
         <div class={styles.bottom}>
-          <PlayerCard color={flipped() ? "red" : "blue"} />
+          <PlayerCard color={firstCard() === "red" ? "blue" : "red"} />
         </div>
       </div>
     </GameContext.Provider>

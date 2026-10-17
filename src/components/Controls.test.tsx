@@ -1,10 +1,11 @@
 import { fireEvent, render } from "@solidjs/testing-library";
 import { createSignal } from "solid-js";
 import { createStore } from "solid-js/store";
-import { describe, expect, test, vi } from "vitest";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 import { INITIAL_PIECES, INITIAL_STATE } from "../constants/game.js";
 import ModalProvider from "../providers/Modal.jsx";
+import PreferencesProvider from "../providers/Preferences.jsx";
 import { GameConfig, OnlineGameConfig } from "../types/GameConfig.js";
 
 import { Controls } from "./Controls.jsx";
@@ -32,8 +33,8 @@ function makeCtx(cfg: GameConfig): {
       pieceToDestinations: destinations,
       initialPieces: INITIAL_PIECES,
       makeMove: vi.fn(),
-      flipped: () => false,
-      setFlipped: vi.fn(),
+      rotation: () => 0,
+      rotateBoard: vi.fn(),
       undo: vi.fn(),
       canUndo: () => true,
       redo: vi.fn(),
@@ -45,16 +46,22 @@ function makeCtx(cfg: GameConfig): {
 function renderControls(cfg: GameConfig) {
   const { ctx, setGame } = makeCtx(cfg);
   const result = render(() => (
-    <ModalProvider>
-      <GameContext.Provider value={ctx}>
-        <Controls />
-      </GameContext.Provider>
-    </ModalProvider>
+    <PreferencesProvider>
+      <ModalProvider>
+        <GameContext.Provider value={ctx}>
+          <Controls />
+        </GameContext.Provider>
+      </ModalProvider>
+    </PreferencesProvider>
   ));
   return { ...result, ctx, setGame };
 }
 
 describe("<Controls />", () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
   test("undo button calls undo", () => {
     const { getByTestId, ctx } = renderControls({
       gameType: "local",
@@ -73,17 +80,49 @@ describe("<Controls />", () => {
     expect(ctx.redo).toHaveBeenCalledTimes(1);
   });
 
-  test("rotate button toggles the board orientation", () => {
+  test("rotate buttons turn the board a quarter turn each way", () => {
     const { getByTestId, ctx } = renderControls({
       gameType: "local",
       turn: "blue",
     });
-    fireEvent.click(getByTestId("rotate-board"));
-    expect(ctx.setFlipped).toHaveBeenCalledTimes(1);
-    const toggle = vi.mocked(ctx.setFlipped).mock.calls[0][0] as (
-      f: boolean,
-    ) => boolean;
-    expect(toggle(false)).toBe(true);
+    fireEvent.click(getByTestId("rotate-board-right"));
+    fireEvent.click(getByTestId("rotate-board-left"));
+    expect(vi.mocked(ctx.rotateBoard).mock.calls).toEqual([[1], [-1]]);
+  });
+
+  test("upright numbers menu item toggles the setting", () => {
+    const { getByTestId } = renderControls({
+      gameType: "local",
+      turn: "blue",
+    });
+    fireEvent.click(getByTestId("game-menu"));
+    const item = getByTestId("upright-numbers");
+    expect(item).toHaveAttribute("role", "menuitemcheckbox");
+    expect(item).toHaveAttribute("aria-checked", "false");
+    fireEvent.click(item);
+    expect(item).toHaveAttribute("aria-checked", "true");
+  });
+
+  test("upright pieces checks and disables the upright numbers item", () => {
+    const { getByTestId } = renderControls({
+      gameType: "local",
+      turn: "blue",
+    });
+    fireEvent.click(getByTestId("game-menu"));
+    const pieces = getByTestId("upright-pieces");
+    const numbers = getByTestId("upright-numbers");
+    expect(pieces).toHaveAttribute("role", "menuitemcheckbox");
+    expect(pieces).toHaveAttribute("aria-checked", "false");
+    expect(numbers).not.toBeDisabled();
+
+    fireEvent.click(pieces);
+    expect(pieces).toHaveAttribute("aria-checked", "true");
+    expect(numbers).toBeDisabled();
+    expect(numbers).toHaveAttribute("aria-checked", "true");
+
+    fireEvent.click(pieces);
+    expect(numbers).not.toBeDisabled();
+    expect(numbers).toHaveAttribute("aria-checked", "false");
   });
 
   test("menu opens and closes on outside click", () => {
@@ -91,12 +130,12 @@ describe("<Controls />", () => {
       gameType: "local",
       turn: "blue",
     });
-    expect(queryByTestId("reset-game")).toBeNull();
+    expect(queryByTestId("upright-pieces")).toBeNull();
     fireEvent.click(getByTestId("game-menu"));
     expect(getByTestId("game-menu")).toHaveAttribute("aria-expanded", "true");
-    expect(getByTestId("reset-game")).toBeInTheDocument();
+    expect(getByTestId("upright-pieces")).toBeInTheDocument();
     fireEvent.click(document.body);
-    expect(queryByTestId("reset-game")).toBeNull();
+    expect(queryByTestId("upright-pieces")).toBeNull();
   });
 
   test("Escape closes the menu", () => {
@@ -106,7 +145,7 @@ describe("<Controls />", () => {
     });
     fireEvent.click(getByTestId("game-menu"));
     fireEvent.keyDown(getByRole("menu"), { key: "Escape" });
-    expect(queryByTestId("reset-game")).toBeNull();
+    expect(queryByTestId("upright-pieces")).toBeNull();
   });
 
   test("Reset asks for confirmation; cancel keeps the game", () => {
@@ -115,7 +154,6 @@ describe("<Controls />", () => {
       turn: "blue",
     });
     ctx.setGame("phase", "finished" as never);
-    fireEvent.click(getByTestId("game-menu"));
     fireEvent.click(getByTestId("reset-game"));
     expect(getByTestId("confirm-modal")).toBeInTheDocument();
 
@@ -130,14 +168,13 @@ describe("<Controls />", () => {
       turn: "blue",
     });
     ctx.setGame("phase", "finished" as never);
-    fireEvent.click(getByTestId("game-menu"));
     fireEvent.click(getByTestId("reset-game"));
     fireEvent.click(getByTestId("confirm-accept"));
     expect(queryByTestId("confirm-modal")).toBeNull();
     expect(ctx.game.phase).toBe("in-progress");
   });
 
-  test("online mode hides the menu, undo and redo but keeps rotate", () => {
+  test("online mode hides undo, redo and reset but keeps rotate and the menu", () => {
     const cfg: OnlineGameConfig = {
       gameType: "online",
       player: "red",
@@ -145,10 +182,14 @@ describe("<Controls />", () => {
       sendGameEvent: vi.fn(),
     };
     const { queryByTestId, getByTestId } = renderControls(cfg);
-    expect(queryByTestId("game-menu")).toBeNull();
     expect(queryByTestId("undo-move")).toBeNull();
     expect(queryByTestId("redo-move")).toBeNull();
-    expect(getByTestId("rotate-board")).toBeInTheDocument();
+    expect(getByTestId("rotate-board-left")).toBeInTheDocument();
+    expect(getByTestId("rotate-board-right")).toBeInTheDocument();
+    expect(queryByTestId("reset-game")).toBeNull();
+    fireEvent.click(getByTestId("game-menu"));
+    expect(getByTestId("upright-numbers")).toBeInTheDocument();
+    expect(queryByTestId("dev-panel")).toBeNull();
   });
 
   test("DEV seed buttons reset to ONE_MOVE_TO_WIN and BLUE_STALEMATE_OR_DECISIVE pieces", async () => {

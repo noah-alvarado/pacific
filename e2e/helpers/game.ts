@@ -50,7 +50,6 @@ export async function selectPiece(page: Page, id: PieceIdValue): Promise<void> {
 }
 
 export async function resetGame(page: Page): Promise<void> {
-  await page.getByTestId("game-menu").click();
   await page.getByTestId("reset-game").click();
   await page.getByTestId("confirm-accept").click();
   await expect(page.getByTestId("confirm-modal")).toBeHidden();

@@ -3,35 +3,35 @@ import { render } from "@solidjs/testing-library";
 import { type Component, type JSX, Show } from "solid-js";
 
 import ModalProvider from "../providers/Modal.jsx";
-import ThemeProvider from "../providers/Theme.jsx";
+import PreferencesProvider from "../providers/Preferences.jsx";
 
 interface Options {
   withRouter?: boolean;
-  withTheme?: boolean;
+  withPreferences?: boolean;
   withModal?: boolean;
   initialPath?: string;
 }
 
 interface WrapperProps {
   children: JSX.Element;
-  withTheme: boolean;
+  withPreferences: boolean;
   withModal: boolean;
 }
 
 const Wrappers: Component<WrapperProps> = (props) => (
   <Show
-    when={props.withTheme}
+    when={props.withPreferences}
     fallback={
       <Show when={props.withModal} fallback={props.children}>
         <ModalProvider>{props.children}</ModalProvider>
       </Show>
     }
   >
-    <ThemeProvider>
+    <PreferencesProvider>
       <Show when={props.withModal} fallback={props.children}>
         <ModalProvider>{props.children}</ModalProvider>
       </Show>
-    </ThemeProvider>
+    </PreferencesProvider>
   </Show>
 );
 
@@ -42,7 +42,7 @@ const Wrappers: Component<WrapperProps> = (props) => (
 export function renderWithProviders(Comp: Component, options: Options = {}) {
   const {
     withRouter = true,
-    withTheme = true,
+    withPreferences = true,
     withModal = true,
     initialPath = "/",
   } = options;
@@ -53,7 +53,7 @@ export function renderWithProviders(Comp: Component, options: Options = {}) {
         <Route
           path={initialPath}
           component={() => (
-            <Wrappers withTheme={withTheme} withModal={withModal}>
+            <Wrappers withPreferences={withPreferences} withModal={withModal}>
               <Comp />
             </Wrappers>
           )}
@@ -63,7 +63,7 @@ export function renderWithProviders(Comp: Component, options: Options = {}) {
   }
 
   return render(() => (
-    <Wrappers withTheme={withTheme} withModal={withModal}>
+    <Wrappers withPreferences={withPreferences} withModal={withModal}>
       <Comp />
     </Wrappers>
   ));

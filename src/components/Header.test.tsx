@@ -1,6 +1,7 @@
 import { fireEvent } from "@solidjs/testing-library";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
+import { PREFERENCES_KEY } from "../providers/Preferences.jsx";
 import { renderWithProviders } from "../test/render.jsx";
 
 import Header from "./Header.jsx";
@@ -24,13 +25,15 @@ describe("<Header />", () => {
   });
 
   test("dark-mode toggle flips theme and updates aria-label", async () => {
-    localStorage.setItem("theme", "light");
+    localStorage.setItem(PREFERENCES_KEY, JSON.stringify({ theme: "light" }));
     const { getByLabelText } = renderWithProviders(() => <Header />);
     const toggle = getByLabelText("Switch to dark mode") as HTMLButtonElement;
     fireEvent.click(toggle);
     // After toggle, aria-label should change to "Switch to light mode"
     expect(toggle.getAttribute("aria-label")).toBe("Switch to light mode");
-    expect(localStorage.getItem("theme")).toBe("dark");
+    expect(
+      JSON.parse(localStorage.getItem(PREFERENCES_KEY)!) as unknown,
+    ).toMatchObject({ theme: "dark" });
   });
 
   test("burger button is always shown", () => {
@@ -60,7 +63,7 @@ describe("<Header />", () => {
   });
 
   test("sets document.documentElement.dataset.theme on render", () => {
-    localStorage.setItem("theme", "dark");
+    localStorage.setItem(PREFERENCES_KEY, JSON.stringify({ theme: "dark" }));
     renderWithProviders(() => <Header />);
     expect(document.documentElement.dataset.theme).toBe("dark");
   });

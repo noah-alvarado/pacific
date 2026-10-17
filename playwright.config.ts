@@ -1,6 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const PORT = 3000;
+// separate from the dev server's 3000 so e2e can run alongside `yarn dev`
+const PORT = Number(process.env.E2E_PORT ?? 3030);
 const RELAY_PORT = 4444;
 const STUN_PORT = 3478;
 const BASE_URL = `https://localhost:${PORT}`;
@@ -41,12 +42,14 @@ export default defineConfig({
       timeout: 30_000,
     },
     {
-      command: "yarn dev",
+      command: `yarn dev --port ${PORT} --strictPort`,
       url: BASE_URL,
       // Point trystero at the local relay + STUN server for the test run.
       env: {
         VITE_TRYSTERO_RELAY_URLS: RELAY_URL,
         VITE_TRYSTERO_STUN_URL: STUN_URL,
+        // keeps dependency pre-bundling from racing a concurrent `yarn dev`
+        E2E_VITE_CACHE_DIR: "node_modules/.vite-e2e",
       },
       reuseExistingServer: !process.env.CI,
       ignoreHTTPSErrors: true,

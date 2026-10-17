@@ -13,6 +13,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     base: env.VITE_GITHUB_PAGES ? "/pacific/" : "/",
+    cacheDir: process.env.E2E_VITE_CACHE_DIR ?? "node_modules/.vite",
     plugins: [
       solidPlugin(),
       solidSvg(),

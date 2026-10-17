@@ -53,6 +53,10 @@ Serves the production build locally for preview. Run this after `yarn build` to 
 
 Runs the test suite using Vitest. Tests run in watch mode by default during development.
 
+### `yarn test:e2e`
+
+Runs the Playwright end-to-end tests. They start their own dev server on `https://localhost:3030` (override with `E2E_PORT`) plus a local signaling relay, so they can run while `yarn dev` is up on port 3000.
+
 ### `yarn lint`
 
 Lints all TypeScript and CSS files in the `src` directory. This runs both TypeScript and CSS linting.

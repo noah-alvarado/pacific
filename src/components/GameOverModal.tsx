@@ -1,6 +1,6 @@
 import { Component } from "solid-js";
 
-import { useThemeContext } from "../providers/Theme.js";
+import { usePreferences } from "../providers/Preferences.js";
 import { PlayerColor } from "../types/GameState.js";
 
 import { playerColorVar } from "./GamePiece.util.js";
@@ -10,7 +10,7 @@ interface GameOverModalProps {
 }
 
 const GameOverModal: Component<GameOverModalProps> = (props) => {
-  const { theme } = useThemeContext();
+  const { theme } = usePreferences();
 
   const styledWinner = props.winner && (
     <span

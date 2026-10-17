@@ -3,6 +3,7 @@
 ## Bugs
 
 - [ ] Reset local match after completion is broken
+- [ ] Investigate undo & redo with e2e tests: the board display was badly out of sync with the game state after several undos in a real game
 
 ## Game
 
