@@ -1,0 +1,23 @@
+name: Copilot debug
+on:
+  push:
+    branches: [fix/release-notes-model]
+permissions:
+  contents: read
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - run: npm install -g @github/copilot
+      - id: ai
+        uses: actions/ai-inference@v3
+        with:
+          model: ""
+          prompt: Reply with the word ok
+        env:
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_PAT }}
+      - run: cat "${{ steps.ai.outputs.response-file }}"
