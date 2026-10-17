@@ -32,6 +32,8 @@ import {
 } from "../types/GameEvents.js";
 import { validateGameEvent } from "../types/GameEvents.validate.js";
 
+import styles from "./Online.module.css";
+
 const APP_ID = "pacific.alvarado.dev";
 // Optional signaling relay override (comma-separated). Injected via the
 // VITE_TRYSTERO_RELAY_URLS env var by the e2e harness so the WebRTC handshake
@@ -396,68 +398,114 @@ const Online: Component = () => {
 
   return (
     <>
-      <h1>Online</h1>
+      <section class={styles.lobby}>
+        <h1>Online</h1>
+        <p class={styles.subtitle}>
+          Play a friend over a direct peer-to-peer connection.
+        </p>
 
-      <Show
-        when={!store.room}
-        fallback={
-          <>
-            <div data-testid="room-status">
-              Connected to room{" "}
-              <strong data-testid="room-id">{store.roomId}</strong>{" "}
+        <Show
+          when={!store.room}
+          fallback={
+            <div class={styles.card} data-testid="room-status">
+              <div class={styles.field}>
+                <span class={styles.label}>Room ID</span>
+                <strong class={styles.roomId} data-testid="room-id">
+                  {store.roomId}
+                </strong>
+              </div>
               <Show when={store.isHost && store.password}>
-                <span>
-                  — share code:{" "}
-                  <code data-testid="room-password">{store.password}</code>{" "}
-                  <button onClick={handleCopyCode}>Copy</button>
-                </span>
-              </Show>{" "}
-              <button data-testid="leave-room" onClick={handleLeaveRoom}>
+                <div class={styles.field}>
+                  <span class={styles.label}>Share this code</span>
+                  <div class={styles.codeRow}>
+                    <code class={styles.code} data-testid="room-password">
+                      {store.password}
+                    </code>
+                    <button
+                      class={styles.secondaryButton}
+                      onClick={handleCopyCode}
+                    >
+                      Copy
+                    </button>
+                  </div>
+                </div>
+              </Show>
+
+              <div
+                class={styles.status}
+                data-testid="peers"
+                data-peer-count={store.peers.length}
+                role="status"
+              >
+                <Show
+                  when={connectionReady()}
+                  fallback={"Waiting for opponent…"}
+                >
+                  {gameReady() ? "Opponent connected" : "Starting game…"}
+                </Show>
+              </div>
+
+              <button
+                class={styles.secondaryButton}
+                data-testid="leave-room"
+                onClick={handleLeaveRoom}
+              >
                 Leave Room
               </button>
             </div>
+          }
+        >
+          <div class={styles.card}>
+            <h2>Join a Room</h2>
+            <label class={styles.field}>
+              <span class={styles.label}>Room ID</span>
+              <input
+                class={styles.input}
+                type="text"
+                data-testid="room-id-input"
+                ref={roomIdRef}
+                placeholder="Room ID"
+              />
+            </label>
+            <label class={styles.field}>
+              <span class={styles.label}>Room code</span>
+              <input
+                class={styles.input}
+                type="text"
+                data-testid="room-password-input"
+                ref={passwordRef}
+                placeholder="From the host"
+                autocomplete="off"
+              />
+            </label>
+            <button
+              class={styles.primaryButton}
+              data-testid="join-room"
+              onClick={handleJoin}
+            >
+              Join Room
+            </button>
 
-            <div data-testid="peers" data-peer-count={store.peers.length}>
-              <For each={store.peers} fallback={<div>Waiting for peer...</div>}>
-                {(peerId) => <div>Peer: {peerId}</div>}
-              </For>
-            </div>
+            <div class={styles.divider}>or</div>
 
-            <Show when={connectionReady() && !gameReady()}>
-              <div>Negotiating game start...</div>
+            <button
+              class={styles.secondaryButton}
+              data-testid="host-room"
+              onClick={handleHost}
+            >
+              Host New Room
+            </button>
+            <p class={styles.hint}>
+              Hosting uses the Room ID above, or a random one if it's blank.
+            </p>
+            <Show when={store.joinError}>
+              <div class={styles.error} data-testid="join-error" role="alert">
+                {store.joinError}
+              </div>
             </Show>
-          </>
-        }
-      >
-        <h2>Join a Room</h2>
-        <div class="join-room-container">
-          <input
-            type="text"
-            data-testid="room-id-input"
-            ref={roomIdRef}
-            placeholder="Room ID"
-          />
-
-          <input
-            type="text"
-            data-testid="room-password-input"
-            ref={passwordRef}
-            placeholder="Room code (from host)"
-          />
-
-          <button data-testid="join-room" onClick={handleJoin}>
-            Join Room
-          </button>
-          <button data-testid="host-room" onClick={handleHost}>
-            Host New Room
-          </button>
-        </div>
-        <Show when={store.joinError}>
-          <div class="join-error" data-testid="join-error">
-            {store.joinError}
           </div>
         </Show>
-      </Show>
+      </section>
 
       <Show when={connectionReady()}>
         <h2>Chat</h2>
