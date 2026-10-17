@@ -4,7 +4,7 @@ A high-level orientation for new contributors. For end-user/player info, see [RE
 
 ## What is Pacific
 
-Pacific is a digital adaptation of Ian Hamilton Finlay's non-scale board wargame for 2 players. The web app is built with SolidJS + TypeScript on Vite, supports peer-to-peer online multiplayer over WebRTC, and is deployed to GitHub Pages. Live at https://noah-alvarado.github.io/pacific/.
+Pacific is a digital adaptation of Ian Hamilton Finlay's non-scale board wargame for 2 players. The web app is built with SolidJS + TypeScript on Vite, supports peer-to-peer online multiplayer over WebRTC, and is deployed to AWS (S3 + CloudFront). Live at https://pacific.alvarado.dev.
 
 ## Tech Stack
 
@@ -21,6 +21,8 @@ Pacific is a digital adaptation of Ian Hamilton Finlay's non-scale board wargame
 
 ```
 src/             Application source (SolidJS components, game logic, P2P)
+infra/           AWS CDK app for hosting (S3, CloudFront, Route 53, deploy roles)
+scripts/         CI helper scripts (preview deploys, release versioning)
 index.html       Vite entry
 vite.config.ts   Build config
 package.json     Scripts and dependencies
@@ -31,7 +33,7 @@ dist/            Production build output (generated)
 ## Documentation Index
 
 - [README.md](README.md) — public intro, play link, license.
-- [DEVELOPMENT.md](DEVELOPMENT.md) — prerequisites, install, scripts, deploy via `yarn deploy:gh-pages`.
+- [DEVELOPMENT.md](DEVELOPMENT.md) — prerequisites, install, scripts, PR/release flow and deployment.
 - [ARCHITECTURE.md](ARCHITECTURE.md) — code organization, state management, P2P/WebRTC design, testing.
 - [GAME_RULES.md](GAME_RULES.md) — board, pieces, movement, attack mechanics, Kamikaze types, win conditions.
 - [TASK_LIST.md](TASK_LIST.md) — current and upcoming work items.

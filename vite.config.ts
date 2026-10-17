@@ -3,16 +3,13 @@
 /// <reference types="vite/client" />
 /// <reference types="@types/node" />
 
-import { defineConfig, loadEnv } from "vite";
+import { defineConfig } from "vite";
 import mkcert from "vite-plugin-mkcert";
 import solidPlugin from "vite-plugin-solid";
 import solidSvg from "vite-plugin-solid-svg";
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd());
-
   return {
-    base: env.VITE_GITHUB_PAGES ? "/pacific/" : "/",
     cacheDir: process.env.E2E_VITE_CACHE_DIR ?? "node_modules/.vite",
     plugins: [
       solidPlugin(),

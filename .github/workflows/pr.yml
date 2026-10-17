@@ -1,0 +1,46 @@
+name: PR
+
+on:
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: pr-${{ github.event.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  preview:
+    # Fork PRs get no OIDC token, so they can't deploy.
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
+      - run: yarn build
+      - uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_PREVIEW_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - uses: ./.github/actions/stack-outputs
+      - id: deploy
+        run: node scripts/preview.mjs deploy
+        env:
+          PR_NUMBER: ${{ github.event.number }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+      - uses: marocchino/sticky-pull-request-comment@v3
+        with:
+          header: preview
+          message: |
+            ### Preview deployed
+            **${{ steps.deploy.outputs.url }}**
+            Built from ${{ github.event.pull_request.head.sha }}. Previous previews of this PR are removed.

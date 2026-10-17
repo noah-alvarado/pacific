@@ -1,0 +1,18 @@
+{
+  "app": "node bin/app.ts",
+  "watch": {
+    "include": ["**"],
+    "exclude": ["cdk*.json", "**/*.d.ts", "**/*.js", "node_modules", "cdk.out"]
+  },
+  "context": {
+    "region": "us-east-1",
+    "domainName": "alvarado.dev",
+    "subdomain": "pacific",
+    "hostedZoneId": "Z00158423KD74OWON2IID",
+    "githubRepo": "noah-alvarado/pacific",
+    "@aws-cdk/aws-iam:minimizePolicies": true,
+    "@aws-cdk/core:checkSecretUsage": true,
+    "@aws-cdk/aws-s3:createDefaultLoggingPolicy": true,
+    "@aws-cdk/aws-cloudfront:defaultSecurityPolicyTLSv1.2_2021": true
+  }
+}

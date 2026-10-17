@@ -77,12 +77,23 @@ Formats all files with Prettier.
 
 Checks if all files are formatted correctly with Prettier (used in CI/CD).
 
-## Deployment
+## Pull Requests & Releases
 
-Automatic deployment to GitHub pages via Actions.
+`main` is protected: changes land through a squash-merged pull request once CI (lint, unit, e2e, infra synth) passes.
 
-### `yarn deploy:gh-pages`
+- **PR titles** must follow [Conventional Commits](https://www.conventionalcommits.org/) (`feat: …`, `fix: …`, `feat!: …`). The title decides the release: `!` → major, `feat` → minor, anything else → patch. A PR comment shows the version it will release.
+- **Previews**: every push to a PR deploys to `https://<sha7>.pacific.alvarado.dev` (linked in a PR comment). The previous preview is removed, and the last one is deleted when the PR closes.
+- **Releases**: every merge to `main` tags `vX.Y.Z`, publishes a GitHub release with Copilot-written notes (falls back to GitHub's generated notes without the `COPILOT_PAT` secret), and deploys to https://pacific.alvarado.dev. To redeploy an older release, run the **Release** workflow manually with its tag.
 
-This command builds the app and deploys it to the `gh-pages` branch on GitHub.
+## Deployment & Infrastructure
 
-You can also deploy the `dist` folder to any static host provider (netlify, surge, now, etc.)
+Hosting is S3 + CloudFront in the `alvarado.dev` Route 53 zone (the zone itself is managed by the alvarado-dev repo). The CDK app lives in `infra/` and is deployed manually:
+
+```bash
+cd infra
+npm ci
+npx cdk diff
+npx cdk deploy PacificStack
+```
+
+After the first deploy, copy the `ProdDeployRoleArn` and `PreviewDeployRoleArn` stack outputs into the repo variables `AWS_PROD_ROLE_ARN` and `AWS_PREVIEW_ROLE_ARN` (plus `AWS_REGION=us-east-1`).

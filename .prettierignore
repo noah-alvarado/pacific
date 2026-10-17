@@ -2,3 +2,5 @@
 dist
 coverage
 .claude
+infra/cdk.out
+infra/package-lock.json

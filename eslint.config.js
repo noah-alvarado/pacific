@@ -16,6 +16,7 @@ export default defineConfig([
       "coverage/**",
       "playwright-report/**",
       "test-results/**",
+      "infra/**",
     ],
   },
   {
@@ -50,7 +51,7 @@ export default defineConfig([
       parser: tsParser,
       parserOptions: {
         projectService: {
-          allowDefaultProject: ["*.js", "e2e/relay/*.js"],
+          allowDefaultProject: ["*.js", "e2e/relay/*.js", "scripts/*.mjs"],
         },
         project: ["./tsconfig.json"],
         tsconfigRootDir: import.meta.dirname,

@@ -68,4 +68,4 @@ These tools are configured to run on pre-commit hooks to maintain code quality.
 ## Build & Deployment
 
 - **Vite**: Used for development and for building the production-ready application.
-- **GitHub Pages**: The application is deployed to GitHub Pages. The `deploy:gh-pages` script in `package.json` handles the build and deployment process.
+- **AWS (S3 + CloudFront)**: Hosted at https://pacific.alvarado.dev, with per-PR previews at `<sha7>.pacific.alvarado.dev`. Infrastructure is a CDK app in `infra/`; GitHub Actions in `.github/workflows/` deploy previews on PRs and cut a release + production deploy on every merge to `main`.
