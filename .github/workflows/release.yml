@@ -1,0 +1,132 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag to redeploy (e.g. v1.4.0)
+        required: true
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    if: ${{ github.event_name == 'push' }}
+    uses: ./.github/workflows/ci.yml
+
+  release:
+    needs: ci
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+    outputs:
+      tag: ${{ steps.next.outputs.tag }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+      HAS_COPILOT_PAT: ${{ secrets.COPILOT_PAT != '' }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - id: pr
+        name: Find merged PR
+        run: |
+          mkdir -p notes
+          gh api "repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/pulls" --jq '.[0] // empty' > notes/pr.json
+          if [ -s notes/pr.json ]; then
+            title=$(jq -r .title notes/pr.json)
+            jq -r '"#\(.number) \(.title)\n\n\(.body // "")"' notes/pr.json > notes/pr.md
+          else
+            title=$(git log -1 --format=%s)
+            git log -1 --format=%B > notes/pr.md
+          fi
+          { echo "title<<EOF"; echo "$title"; echo "EOF"; } >> "$GITHUB_OUTPUT"
+      - id: next
+        run: node scripts/next-version.mjs
+        env:
+          TITLE: ${{ steps.pr.outputs.title }}
+      - name: Gather release context
+        env:
+          TAG: ${{ steps.next.outputs.tag }}
+          PREVIOUS: ${{ steps.next.outputs.previous }}
+        run: |
+          git log --no-merges --format='- %s (%h)' "$PREVIOUS..HEAD" > notes/commits.md
+          gh api "repos/$GITHUB_REPOSITORY/releases/generate-notes" \
+            -f tag_name="$TAG" -f target_commitish="$GITHUB_SHA" -f previous_tag_name="$PREVIOUS" \
+            --jq .body > notes/generated.md
+      - uses: actions/setup-node@v7
+        if: ${{ env.HAS_COPILOT_PAT == 'true' }}
+        with:
+          node-version-file: .nvmrc
+      - if: ${{ env.HAS_COPILOT_PAT == 'true' }}
+        run: npm install -g @github/copilot
+      - id: ai
+        if: ${{ env.HAS_COPILOT_PAT == 'true' }}
+        continue-on-error: true
+        uses: actions/ai-inference@v3
+        with:
+          prompt-file: .github/prompts/release-notes.prompt.yml
+          input: |
+            tag: ${{ steps.next.outputs.tag }}
+            previous: ${{ steps.next.outputs.previous }}
+          file_input: |
+            pr: notes/pr.md
+            commits: notes/commits.md
+            generated: notes/generated.md
+        env:
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_PAT }}
+      - name: Create release
+        env:
+          TAG: ${{ steps.next.outputs.tag }}
+          PREVIOUS: ${{ steps.next.outputs.previous }}
+          AI_NOTES: ${{ steps.ai.outputs.response-file }}
+        run: |
+          # Falls back to GitHub's generated notes when Copilot is unavailable.
+          if [ -n "$AI_NOTES" ] && [ -s "$AI_NOTES" ]; then
+            {
+              echo "**Full Changelog**: https://github.com/$GITHUB_REPOSITORY/compare/$PREVIOUS...$TAG"
+              echo
+              cat "$AI_NOTES"
+            } > notes/release.md
+          else
+            cp notes/generated.md notes/release.md
+          fi
+          gh release create "$TAG" --target "$GITHUB_SHA" --title "$TAG" --notes-file notes/release.md
+
+  deploy:
+    needs: release
+    if: ${{ !cancelled() && (needs.release.result == 'success' || github.event_name == 'workflow_dispatch') }}
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://pacific.alvarado.dev
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.tag || needs.release.outputs.tag }}
+      - uses: ./.github/actions/setup
+      - run: yarn build
+      - uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_PROD_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - uses: ./.github/actions/stack-outputs
+      - name: Upload to S3 and invalidate CloudFront
+        run: |
+          # No --delete: open tabs still lazy-load the previous release's hashed chunks.
+          aws s3 sync dist "s3://$PROD_BUCKET" --exclude index.html \
+            --cache-control "public,max-age=31536000,immutable"
+          aws s3 cp dist/index.html "s3://$PROD_BUCKET/index.html" \
+            --cache-control "no-cache,no-store,must-revalidate" --content-type text/html
+          aws cloudfront create-invalidation --distribution-id "$PROD_DISTRIBUTION_ID" --paths "/*"

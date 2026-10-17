@@ -1,0 +1,35 @@
+name: Load PacificStack outputs
+description: >
+  Export the PacificStack CloudFormation outputs (bucket names, distribution ID,
+  preview domain) to $GITHUB_ENV. Configure AWS credentials first.
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: |
+        set -euo pipefail
+        outputs=$(aws cloudformation describe-stacks --stack-name PacificStack \
+          --query "Stacks[0].Outputs" --output json)
+
+        get() {
+          local val
+          val=$(jq -r --arg k "$1" '.[] | select(.OutputKey == $k) | .OutputValue' <<<"$outputs")
+          if [ -z "$val" ] || [ "$val" = "null" ]; then
+            echo "::error::PacificStack output '$1' is missing" >&2
+            return 1
+          fi
+          printf '%s' "$val"
+        }
+
+        # Assign first so a missing output fails here (set -e) instead of writing an empty value.
+        prod_bucket=$(get ProdBucketName)
+        prod_dist=$(get ProdDistributionId)
+        preview_bucket=$(get PreviewBucketName)
+        preview_domain=$(get PreviewBaseDomain)
+
+        {
+          echo "PROD_BUCKET=$prod_bucket"
+          echo "PROD_DISTRIBUTION_ID=$prod_dist"
+          echo "PREVIEW_BUCKET=$preview_bucket"
+          echo "PREVIEW_BASE_DOMAIN=$preview_domain"
+        } >> "$GITHUB_ENV"

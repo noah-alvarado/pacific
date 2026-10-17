@@ -1,6 +1,6 @@
 # Pacific
 
-[Play PACIFIC](https://noah-alvarado.github.io/pacific/)
+[Play PACIFIC](https://pacific.alvarado.dev)
 
 PACIFIC is a non-scale war game for 2 players. It is played on a board with pieces which represent naval Attack Planes, Aircraft Carriers, and Kamikazes.
 
